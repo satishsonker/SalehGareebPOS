@@ -1,0 +1,93 @@
+.master-data-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.master-data-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0;
+  overflow-x: hidden; /* Hide horizontal scrollbar on tabs */
+  overflow-y: hidden;
+  /* Allow tabs to wrap if needed on very small screens */
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s;
+  white-space: nowrap;
+  margin-bottom: -2px;
+}
+
+.tab-button:hover {
+  color: var(--accent-color);
+  background-color: var(--bg-tertiary);
+}
+
+.tab-button.active {
+  color: var(--accent-color);
+  border-bottom-color: var(--accent-color);
+  background-color: transparent;
+}
+
+.tab-button svg {
+  font-size: 1.1rem;
+}
+
+.master-data-content {
+  flex: 1;
+  min-height: 400px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  /* Ensure content area doesn't exceed parent width */
+}
+
+.tab-content-placeholder {
+  padding: 3rem;
+  text-align: center;
+  color: var(--text-secondary);
+  background-color: var(--bg-tertiary);
+  border-radius: 8px;
+  border: 1px dashed var(--border-color);
+}
+
+.page-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.page-icon {
+  font-size: 1.75rem;
+  color: var(--accent-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .master-data-tabs {
+    gap: 0.25rem;
+  }
+
+  .tab-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .tab-button span {
+    display: none;
+  }
+}

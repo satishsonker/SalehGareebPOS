@@ -1,0 +1,626 @@
+.data-grid-container {
+  background: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px var(--shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  /* Don't use overflow: hidden here - it prevents scrollbar from showing */
+  overflow: visible;
+  /* Ensure container doesn't exceed parent width */
+}
+
+.data-grid-container > .data-grid-toolbar {
+  overflow: visible;
+}
+
+/* Remove the override - let table wrapper handle its own overflow */
+
+/* Toolbar */
+.data-grid-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.data-grid-search {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--text-tertiary);
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem 2.5rem 0.5rem 2.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.clear-search {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.clear-search:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.reload-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+}
+
+.reload-button:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.reload-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.reload-button svg {
+  font-size: 1rem;
+}
+
+.reload-button svg.spinning {
+  animation: spin 1s linear infinite;
+}
+
+/* Toolbar Button Groups */
+.toolbar-button-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+}
+
+.toolbar-button-group .toolbar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: none;
+  border-right: 1px solid var(--border-color);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+  min-width: 36px;
+  height: 36px;
+  position: relative;
+}
+
+.toolbar-button-group .toolbar-button:last-child {
+  border-right: none;
+}
+
+.toolbar-button-group .toolbar-button:hover:not(:disabled) {
+  background-color: var(--bg-tertiary);
+  color: var(--accent-color);
+}
+
+.toolbar-button-group .toolbar-button:active:not(:disabled) {
+  background-color: var(--bg-secondary);
+}
+
+.toolbar-button-group .toolbar-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toolbar-button-group .toolbar-button svg {
+  font-size: 1.1rem;
+}
+
+.toolbar-button-group .toolbar-button.primary-button {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+.toolbar-button-group .toolbar-button.primary-button:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.toolbar-button-group .toolbar-button.reload-button svg.spinning {
+  animation: spin 1s linear infinite;
+}
+
+/* Standalone toolbar buttons (for backward compatibility) */
+.toolbar-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.toolbar-button:hover:not(:disabled) {
+  background-color: var(--bg-tertiary);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.toolbar-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toolbar-button svg {
+  font-size: 1rem;
+}
+
+.toolbar-button.primary-button {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+.toolbar-button.primary-button:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Table */
+.data-grid-table-wrapper {
+  overflow-x: auto; /* Show scrollbar when content overflows */
+  overflow-y: visible;
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  /* Horizontal scrollbar appears when table width exceeds viewport */
+  /* Prevent wrapper from expanding beyond container */
+  box-sizing: border-box;
+  /* Ensure scrollbar is visible when content overflows */
+  scrollbar-width: thin; /* Firefox - 'thin' makes scrollbar more visible */
+  scrollbar-color: var(--text-secondary) var(--bg-tertiary); /* Firefox - thumb and track colors */
+  /* Ensure wrapper doesn't expand beyond its container */
+  min-width: 0;
+  /* Force the wrapper to respect max-width */
+  display: block;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) scrollbar styling */
+.data-grid-table-wrapper::-webkit-scrollbar {
+  height: 14px; /* Make scrollbar more visible */
+  width: 14px; /* For vertical scrollbar if needed */
+  -webkit-appearance: none;
+}
+
+.data-grid-table-wrapper::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 7px;
+  border: 1px solid var(--border-color);
+}
+
+.data-grid-table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--text-secondary);
+  border-radius: 7px;
+  border: 2px solid var(--bg-tertiary);
+  min-height: 30px; /* Ensure thumb is visible */
+  background-clip: padding-box;
+}
+
+.data-grid-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+/* Make scrollbar more visible */
+.data-grid-table-wrapper::-webkit-scrollbar-thumb:active {
+  background: var(--accent-color);
+}
+
+.data-grid-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  background-color: var(--card-bg);
+  /* Table will be at least 100% wide, but can grow wider if columns require it */
+  /* When table grows beyond wrapper, horizontal scroll appears */
+  table-layout: auto;
+  /* Ensure table doesn't force wrapper to expand */
+  display: table;
+}
+
+.data-grid-table thead {
+  background-color: var(--bg-tertiary);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.data-grid-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.data-grid-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.data-grid-table th.sortable:hover {
+  background-color: var(--bg-secondary);
+}
+
+.th-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sort-indicator {
+  color: var(--accent-color);
+  font-size: 0.8rem;
+}
+
+.data-grid-table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s;
+}
+
+.data-grid-table tbody tr:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.data-grid-table td {
+  padding: 1rem;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.loading-cell,
+.empty-cell {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  display: inline-block;
+  padding: 1rem;
+}
+
+/* Actions Column - First Column */
+.actions-column {
+  text-align: center !important;
+  width: 60px;
+  position: sticky;
+  left: 0;
+  background-color: var(--bg-tertiary);
+  z-index: 10;
+  border-right: 1px solid var(--border-color);
+}
+
+.actions-cell {
+  text-align: center;
+  position: sticky;
+  left: 0;
+  background-color: var(--card-bg);
+  z-index: 1;
+  border-right: 1px solid var(--border-color);
+  transition: background-color 0.2s;
+}
+
+.data-grid-table tbody tr:hover .actions-cell {
+  background-color: var(--bg-tertiary);
+}
+
+/* Action Menu */
+.action-menu-container {
+  position: relative;
+  display: inline-block;
+  z-index: 100;
+}
+
+.action-menu-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1.2rem;
+  padding: 0;
+}
+
+.action-menu-trigger:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.action-menu-trigger:focus {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.action-menu {
+  position: fixed;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px var(--shadow);
+  min-width: 150px;
+  z-index: 10000;
+  overflow: hidden;
+  animation: menuFadeIn 0.2s ease-out;
+  white-space: nowrap;
+}
+
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.action-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background-color: transparent;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.9rem;
+}
+
+.action-menu-item:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.action-menu-item:first-child {
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.action-menu-item:last-child {
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.action-menu-item svg {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.action-menu-item.view-action {
+  color: var(--accent-color);
+}
+
+.action-menu-item.view-action:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.action-menu-item.edit-action {
+  color: #f39c12;
+}
+
+.action-menu-item.edit-action:hover {
+  background-color: rgba(243, 156, 18, 0.1);
+}
+
+.action-menu-item.delete-action {
+  color: var(--danger-color);
+}
+
+.action-menu-item.delete-action:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+.action-menu-item.block-action {
+  color: #e74c3c;
+}
+
+.action-menu-item.block-action:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+.action-menu-item.unblock-action {
+  color: #27ae60;
+}
+
+.action-menu-item.unblock-action:hover {
+  background-color: rgba(39, 174, 96, 0.1);
+}
+
+/* Pagination */
+.data-grid-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.pagination-info {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pagination-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: var(--bg-tertiary);
+  border-color: var(--accent-color);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination-page {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 0.5rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.pagination-page:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--accent-color);
+}
+
+.pagination-page.active {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+.pagination-ellipsis {
+  padding: 0 0.5rem;
+  color: var(--text-tertiary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .data-grid-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .data-grid-search {
+    max-width: 100%;
+  }
+
+  .data-grid-pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagination-controls {
+    justify-content: center;
+  }
+
+  .data-grid-table {
+    font-size: 0.85rem;
+  }
+
+  .data-grid-table th,
+  .data-grid-table td {
+    padding: 0.75rem 0.5rem;
+  }
+}

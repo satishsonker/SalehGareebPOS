@@ -1,0 +1,101 @@
+.public-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-secondary);
+  transition: background-color 0.3s ease;
+}
+
+.public-header {
+  background-color: var(--sidebar-bg);
+  color: white;
+  padding: 1rem 0;
+  box-shadow: 0 2px 4px var(--shadow);
+}
+
+.public-header .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.public-nav {
+  display: flex;
+  gap: 2rem;
+}
+
+.public-nav a {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.public-nav a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.public-nav a.active {
+  background-color: var(--accent-color);
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.username {
+  color: white;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.logout-btn-header {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+  font-size: 1.1rem;
+}
+
+.logout-btn-header:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.public-main {
+  flex: 1;
+  padding: 2rem;
+  background-color: var(--bg-secondary);
+}
+
+.public-footer {
+  background-color: var(--sidebar-bg);
+  color: white;
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
+.public-footer .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
