@@ -1,4 +1,4 @@
-import { get, post, put, del } from '../../utils/api';
+import { get, post, put, del,apiBasePath  as apiBaseUrl} from '../../utils/api';
 
 /**
  * Users API Service
@@ -92,3 +92,6 @@ export const blockUser = (id, data) => {
 export const unblockUser = (id) => {
   return post(`/Users/${id}/unblock`);
 };
+
+export const apiBasePath = apiBaseUrl;
+

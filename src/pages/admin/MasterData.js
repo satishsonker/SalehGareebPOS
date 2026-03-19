@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiDatabase, FiShoppingBag, FiUsers, FiShield } from 'react-icons/fi';
 import ShopsMasterData from './masterData/ShopsMasterData';
 import RolesMasterData from './masterData/RolesMasterData';
@@ -8,23 +8,53 @@ import './MasterData.css';
 
 function MasterData() {
   const [activeTab, setActiveTab] = useState('shops');
-
+  const [error, setError] = useState(null);
   const tabs = [
     { id: 'shops', label: 'Shops', icon: FiShoppingBag },
     { id: 'roles', label: 'Roles', icon: FiShield },
     { id: 'users', label: 'Users', icon: FiUsers },
   ];
 
+   // Suppress browser extension errors in console
+   useEffect(() => {
+    const originalError = console.error;
+    console.error = (...args) => {
+      // Filter out browser extension connection errors
+      if (args[0] && typeof args[0] === 'string' && 
+          (args[0].includes('runtime.lastError') || 
+           args[0].includes('Could not establish connection') ||
+           args[0].includes('Receiving end does not exist'))) {
+        return; // Suppress these errors
+      }
+      originalError.apply(console, args);
+    };
+
+    return () => {
+      console.error = originalError;
+    };
+  }, []);
+  
   const renderTabContent = () => {
-    switch (activeTab) {
-      case 'shops':
-        return <ShopsMasterData />;
-      case 'roles':
-        return <RolesMasterData />;
-      case 'users':
-        return <UsersMasterData />;
-      default:
-        return <ShopsMasterData />;
+    try {
+      switch (activeTab) {
+        case 'shops':
+          return <ShopsMasterData />;
+        case 'roles':
+          return <RolesMasterData />;
+        case 'users':
+          return <UsersMasterData />;
+        default:
+          return <ShopsMasterData />;
+      }
+    } catch (err) {
+      setError(err);
+      return (
+        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--danger-color)' }}>
+          <h3>Error loading {activeTab} data</h3>
+          <p>{err.message}</p>
+          <button onClick={() => setError(null)}>Retry</button>
+        </div>
+      );
     }
   };
 

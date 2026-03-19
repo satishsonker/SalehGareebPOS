@@ -32,33 +32,6 @@ export const deleteShop = (id) => {
   return del(`/Admin/shops/${id}`);
 };
 
-// ==================== Roles ====================
-
-// Get all roles
-export const getRoles = () => {
-  return get('/Admin/roles');
-};
-
-// Get role by ID
-export const getRoleById = (id) => {
-  return get(`/Admin/roles/${id}`);
-};
-
-// Create a new role
-export const createRole = (data) => {
-  return post('/Admin/roles', data);
-};
-
-// Update a role
-export const updateRole = (id, data) => {
-  return put(`/Admin/roles/${id}`, data);
-};
-
-// Delete a role
-export const deleteRole = (id) => {
-  return del(`/Admin/roles/${id}`);
-};
-
 // ==================== User-Shop Assignment ====================
 
 // Assign user to shop

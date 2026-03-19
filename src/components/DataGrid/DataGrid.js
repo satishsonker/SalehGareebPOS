@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { FiSearch, FiRefreshCw, FiEdit, FiTrash2, FiEye, FiChevronLeft, FiChevronRight, FiMoreVertical, FiLock, FiUnlock } from 'react-icons/fi';
+import { FiSearch, FiRefreshCw, FiEdit, FiTrash2, FiEye, FiChevronLeft, FiChevronRight, FiMoreVertical, FiPrinter } from 'react-icons/fi';
 import './DataGrid.css';
 
 /**
@@ -10,7 +10,7 @@ import './DataGrid.css';
  * @param {Array} columns - Column configuration array
  * @param {Function} onSearch - Callback function for search (optional)
  * @param {Function} onReload - Callback function for reload button (deprecated, use toolbar instead)
- * @param {Function} onAction - Callback function for action buttons (edit, delete, view)
+ * @param {Function} onAction - Callback function for action buttons
  * @param {Number} pageSize - Number of items per page (default: 10)
  * @param {Boolean} showSearch - Show/hide search input (default: true)
  * @param {Boolean} showReload - Show/hide reload button (default: true, deprecated)
@@ -18,7 +18,9 @@ import './DataGrid.css';
  * @param {Boolean} showActions - Show/hide action column (default: true)
  * @param {String} searchPlaceholder - Placeholder text for search input
  * @param {String} emptyMessage - Message to show when no data
- * @param {Object} actionButtons - Configuration for action buttons (view, edit, delete)
+ * @param {Object} defaultActions - Configuration for default action buttons (view, edit, delete, print) - default: all false
+ * @param {Array} actionMenuItems - Custom action menu items configuration
+ *   Each item: { id: string, label: string, icon: ReactNode, action: string, visible: boolean|function(row), className?: string }
  * @param {ReactNode|Array} toolbar - Custom toolbar content or array of toolbar items
  * @param {Boolean} loading - Loading state
  */
@@ -35,11 +37,13 @@ function DataGrid({
   showActions = true,
   searchPlaceholder = 'Search...',
   emptyMessage = 'No data available',
-  actionButtons = {
-    view: true,
-    edit: true,
-    delete: true,
+  defaultActions = {
+    view: false,
+    edit: false,
+    delete: false,
+    print: false,
   },
+  actionMenuItems = [],
   loading = false,
   toolbar = null,
 }) {
@@ -126,11 +130,98 @@ function DataGrid({
   };
 
   // Handle action button click
-  const handleAction = (action, row, index) => {
-    setOpenMenuId(null); // Close menu after action
-    if (onAction) {
-      onAction(action, row, index);
+  const handleAction = (action, row, index, event) => {
+    console.log('handleAction called:', { action, row, index }); // Debug log
+    
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
     }
+    
+    // Close menu immediately
+    setOpenMenuId(null);
+    
+    // Call the action handler
+    if (onAction) {
+      console.log('Calling onAction callback'); // Debug log
+      onAction(action, row, index);
+    } else {
+      console.warn('onAction callback is not defined'); // Debug log
+    }
+  };
+
+  // Get default action menu items
+  const getDefaultMenuItems = (row) => {
+    const items = [];
+    
+    if (defaultActions.view) {
+      items.push({
+        id: 'view',
+        label: 'View',
+        icon: <FiEye />,
+        action: 'view',
+        className: 'view-action',
+      });
+    }
+    
+    if (defaultActions.edit) {
+      items.push({
+        id: 'edit',
+        label: 'Edit',
+        icon: <FiEdit />,
+        action: 'edit',
+        className: 'edit-action',
+      });
+    }
+    
+    if (defaultActions.delete) {
+      items.push({
+        id: 'delete',
+        label: 'Delete',
+        icon: <FiTrash2 />,
+        action: 'delete',
+        className: 'delete-action',
+      });
+    }
+    
+    if (defaultActions.print) {
+      items.push({
+        id: 'print',
+        label: 'Print',
+        icon: <FiPrinter />,
+        action: 'print',
+        className: 'print-action',
+      });
+    }
+    
+    return items;
+  };
+
+  // Get all menu items (default + custom) for a row
+  const getMenuItems = (row) => {
+    const items = [];
+    
+    // Add default items
+    items.push(...getDefaultMenuItems(row));
+    
+    // Add custom items
+    if (actionMenuItems && Array.isArray(actionMenuItems)) {
+      actionMenuItems.forEach((item) => {
+        const visible = typeof item.visible === 'function' ? item.visible(row) : (item.visible !== false);
+        if (visible) {
+          items.push({
+            id: item.id,
+            label: item.label,
+            icon: item.icon,
+            action: item.action || item.id,
+            className: item.className || '',
+          });
+        }
+      });
+    }
+    
+    console.log('Menu items for row:', items); // Debug log
+    return items;
   };
 
   // Handle menu toggle
@@ -160,17 +251,28 @@ function DataGrid({
         const menuElement = menuRefs.current[openMenuId];
         const triggerElement = triggerRefs.current[openMenuId];
         
-        if (menuElement && !menuElement.contains(event.target) &&
-            triggerElement && !triggerElement.contains(event.target)) {
+        // Check if click is on a menu item or inside the menu
+        const isMenuItemClick = event.target.closest('.action-menu-item');
+        const isInsideMenu = menuElement && menuElement.contains(event.target);
+        const isTriggerClick = triggerElement && triggerElement.contains(event.target);
+        
+        // Only close if click is outside both menu and trigger, and not on a menu item
+        if (!isInsideMenu && !isMenuItemClick && !isTriggerClick) {
           setOpenMenuId(null);
         }
       }
     };
 
     if (openMenuId !== null) {
-      document.addEventListener('mousedown', handleClickOutside);
+      // Use click event instead of mousedown to allow menu item clicks to process first
+      // Add listener with a small delay to ensure menu is fully rendered
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('click', handleClickOutside, true);
+      }, 0);
+      
       return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
+        clearTimeout(timeoutId);
+        document.removeEventListener('click', handleClickOutside, true);
       };
     }
   }, [openMenuId]);
@@ -319,51 +421,30 @@ function DataGrid({
                                 if (el) menuRefs.current[actualRowIndex] = el;
                               }}
                             >
-                              {actionButtons.view && (
-                                <button
-                                  className="action-menu-item view-action"
-                                  onClick={() => handleAction('view', row, actualRowIndex)}
-                                >
-                                  <FiEye />
-                                  <span>View</span>
-                                </button>
-                              )}
-                              {actionButtons.edit && (
-                                <button
-                                  className="action-menu-item edit-action"
-                                  onClick={() => handleAction('edit', row, actualRowIndex)}
-                                >
-                                  <FiEdit />
-                                  <span>Edit</span>
-                                </button>
-                              )}
-                              {actionButtons.block && !row.isBlocked && (
-                                <button
-                                  className="action-menu-item block-action"
-                                  onClick={() => handleAction('block', row, actualRowIndex)}
-                                >
-                                  <FiLock />
-                                  <span>Block</span>
-                                </button>
-                              )}
-                              {actionButtons.unblock && row.isBlocked && (
-                                <button
-                                  className="action-menu-item unblock-action"
-                                  onClick={() => handleAction('unblock', row, actualRowIndex)}
-                                >
-                                  <FiUnlock />
-                                  <span>Unblock</span>
-                                </button>
-                              )}
-                              {actionButtons.delete && (
-                                <button
-                                  className="action-menu-item delete-action"
-                                  onClick={() => handleAction('delete', row, actualRowIndex)}
-                                >
-                                  <FiTrash2 />
-                                  <span>Delete</span>
-                                </button>
-                              )}
+                              {getMenuItems(row).map((menuItem) => {
+                                const handleMenuItemClick = (e) => {
+                                  console.log('Menu item clicked:', menuItem); // Debug log
+                                  e.stopPropagation();
+                                  e.preventDefault();
+                                  handleAction(menuItem.action, row, actualRowIndex, e);
+                                };
+                                
+                                return (
+                                  <button
+                                    key={menuItem.id}
+                                    type="button"
+                                    className={`action-menu-item ${menuItem.className}`}
+                                    onClick={handleMenuItemClick}
+                                    onMouseDown={(e) => {
+                                      // Prevent the click-outside handler from firing
+                                      e.stopPropagation();
+                                    }}
+                                  >
+                                    {menuItem.icon}
+                                    <span>{menuItem.label}</span>
+                                  </button>
+                                );
+                              })}
                             </div>,
                             document.body
                           )}

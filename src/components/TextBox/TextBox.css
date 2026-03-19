@@ -1,0 +1,214 @@
+/* TextBox Wrapper */
+.custom-textbox-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  position: relative;
+}
+
+.custom-textbox-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.custom-textbox-required {
+  color: var(--danger-color);
+  margin-left: 0.25rem;
+}
+
+/* TextBox Container */
+.custom-textbox-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Base Input Styles */
+.custom-textbox {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.custom-textbox::placeholder {
+  color: var(--text-tertiary);
+  opacity: 0.7;
+}
+
+.custom-textbox:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.custom-textbox:disabled {
+  background-color: var(--bg-tertiary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.custom-textbox:read-only {
+  background-color: var(--bg-tertiary);
+  cursor: default;
+}
+
+.custom-textbox-error {
+  border-color: var(--danger-color);
+}
+
+.custom-textbox-error:focus {
+  border-color: var(--danger-color);
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.custom-textbox-focused {
+  border-color: var(--accent-color);
+}
+
+/* Input Sizes */
+.custom-textbox-small {
+  padding: 0.5rem 0.75rem;
+  min-height: 32px;
+  font-size: 0.875rem;
+}
+
+.custom-textbox-medium {
+  padding: 0.625rem 1rem;
+  min-height: 40px;
+  font-size: 1rem;
+}
+
+.custom-textbox-large {
+  padding: 0.75rem 1.25rem;
+  min-height: 48px;
+  font-size: 1.125rem;
+}
+
+/* Icon Styles */
+.custom-textbox-icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  pointer-events: none;
+  z-index: 1;
+  transition: color 0.2s ease;
+}
+
+.custom-textbox-icon-left {
+  left: 0.75rem;
+}
+
+.custom-textbox-icon-right {
+  right: 0.75rem;
+}
+
+.custom-textbox-small .custom-textbox-icon {
+  font-size: 0.875rem;
+}
+
+.custom-textbox-medium .custom-textbox-icon {
+  font-size: 1rem;
+}
+
+.custom-textbox-large .custom-textbox-icon {
+  font-size: 1.125rem;
+}
+
+.custom-textbox-focused .custom-textbox-icon {
+  color: var(--accent-color);
+}
+
+.custom-textbox-error .custom-textbox-icon {
+  color: var(--danger-color);
+}
+
+/* Input with Left Icon */
+.custom-textbox-with-left-icon.custom-textbox-small {
+  padding-left: 2.5rem;
+}
+
+.custom-textbox-with-left-icon.custom-textbox-medium {
+  padding-left: 3rem;
+}
+
+.custom-textbox-with-left-icon.custom-textbox-large {
+  padding-left: 3.5rem;
+}
+
+/* Input with Right Icon */
+.custom-textbox-with-right-icon.custom-textbox-small {
+  padding-right: 2.5rem;
+}
+
+.custom-textbox-with-right-icon.custom-textbox-medium {
+  padding-right: 3rem;
+}
+
+.custom-textbox-with-right-icon.custom-textbox-large {
+  padding-right: 3.5rem;
+}
+
+/* Input with Both Icons */
+.custom-textbox-with-left-icon.custom-textbox-with-right-icon.custom-textbox-small {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
+.custom-textbox-with-left-icon.custom-textbox-with-right-icon.custom-textbox-medium {
+  padding-left: 3rem;
+  padding-right: 3rem;
+}
+
+.custom-textbox-with-left-icon.custom-textbox-with-right-icon.custom-textbox-large {
+  padding-left: 3.5rem;
+  padding-right: 3.5rem;
+}
+
+/* Helper Text and Error Message */
+.custom-textbox-helper-text {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: -0.25rem;
+}
+
+.custom-textbox-error-message {
+  font-size: 0.75rem;
+  color: var(--danger-color);
+  margin-top: -0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .custom-textbox-small {
+    padding: 0.5rem 0.625rem;
+    font-size: 0.8125rem;
+    min-height: 30px;
+  }
+
+  .custom-textbox-medium {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9375rem;
+    min-height: 36px;
+  }
+
+  .custom-textbox-large {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+}

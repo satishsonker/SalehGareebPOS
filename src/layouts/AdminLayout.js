@@ -11,7 +11,8 @@ import {
   FiLogOut,
   FiSun,
   FiMoon,
-  FiHome
+  FiHome,
+  FiCode
 } from 'react-icons/fi';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -36,6 +37,7 @@ function AdminLayout() {
   const menuItems = [
     { path: '/admin', icon: FiGrid, label: 'Dashboard' },
     { path: '/admin/master-data', icon: FiDatabase, label: 'Master Data' },
+    { path: '/admin/components-example', icon: FiCode, label: 'Components Example' },
     { path: '/admin/products', icon: FiPackage, label: 'Products' },
     { path: '/admin/orders', icon: FiShoppingCart, label: 'Orders' },
     { path: '/admin/settings', icon: FiSettings, label: 'Settings' },

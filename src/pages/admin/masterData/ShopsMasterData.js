@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FiRefreshCw, FiDownload, FiFilter, FiPlus } from 'react-icons/fi';
+import { FiRefreshCw, FiDownload, FiFilter, FiPlus, FiEye, FiEdit, FiTrash2 } from 'react-icons/fi';
 import DataGrid from '../../../components/DataGrid';
+import Button from '../../../components/Button/Button';
 import { getShops, createShop, updateShop, deleteShop } from '../../../services/api/adminApi';
 
 function ShopsMasterData() {
@@ -116,41 +117,40 @@ function ShopsMasterData() {
   const customToolbar = (
     <>
       <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto', alignItems: 'center' }}>
-        <div className="toolbar-button-group">
-          <button
-            className="toolbar-button"
+        <div style={{ display: 'flex', gap: '0.25rem', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '0.25rem', backgroundColor: 'var(--bg-primary)' }}>
+          <Button
+            variant="ghost"
+            icon={<FiFilter />}
             onClick={handleFilter}
             title="Filter shops"
             aria-label="Filter"
-          >
-            <FiFilter />
-          </button>
-          <button
-            className="toolbar-button"
+          />
+          <Button
+            variant="ghost"
+            icon={<FiDownload />}
             onClick={handleExport}
             title="Export shops to CSV/Excel"
             aria-label="Export"
-          >
-            <FiDownload />
-          </button>
-          <button
-            className="toolbar-button reload-button"
+          />
+          <Button
+            variant="ghost"
+            icon={<FiRefreshCw />}
             onClick={handleReload}
             disabled={loading}
+            loading={loading}
             title="Reload shops list"
             aria-label="Reload"
-          >
-            <FiRefreshCw className={loading ? 'spinning' : ''} />
-          </button>
-          <button
-            className="toolbar-button primary-button"
-            onClick={handleAddShop}
-            title="Add new shop"
-            aria-label="Add new"
-          >
-            <FiPlus />
-          </button>
+          />
         </div>
+        <Button
+          variant="primary"
+          icon={<FiPlus />}
+          onClick={handleAddShop}
+          title="Add new shop"
+          aria-label="Add new"
+        >
+          Add Shop
+        </Button>
       </div>
     </>
   );
@@ -165,10 +165,11 @@ function ShopsMasterData() {
         pageSize={10}
         searchPlaceholder="Search shops by name, code, address..."
         emptyMessage="No shops found"
-        actionButtons={{
+        defaultActions={{
           view: true,
           edit: true,
           delete: true,
+          print: false,
         }}
         toolbar={customToolbar}
       />

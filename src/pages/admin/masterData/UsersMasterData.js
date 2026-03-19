@@ -1,32 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import { FiRefreshCw, FiDownload, FiFilter, FiPlus } from 'react-icons/fi';
+import { FiRefreshCw, FiDownload, FiFilter, FiPlus, FiEye, FiMail, FiUser, FiEdit, FiTrash2, FiLock, FiUnlock, FiKey, FiPhoneCall, FiPrinter,FiShield } from 'react-icons/fi';
 import DataGrid from '../../../components/DataGrid';
 import Modal from '../../../components/Modal/Modal';
-import { getUsers, getUserById, updateUser, deleteUser, blockUser, unblockUser } from '../../../services/api/usersApi';
+import Button from '../../../components/Button/Button';
+import TextBox from '../../../components/TextBox/TextBox';
+import Select from '../../../components/Select/Select';
+import CountrySelect from '../../../components/CountrySelect/CountrySelect';
+import { useNotification } from '../../../components/Notification';
+import { getUsers, getUserById, updateUser, deleteUser, blockUser, unblockUser, register } from '../../../services/api/usersApi';
+import { getRoles } from '../../../services/api/roleApi';
+import { tableHeaderFormat } from '../../../utils/tableHeaderFormat';
+import { commonLogic } from '../../../utils/commonLogic';
 import './UsersMasterData.css';
 
 function UsersMasterData() {
+  const { success, error: showError, warning, info, confirm } = useNotification();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pageNo, setPageNo] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [editFormData, setEditFormData] = useState({});
+  const [addFormData, setAddFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    isdCode: '',
+    mobile: '',
+    roleId:0,
+    id:0,
+  });
+  const [roles, setRoles] = useState([]);
   const [saving, setSaving] = useState(false);
 
-  // Fetch users on component mount
+  // Fetch users and roles on component mount
   useEffect(() => {
     fetchUsers();
+    fetchRoles();
   }, [pageNo, pageSize]);
+
+  const fetchRoles = async () => {
+    try {
+      const response = await getRoles(1, 1000);
+      if (response.success && response.data) {
+        setRoles(response.data?.data || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch roles:', error);
+    }
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
       const response = await getUsers(pageNo, pageSize);
       if (response.success && response.data) {
-        setUsers(response.data?.data || []); 
+        setUsers(response.data?.data || []);
       }
     } catch (error) {
       console.error('Failed to fetch users:', error);
@@ -41,18 +75,90 @@ function UsersMasterData() {
   };
 
   const handleAddUser = () => {
-    // TODO: Open add user modal
-    alert('Add User functionality - Open modal to add new user');
+    setAddFormData({
+      username: '',
+      email: '',
+      password: '',
+      roleId: 0,
+      firstName: '',
+      lastName: '',
+      isdCode: '',
+      mobile: '',
+      id: 0,
+    });
+    setAddModalOpen(true);
+  };
+
+  const handleSaveAdd = async () => {
+    // Validate required fields
+    if (!addFormData.username || !addFormData.email || !addFormData.password || !addFormData.roleId) {
+      showError('Please fill in all required fields (Username, Email, Password, Role)');
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(addFormData.email)) {
+      showError('Please enter a valid email address');
+      return;
+    }
+
+    // Validate password length
+    if (addFormData.password.length < 6) {
+      showError('Password must be at least 6 characters long');
+      return;
+    }
+
+    // Validate username length
+    if (addFormData.username.length < 3) {
+      showError('Username must be at least 3 characters long');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const response = await register({
+        username: addFormData.username,
+        email: addFormData.email,
+        password: addFormData.password,
+        roleId: parseInt(addFormData.roleId),
+        firstName: addFormData.firstName || null,
+        lastName: addFormData.lastName || null,
+      });
+      if (response.success) {
+        success('User created successfully');
+        setAddModalOpen(false);
+        setAddFormData({
+          username: '',
+          email: '',
+          password: '',
+          roleId: 0,
+          firstName: '',
+          lastName: '',
+          isdCode: '',
+          mobile: '',
+          id: 0,
+        });
+        fetchUsers(); // Reload users
+      } else {
+        showError(response.message || 'Failed to create user');
+      }
+    } catch (error) {
+      console.error('Failed to create user:', error);
+      showError(error.message || 'Failed to create user. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleExport = () => {
     // TODO: Implement export functionality
-    alert('Export users to CSV/Excel');
+    info('Export users to CSV/Excel');
   };
 
   const handleFilter = () => {
     // TODO: Open filter modal
-    alert('Filter users');
+    info('Filter users');
   };
 
   const handleAction = async (action, row) => {
@@ -86,6 +192,10 @@ function UsersMasterData() {
               firstName: response.data.firstName || '',
               lastName: response.data.lastName || '',
               email: response.data.email || '',
+              isdCode: response.data.isdCode || '',
+              mobile: response.data.mobile || '',
+              roleId: response.data.roleId || 0,
+              id: response.data.id || 0,
             });
             setEditModalOpen(true);
           } else {
@@ -95,6 +205,10 @@ function UsersMasterData() {
               firstName: row.firstName || '',
               lastName: row.lastName || '',
               email: row.email || '',
+              isdCode: row.isdCode || '',
+              mobile: row.mobile || '',
+              roleId: row.roleId || 0,
+              id: row.id || 0,
             });
             setEditModalOpen(true);
           }
@@ -106,66 +220,94 @@ function UsersMasterData() {
             firstName: row.firstName || '',
             lastName: row.lastName || '',
             email: row.email || '',
+            isdCode: row.isdCode || '',
+            mobile: row.mobile || '',
+            roleId: row.roleId || 0,
+            id: row.id || 0,
           });
           setEditModalOpen(true);
         }
         break;
       case 'delete':
-        if (window.confirm(`Are you sure you want to delete user "${row.username}"? This action cannot be undone.`)) {
-          try {
-            setLoading(true);
-            const response = await deleteUser(row.id);
-            if (response.success) {
-              alert('User deleted successfully');
-              fetchUsers(); // Reload users
-            } else {
-              alert(response.message || 'Failed to delete user');
+        confirm({
+          type: 'danger',
+          title: 'Delete User',
+          message: `Are you sure you want to delete user "${row.username}"? This action cannot be undone.`,
+          confirmText: 'Delete',
+          cancelText: 'Cancel',
+        }).then(async (confirmed) => {
+          if (confirmed) {
+            try {
+              setLoading(true);
+              const response = await deleteUser(row.id);
+              if (response.success) {
+                success('User deleted successfully');
+                fetchUsers(); // Reload users
+              } else {
+                showError(response.message || 'Failed to delete user');
+              }
+            } catch (error) {
+              console.error('Failed to delete user:', error);
+              showError(error.message || 'Failed to delete user. Please try again.');
+            } finally {
+              setLoading(false);
             }
-          } catch (error) {
-            console.error('Failed to delete user:', error);
-            alert(error.message || 'Failed to delete user. Please try again.');
-          } finally {
-            setLoading(false);
           }
-        }
+        });
         break;
       case 'block':
-        if (window.confirm(`Are you sure you want to block user "${row.username}"?`)) {
-          try {
-            setLoading(true);
-            const response = await blockUser(row.id, { userId: row.id });
-            if (response.success) {
-              alert('User blocked successfully');
-              fetchUsers(); // Reload users
-            } else {
-              alert(response.message || 'Failed to block user');
+        confirm({
+          type: 'warning',
+          title: 'Block User',
+          message: `Are you sure you want to block user "${row.username}"?`,
+          confirmText: 'Block',
+          cancelText: 'Cancel',
+        }).then(async (confirmed) => {
+          if (confirmed) {
+            try {
+              setLoading(true);
+              const response = await blockUser(row.id, { userId: row.id });
+              if (response.success) {
+                success('User blocked successfully');
+                fetchUsers(); // Reload users
+              } else {
+                showError(response.message || 'Failed to block user');
+              }
+            } catch (error) {
+              console.error('Failed to block user:', error);
+              showError(error.message || 'Failed to block user. Please try again.');
+            } finally {
+              setLoading(false);
             }
-          } catch (error) {
-            console.error('Failed to block user:', error);
-            alert(error.message || 'Failed to block user. Please try again.');
-          } finally {
-            setLoading(false);
           }
-        }
+        });
         break;
       case 'unblock':
-        if (window.confirm(`Are you sure you want to unblock user "${row.username}"?`)) {
-          try {
-            setLoading(true);
-            const response = await unblockUser(row.id);
-            if (response.success) {
-              alert('User unblocked successfully');
-              fetchUsers(); // Reload users
-            } else {
-              alert(response.message || 'Failed to unblock user');
+        confirm({
+          type: 'confirm',
+          title: 'Unblock User',
+          message: `Are you sure you want to unblock user "${row.username}"?`,
+          confirmText: 'Unblock',
+          cancelText: 'Cancel',
+        }).then(async (confirmed) => {
+          if (confirmed) {
+            try {
+              setLoading(true);
+              const response = await unblockUser(row.id);
+              if (response.success) {
+                success('User unblocked successfully');
+                fetchUsers(); // Reload users
+              } else {
+                showError(response.message || 'Failed to unblock user');
+              }
+            } catch (error) {
+              console.error('Failed to unblock user:', error);
+              showError(error.message || 'Failed to unblock user. Please try again.');
+            } finally {
+              setLoading(false);
             }
-          } catch (error) {
-            console.error('Failed to unblock user:', error);
-            alert(error.message || 'Failed to unblock user. Please try again.');
-          } finally {
-            setLoading(false);
           }
-        }
+        });
         break;
       default:
         break;
@@ -174,164 +316,70 @@ function UsersMasterData() {
 
   const handleSaveEdit = async () => {
     if (!selectedUser) return;
-    
+
     setSaving(true);
     try {
       const response = await updateUser(selectedUser.id, editFormData);
       if (response.success) {
-        alert('User updated successfully');
+        success('User updated successfully');
         setEditModalOpen(false);
         setSelectedUser(null);
         fetchUsers(); // Reload users
       } else {
-        alert(response.message || 'Failed to update user');
+        showError(response.message || 'Failed to update user');
       }
     } catch (error) {
       console.error('Failed to update user:', error);
-      alert(error.message || 'Failed to update user. Please try again.');
+      showError(error.message || 'Failed to update user. Please try again.');
     } finally {
       setSaving(false);
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    try {
-      return new Date(dateString).toLocaleDateString();
-    } catch {
-      return dateString;
-    }
-  };
-
-  const columns = [{
-      key: 'profilePicturePath',
-      header: 'Image',
-      width: '100px',
-      align: 'center',
-      render: (value) => (
-        <img src={value ? `${process.env.REACT_APP_API_URL || 'https://localhost:7194'}/images/${value}` : '/default-profile.png'} alt="Profile" className="profile-picture" />
-      ),
-    },
-    {
-      key: 'id',
-      header: 'ID',
-      width: '80px',
-      align: 'center',
-    },
-    {
-      key: 'username',
-      header: 'Username',
-      width: '150px',
-    },
-    {
-      key: 'email',
-      header: 'Email',
-      width: '200px',
-    },
-    {
-      key: 'mobile',
-      header: 'Mobile',
-      width: '150px',
-      render: (value) => {
-        if (!value) return 'No Mobile';
-        <span>
-          <a href={`tel:${value}`} style={{ color: 'var(--primary-color)' }}>
-           <i className="fas fa-phone" style={{ marginRight: '0.25rem' }}></i>
-          </a> {value}
-        </span>
-      },
-    },
-    {
-      key: 'isAdmin',
-      header: 'Role',
-      width: '100px',
-      align: 'center',
-      render: (value) => (
-        <span style={{ color: value ? 'var(--danger-color)' : 'var(--success-color)' }}>
-          {value ? 'Admin' : 'Normal User'}
-        </span>
-      ),
-    },
-    {
-      key: 'firstName',
-      header: 'First Name',
-      width: '150px',
-    },
-    {
-      key: 'lastName',
-      header: 'Last Name',
-      width: '150px',
-    },
-    {
-      key: 'isBlocked',
-      header: 'Status',
-      width: '100px',
-      align: 'center',
-      render: (value) => (
-        <span style={{ color: value ? 'var(--danger-color)' : 'var(--success-color)' }}>
-          {value ? 'Blocked' : 'Active'}
-        </span>
-      ),
-    },
-    {
-      key: 'createdAt',
-      header: 'Created At',
-      width: '150px',
-      render: formatDate,
-    },
-     {
-      key: 'lastLoginAt',
-      header: 'Last Login',
-      width: '150px',
-      render: formatDate,
-    },
-     {
-      key: 'lastLoginAttempt',
-      header: 'Last Login Attempt',
-      width: '150px',
-      render: formatDate,
-    },
-  ];
-
   // Custom toolbar with button group
   const customToolbar = (
     <>
       <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto', alignItems: 'center' }}>
-        <div className="toolbar-button-group">
-          <button
-            className="toolbar-button"
+        <div style={{ display: 'flex', gap: '0.25rem', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '0.25rem', backgroundColor: 'var(--bg-primary)' }}>
+          <Button
+            variant="ghost"
+            icon={<FiFilter />}
             onClick={handleFilter}
             title="Filter users"
             aria-label="Filter"
-          >
-            <FiFilter />
-          </button>
-          <button
-            className="toolbar-button"
+          />
+          <Button
+            variant="ghost"
+            icon={<FiDownload />}
             onClick={handleExport}
             title="Export users to CSV/Excel"
             aria-label="Export"
-          >
-            <FiDownload />
-          </button>
-          <button
-            className="toolbar-button reload-button"
+          />
+           <Button
+            variant="ghost"
+            icon={<FiPrinter />}
+            onClick={handleExport}
+            title="Print users list"
+            aria-label="Export"
+          />
+          <Button
+            variant="ghost"
+            icon={<FiRefreshCw />}
             onClick={handleReload}
             disabled={loading}
+            loading={loading}
             title="Reload users list"
             aria-label="Reload"
-          >
-            <FiRefreshCw className={loading ? 'spinning' : ''} />
-          </button>
-          <button
-            className="toolbar-button primary-button"
-            onClick={handleAddUser}
-            title="Add new user"
-            aria-label="Add new"
-          >
-            <FiPlus />
-          </button>
+          />
+           <Button
+          variant="ghost"
+          icon={<FiPlus />}
+          onClick={handleAddUser}
+          title="Add new user"
+          aria-label="Add new"
+        />
         </div>
+       
       </div>
     </>
   );
@@ -340,19 +388,52 @@ function UsersMasterData() {
     <div className="users-master-data">
       <DataGrid
         data={users}
-        columns={columns}
+        columns={tableHeaderFormat.masterUserData}
         onAction={handleAction}
         loading={loading}
         pageSize={10}
         searchPlaceholder="Search users by username, email, name..."
         emptyMessage="No users found"
-        actionButtons={{
+        defaultActions={{
           view: true,
           edit: true,
           delete: true,
-          block: true,
-          unblock: true,
+          print: true,
         }}
+        actionMenuItems={[
+          {
+            id: 'block',
+            label: 'Block',
+            icon: <FiLock />,
+            action: 'block',
+            visible: (row) => !row.isBlocked,
+            className: 'block-action',
+          },
+          {
+            id: 'unblock',
+            label: 'Unblock',
+            icon: <FiUnlock />,
+            action: 'unblock',
+            visible: (row) => row.isBlocked,
+            className: 'unblock-action',
+          },
+           {
+            id: 'changePassword',
+            label: 'Change Password',
+            icon: <FiKey />,
+            action: 'changePassword',
+            visible: (row) => !row.isBlocked,
+            className: 'change-password-action',
+          },
+           {
+            id: 'changeRole',
+            label: 'Change Role',
+            icon: <FiShield />,
+            action: 'changeRole',
+            visible: (row) => !row.isBlocked,
+            className: 'change-role-action',
+          },
+        ]}
         toolbar={customToolbar}
       />
 
@@ -365,6 +446,9 @@ function UsersMasterData() {
         }}
         title="User Details"
         size="medium"
+        type="info"
+        showCloseButton={true}
+        closeOnOverlayClick={true}
       >
         {selectedUser && (
           <div className="user-details-modal">
@@ -390,7 +474,7 @@ function UsersMasterData() {
             </div>
             <div className="detail-row">
               <label>Status:</label>
-              <span style={{ 
+              <span style={{
                 color: selectedUser.isBlocked ? 'var(--danger-color)' : 'var(--success-color)',
                 fontWeight: '600'
               }}>
@@ -399,7 +483,7 @@ function UsersMasterData() {
             </div>
             <div className="detail-row">
               <label>Admin:</label>
-              <span style={{ 
+              <span style={{
                 color: selectedUser.isAdmin ? 'var(--danger-color)' : 'var(--text-secondary)',
                 fontWeight: '600'
               }}>
@@ -408,24 +492,24 @@ function UsersMasterData() {
             </div>
             <div className="detail-row">
               <label>Created At:</label>
-              <span>{formatDate(selectedUser.createdAt)}</span>
+              <span>{commonLogic.formatDate(selectedUser.createdAt)}</span>
             </div>
             {selectedUser.updatedAt && (
               <div className="detail-row">
                 <label>Updated At:</label>
-                <span>{formatDate(selectedUser.updatedAt)}</span>
+                <span>{commonLogic.formatDate(selectedUser.updatedAt)}</span>
               </div>
             )}
             {selectedUser.lastLoginAt && (
               <div className="detail-row">
                 <label>Last Login:</label>
-                <span>{formatDate(selectedUser.lastLoginAt)}</span>
+                <span>{commonLogic.formatDate(selectedUser.lastLoginAt)}</span>
               </div>
             )}
             {selectedUser.lastLoginAttempt && (
               <div className="detail-row">
                 <label>Last Login Attempt:</label>
-                <span>{formatDate(selectedUser.lastLoginAttempt)}</span>
+                <span>{commonLogic.formatDate(selectedUser.lastLoginAttempt)}</span>
               </div>
             )}
           </div>
@@ -442,34 +526,85 @@ function UsersMasterData() {
         }}
         title="Edit User"
         size="medium"
+        type="default"
+        showCloseButton={true}
+        closeOnOverlayClick={!saving}
+        loading={saving}
+        actions={[
+          {
+            label: 'Cancel',
+            onClick: () => {
+              setEditModalOpen(false);
+              setSelectedUser(null);
+              setEditFormData({});
+            },
+            variant: 'secondary',
+            disabled: saving,
+          },
+          {
+            label: 'Save Changes',
+            onClick: handleSaveEdit,
+            variant: 'primary',
+            disabled: saving,
+          },
+        ]}
       >
         {selectedUser && (
           <div className="user-edit-modal">
             <div className="form-group">
-              <label htmlFor="edit-username">Username</label>
-              <input
+              <TextBox
                 type="text"
+                label="Username"
                 id="edit-username"
                 value={selectedUser.username || ''}
                 disabled
                 className="form-input"
+                leftIcon={<FiUser />}
               />
               <small className="form-help">Username cannot be changed</small>
             </div>
             <div className="form-group">
-              <label htmlFor="edit-email">Email *</label>
-              <input
+              <TextBox
                 type="email"
+                label="Email"
+                required={true}
                 id="edit-email"
                 value={editFormData.email || ''}
                 onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
                 className="form-input"
-                required
+                leftIcon={<FiMail />}
+              />
+            </div>
+            <div className='form-group'>
+              <CountrySelect
+                label="ISD Code"
+                value={editFormData?.isdCode || ''}
+                onChange={(e) => setEditFormData({ ...editFormData, isdCode: e.isd })}
+                showFlag={true}
+                showISD={true}
+                required={true}
               />
             </div>
             <div className="form-group">
-              <label htmlFor="edit-firstName">First Name</label>
-              <input
+              <TextBox
+                label="Mobile"
+                type="number"
+                id="edit-mobile"
+                placeholder="Enter mobile number"
+                value={editFormData.mobile || ''}
+                onChange={(e) => setEditFormData({ ...editFormData, mobile: e.target.value })}
+                leftIcon={<FiPhoneCall />}
+                showVirtualKeyboard={true}
+                required={true}
+                min={0}
+                step={1}
+              />
+            </div>
+            <div className="form-group">
+              <TextBox
+                label="First Name"
+                leftIcon={<FiUser />}
+                required={true}
                 type="text"
                 id="edit-firstName"
                 value={editFormData.firstName || ''}
@@ -478,8 +613,9 @@ function UsersMasterData() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="edit-lastName">Last Name</label>
-              <input
+              <TextBox
+                leftIcon={<FiUser />}
+                label="Last Name"
                 type="text"
                 id="edit-lastName"
                 value={editFormData.lastName || ''}
@@ -487,28 +623,145 @@ function UsersMasterData() {
                 className="form-input"
               />
             </div>
-            <div className="modal-actions">
-              <button
-                className="btn-secondary"
-                onClick={() => {
-                  setEditModalOpen(false);
-                  setSelectedUser(null);
-                  setEditFormData({});
-                }}
-                disabled={saving}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn-primary"
-                onClick={handleSaveEdit}
-                disabled={saving}
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
+            <div className="form-group">
+              <Select
+                label="Role"
+                options={roles.map((role) => ({ value: role.id, label: role.name }))}
+                value={editFormData.roleId || ''}
+                onChange={(value) => setEditFormData({ ...editFormData, roleId: value })}
+                required={true}
+              />
+              
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* Add User Modal */}
+      <Modal
+        isOpen={addModalOpen}
+        onClose={() => {
+          setAddModalOpen(false);
+          setAddFormData({
+            username: '',
+            email: '',
+            password: '',
+            roleId: '',
+            firstName: '',
+            lastName: '',
+          });
+        }}
+        title="Add New User"
+        size="medium"
+        type="default"
+        showCloseButton={true}
+        closeOnOverlayClick={!saving}
+        loading={saving}
+        actions={[
+          {
+            label: 'Cancel',
+            onClick: () => {
+              setAddModalOpen(false);
+              setAddFormData({
+                username: '',
+                email: '',
+                password: '',
+                roleId: '',
+                firstName: '',
+                lastName: '',
+              });
+            },
+            variant: 'secondary',
+            disabled: saving,
+          },
+          {
+            label: 'Create User',
+            onClick: handleSaveAdd,
+            variant: 'primary',
+            disabled: saving,
+          },
+        ]}
+      >
+        <div className="user-edit-modal">
+          <div className="form-group">
+            <label htmlFor="add-username">Username *</label>
+            <input
+              type="text"
+              id="add-username"
+              value={addFormData.username}
+              onChange={(e) => setAddFormData({ ...addFormData, username: e.target.value })}
+              className="form-input"
+              required
+              minLength={3}
+              maxLength={50}
+              placeholder="Enter username (min 3 characters)"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="add-email">Email *</label>
+            <input
+              type="email"
+              id="add-email"
+              value={addFormData.email}
+              onChange={(e) => setAddFormData({ ...addFormData, email: e.target.value })}
+              className="form-input"
+              required
+              placeholder="Enter email address"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="add-password">Password *</label>
+            <input
+              type="password"
+              id="add-password"
+              value={addFormData.password}
+              onChange={(e) => setAddFormData({ ...addFormData, password: e.target.value })}
+              className="form-input"
+              required
+              minLength={6}
+              placeholder="Enter password (min 6 characters)"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="add-roleId">Role *</label>
+            <select
+              id="add-roleId"
+              value={addFormData.roleId}
+              onChange={(e) => setAddFormData({ ...addFormData, roleId: e.target.value })}
+              className="form-input"
+              required
+            >
+              <option value="">Select a role</option>
+              {roles.map((role) => (
+                <option key={role.id} value={role.id}>
+                  {role.name} {role.isAdmin ? '(Admin)' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="add-firstName">First Name</label>
+            <input
+              type="text"
+              id="add-firstName"
+              value={addFormData.firstName}
+              onChange={(e) => setAddFormData({ ...addFormData, firstName: e.target.value })}
+              className="form-input"
+              placeholder="Enter first name (optional)"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="add-lastName">Last Name</label>
+            <input
+              type="text"
+              id="add-lastName"
+              value={addFormData.lastName}
+              onChange={(e) => setAddFormData({ ...addFormData, lastName: e.target.value })}
+              className="form-input"
+              placeholder="Enter last name (optional)"
+            />
+          </div>
+        </div>
       </Modal>
     </div>
   );

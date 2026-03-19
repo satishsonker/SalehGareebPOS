@@ -146,3 +146,5 @@ export const put = (endpoint, data, options = {}) => {
 export const del = (endpoint, options = {}) => {
   return apiRequest(endpoint, { ...options, method: 'DELETE' });
 };
+
+export const apiBasePath = config.api.url;

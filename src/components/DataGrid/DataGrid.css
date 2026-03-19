@@ -514,6 +514,14 @@
   background-color: rgba(39, 174, 96, 0.1);
 }
 
+.action-menu-item.print-action {
+  color: #3498db;
+}
+
+.action-menu-item.print-action:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
 /* Pagination */
 .data-grid-pagination {
   display: flex;

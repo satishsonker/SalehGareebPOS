@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { FiUser, FiLock, FiLogIn } from 'react-icons/fi';
+import { apiBasePath } from '../../services/api/commonApi';
 import './Login.css';
 
 function Login() {
@@ -15,7 +16,6 @@ function Login() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [shops, setShops] = useState([]);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -48,8 +48,7 @@ function Login() {
     try {
       const credentials = {
         username: formData.username.trim(),
-        password: formData.password,
-        ...(formData.shopId && { shopId: parseInt(formData.shopId) }),
+        password: formData.password
       };
 
       const result = await login(credentials);
@@ -73,7 +72,7 @@ function Login() {
       <div className="login-card">
         <div className="login-header">
           <div className="login-icon">
-            <FiLogIn />
+            <img src={`${apiBasePath}/logo/logo.png`} alt="Saleh Gareeb POS Icon" className="logo" />
           </div>
           <h1>Welcome Back</h1>
           <p>Sign in to continue to Saleh Gareeb POS</p>
@@ -87,7 +86,7 @@ function Login() {
           )}
 
           <div className="form-group">
-            <label htmlFor="username">
+            <label htmlFor="username">              
               <FiUser className="input-icon" />
               Username
             </label>
@@ -118,22 +117,6 @@ function Login() {
               placeholder="Enter your password"
               required
               autoComplete="current-password"
-              disabled={loading}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="shopId">
-              Shop (Optional)
-            </label>
-            <input
-              type="number"
-              id="shopId"
-              name="shopId"
-              value={formData.shopId}
-              onChange={handleChange}
-              placeholder="Shop ID (optional)"
-              autoComplete="off"
               disabled={loading}
             />
           </div>

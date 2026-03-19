@@ -66,6 +66,19 @@
   opacity: 0.7;
 }
 
+.form-input select,
+select.form-input {
+  cursor: pointer;
+}
+
+.profile-picture {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+}
+
 .form-help {
   font-size: 0.85rem;
   color: var(--text-tertiary);
