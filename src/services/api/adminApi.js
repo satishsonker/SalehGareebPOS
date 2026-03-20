@@ -5,32 +5,6 @@ import { get, post, put, del } from '../../utils/api';
  * Handles shops, roles, users, and permissions management
  */
 
-// ==================== Shops ====================
-
-// Get all shops
-export const getShops = () => {
-  return get('/Admin/shops');
-};
-
-// Get shop by ID
-export const getShopById = (id) => {
-  return get(`/Admin/shops/${id}`);
-};
-
-// Create a new shop
-export const createShop = (data) => {
-  return post('/Admin/shops', data);
-};
-
-// Update a shop
-export const updateShop = (id, data) => {
-  return put(`/Admin/shops/${id}`, data);
-};
-
-// Delete a shop
-export const deleteShop = (id) => {
-  return del(`/Admin/shops/${id}`);
-};
 
 // ==================== User-Shop Assignment ====================
 

@@ -36,6 +36,8 @@ function UsersMasterData() {
     id:0,
   });
   const [roles, setRoles] = useState([]);
+  const [addFormErrors, setAddFormErrors] = useState({});
+  const [editFormErrors, setEditFormErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
   // Fetch users and roles on component mount
@@ -90,28 +92,40 @@ function UsersMasterData() {
   };
 
   const handleSaveAdd = async () => {
+    // Reset errors
+    const errors = {};
+
     // Validate required fields
-    if (!addFormData.username || !addFormData.email || !addFormData.password || !addFormData.roleId) {
-      showError('Please fill in all required fields (Username, Email, Password, Role)');
-      return;
+    if (!addFormData.username || addFormData.username.trim() === '') {
+      errors.username = 'Username is required';
+    } else if (addFormData.username.length < 3) {
+      errors.username = 'Username must be at least 3 characters long';
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(addFormData.email)) {
-      showError('Please enter a valid email address');
-      return;
+    if (!addFormData.email || addFormData.email.trim() === '') {
+      errors.email = 'Email is required';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(addFormData.email)) {
+        errors.email = 'Please enter a valid email address';
+      }
     }
 
-    // Validate password length
-    if (addFormData.password.length < 6) {
-      showError('Password must be at least 6 characters long');
-      return;
+    if (!addFormData.password || addFormData.password.trim() === '') {
+      errors.password = 'Password is required';
+    } else if (addFormData.password.length < 6) {
+      errors.password = 'Password must be at least 6 characters long';
     }
 
-    // Validate username length
-    if (addFormData.username.length < 3) {
-      showError('Username must be at least 3 characters long');
+    if (!addFormData.roleId || addFormData.roleId === 0) {
+      errors.roleId = 'Role is required';
+    }
+
+    setAddFormErrors(errors);
+
+    // If there are errors, don't submit
+    if (Object.keys(errors).length > 0) {
+      showError('Please fill in all required fields correctly');
       return;
     }
 
@@ -139,6 +153,7 @@ function UsersMasterData() {
           mobile: '',
           id: 0,
         });
+        setAddFormErrors({});
         fetchUsers(); // Reload users
       } else {
         showError(response.message || 'Failed to create user');
@@ -317,6 +332,35 @@ function UsersMasterData() {
   const handleSaveEdit = async () => {
     if (!selectedUser) return;
 
+    // Reset errors
+    const errors = {};
+
+    // Validate required fields
+    if (!editFormData.email || editFormData.email.trim() === '') {
+      errors.email = 'Email is required';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(editFormData.email)) {
+        errors.email = 'Please enter a valid email address';
+      }
+    }
+
+    if (!editFormData.isdCode || editFormData.isdCode.trim() === '') {
+      errors.isdCode = 'ISD code is required';
+    }
+
+    if (!editFormData.mobile || editFormData.mobile.trim() === '') {
+      errors.mobile = 'Mobile number is required';
+    }
+
+    setEditFormErrors(errors);
+
+    // If there are errors, don't submit
+    if (Object.keys(errors).length > 0) {
+      showError('Please fill in all required fields correctly');
+      return;
+    }
+
     setSaving(true);
     try {
       const response = await updateUser(selectedUser.id, editFormData);
@@ -324,6 +368,7 @@ function UsersMasterData() {
         success('User updated successfully');
         setEditModalOpen(false);
         setSelectedUser(null);
+        setEditFormErrors({});
         fetchUsers(); // Reload users
       } else {
         showError(response.message || 'Failed to update user');
@@ -570,19 +615,31 @@ function UsersMasterData() {
                 required={true}
                 id="edit-email"
                 value={editFormData.email || ''}
-                onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, email: e.target.value });
+                  if (editFormErrors.email) {
+                    setEditFormErrors({ ...editFormErrors, email: '' });
+                  }
+                }}
                 className="form-input"
                 leftIcon={<FiMail />}
+                error={editFormErrors.email}
               />
             </div>
             <div className='form-group'>
               <CountrySelect
                 label="ISD Code"
                 value={editFormData?.isdCode || ''}
-                onChange={(e) => setEditFormData({ ...editFormData, isdCode: e.isd })}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, isdCode: e.isd });
+                  if (editFormErrors.isdCode) {
+                    setEditFormErrors({ ...editFormErrors, isdCode: '' });
+                  }
+                }}
                 showFlag={true}
                 showISD={true}
                 required={true}
+                error={editFormErrors.isdCode}
               />
             </div>
             <div className="form-group">
@@ -592,11 +649,17 @@ function UsersMasterData() {
                 id="edit-mobile"
                 placeholder="Enter mobile number"
                 value={editFormData.mobile || ''}
-                onChange={(e) => setEditFormData({ ...editFormData, mobile: e.target.value })}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, mobile: e.target.value });
+                  if (editFormErrors.mobile) {
+                    setEditFormErrors({ ...editFormErrors, mobile: '' });
+                  }
+                }}
                 leftIcon={<FiPhoneCall />}
                 showVirtualKeyboard={true}
                 required={true}
                 min={0}
+                error={editFormErrors.mobile}
                 step={1}
               />
             </div>

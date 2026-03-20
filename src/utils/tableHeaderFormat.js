@@ -91,5 +91,40 @@ export const tableHeaderFormat = {
             width: '150px',
             render: commonLogic.formatDate,
         },
-    ]
+    ],
+    masterShopData:  [
+    {
+      key: 'id',
+      header: 'ID',
+      width: '80px',
+      align: 'center',
+    },
+    {
+      key: 'name',
+      header: 'Shop Name',
+    },
+    {
+      key: 'code',
+      header: 'Code',
+      width: '120px',
+    },
+    {
+      key: 'address',
+      header: 'Address',
+    },
+    {
+      key: 'phone',
+      header: 'Phone',
+      width: '150px',
+    },
+    {
+      key: 'email',
+      header: 'Email',
+    },
+    {
+      key: 'trn',
+      header: 'TRN',
+      width: '120px',
+    },
+  ],
 };
