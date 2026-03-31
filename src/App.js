@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PublicLayout from './layouts/PublicLayout';
 import AdminLayout from './layouts/AdminLayout';
 import Login from './pages/auth/Login';
+import OtpVerification from './pages/auth/OtpVerification';
 import Home from './pages/public/Home';
 import About from './pages/public/About';
 import Dashboard from './pages/admin/Dashboard';
@@ -15,6 +16,7 @@ import Products from './pages/admin/Products';
 import Orders from './pages/admin/Orders';
 import Settings from './pages/admin/Settings';
 import ComponentsExample from './pages/admin/ComponentsExample';
+import ShopSelection from './pages/auth/ShopSelection';
 import './App.css';
 
 function App() {
@@ -26,7 +28,8 @@ function App() {
           <Routes>
             {/* Login Route - Public */}
             <Route path="/login" element={<Login />} />
-
+            <Route path="otp/verify" element={<OtpVerification />} />
+            <Route path="shop/selection" element={<ShopSelection />} />
             {/* Public Routes - Protected */}
             <Route 
               path="/" 

@@ -54,9 +54,19 @@ function Login() {
       const result = await login(credentials);
 
       if (result.success) {
-        // Redirect to intended page or default to admin
-        const from = location.state?.from?.pathname || '/admin';
-        navigate(from, { replace: true });
+        navigate('/otp/verify', {
+          replace: true,
+          state: {
+            from: location.state?.from,
+            sessionId: result.data?.sessionId,
+            email: result.data?.email,
+            mobile: result.data?.mobile,
+            username: result.data?.username,
+            firstname: result.data?.firstname,
+            lastname: result.data?.lastname,
+            otp: result.data?.otp // For testing purposes, remove in production
+          }
+        });
       } else {
         setError(result.message || 'Invalid username or password');
       }

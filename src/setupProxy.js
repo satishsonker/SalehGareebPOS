@@ -1,17 +1,5 @@
-// Proxy setup removed - API base path is now http://localhost:3000
-// If you need to proxy API requests in the future, uncomment and configure below:
-
-// const { createProxyMiddleware } = require('http-proxy-middleware');
-//
-// module.exports = function(app) {
-//   const proxyTarget = process.env.REACT_APP_PROXY_TARGET || 'http://localhost:3001';
-//   
-//   app.use(
-//     '/api',
-//     createProxyMiddleware({
-//       target: proxyTarget,
-//       changeOrigin: true,
-//       secure: false,
-//     })
-//   );
-// };
+// Proxy setup removed - API base path is configured in src/config/index.js
+// setupProxy must export a function even if no proxies are configured
+module.exports = function(app) {
+  // No proxies configured - API calls use direct URLs
+};

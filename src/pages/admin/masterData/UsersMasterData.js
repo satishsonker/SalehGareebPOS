@@ -11,6 +11,7 @@ import { getUsers, getUserById, updateUser, deleteUser, blockUser, unblockUser, 
 import { getRoles } from '../../../services/api/roleApi';
 import { tableHeaderFormat } from '../../../utils/tableHeaderFormat';
 import { commonLogic } from '../../../utils/commonLogic';
+import { mergeValidationErrorsFromApi } from '../../../utils/apiError';
 import './UsersMasterData.css';
 
 function UsersMasterData() {
@@ -160,6 +161,7 @@ function UsersMasterData() {
       }
     } catch (error) {
       console.error('Failed to create user:', error);
+      mergeValidationErrorsFromApi(error, setAddFormErrors);
       showError(error.message || 'Failed to create user. Please try again.');
     } finally {
       setSaving(false);
@@ -375,6 +377,7 @@ function UsersMasterData() {
       }
     } catch (error) {
       console.error('Failed to update user:', error);
+      mergeValidationErrorsFromApi(error, setEditFormErrors);
       showError(error.message || 'Failed to update user. Please try again.');
     } finally {
       setSaving(false);

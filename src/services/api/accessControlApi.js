@@ -30,6 +30,11 @@ export const removeMenuAccess = (roleId, shopId, menuId) => {
   return del(`/AccessControl/menu-access/${roleId}/${shopId}/${menuId}`);
 };
 
+export const getShopAccessByUser = (userId) => {
+  return del(`/AccessControl/shop-access/by/user/${userId}`);
+};
+
+
 // Check if user has access to a shop/menu
 export const checkAccess = (params) => {
   const queryParams = new URLSearchParams();

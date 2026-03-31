@@ -10,16 +10,6 @@ export const register = (data) => {
   return post('/Users/register', data);
 };
 
-// Login user
-export const login = (data) => {
-  return post('/Users/login', data);
-};
-
-// Logout user
-export const logout = () => {
-  return post('/Users/logout');
-};
-
 // Get all users (if endpoint exists)
 export const getUsers = (pageNo,pageSize) => {
   return get(`/Users/get/users?pageNo=${pageNo}&pageSize=${pageSize}`);
@@ -40,20 +30,8 @@ export const deleteUser = (id) => {
   return del(`/Users/${id}`);
 };
 
-// Change password
-export const changePassword = (data) => {
-  return post('/Users/change-password', data);
-};
 
-// Forgot password
-export const forgotPassword = (data) => {
-  return post('/Users/forgot-password', data);
-};
 
-// Forgot username
-export const forgotUsername = (data) => {
-  return post('/Users/forgot-username', data);
-};
 
 // Upload profile picture
 export const uploadProfilePicture = (id, file) => {

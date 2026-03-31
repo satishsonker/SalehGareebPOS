@@ -1,14 +1,22 @@
 import config from '../config';
+import { formatApiErrorMessage, parseApiValidationErrors } from './apiError';
 
-/**
- * API Utility Functions
- * 
- * Centralized API calls using configuration from environment variables
- */
+const readResponseBody = async (response) => {
+  const text = await response.text();
+  const t = text.trim();
+  if (!t) return text;
+  const first = t[0];
+  if ((first === '{' && t.endsWith('}')) || (first === '[' && t.endsWith(']'))) {
+    try {
+      return JSON.parse(t);
+    } catch {
+      return text;
+    }
+  }
+  return text;
+};
 
-/**
- * Get authentication token from storage
- */
+
 const getAuthToken = () => {
   return localStorage.getItem('token') || sessionStorage.getItem('token');
 };
@@ -65,32 +73,22 @@ export const apiRequest = async (endpoint, options = {}) => {
     
     clearTimeout(timeoutId);
 
-    // Parse response body
-    let responseData;
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-      responseData = await response.json();
-    } else {
-      responseData = await response.text();
-    }
+    const responseData = await readResponseBody(response);
 
     if (!response.ok) {
-      // Try to extract error message from response
-      let errorMessage = `API Error: ${response.status} ${response.statusText}`;
-      
-      if (responseData) {
-        if (typeof responseData === 'object' && responseData.message) {
-          errorMessage = responseData.message;
-        } else if (typeof responseData === 'object' && responseData.errors && Array.isArray(responseData.errors)) {
-          errorMessage = responseData.errors.join(', ') || errorMessage;
-        } else if (typeof responseData === 'string') {
-          errorMessage = responseData;
-        }
-      }
+      const errorMessage = formatApiErrorMessage(
+        responseData,
+        response.statusText,
+        response.status
+      );
 
       const error = new Error(errorMessage);
       error.status = response.status;
       error.response = responseData;
+      const validationErrors = parseApiValidationErrors(responseData);
+      if (validationErrors) {
+        error.validationErrors = validationErrors;
+      }
       throw error;
     }
 

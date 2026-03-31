@@ -7,6 +7,7 @@ import TextBox from '../../../components/TextBox/TextBox';
 import { useNotification } from '../../../components/Notification';
 import { getRoles, getRoleById, createRole, updateRole, deleteRole } from '../../../services/api/roleApi';
 import './RolesMasterData.css';
+import { mergeValidationErrorsFromApi } from '../../../utils/apiError';
 
 function RolesMasterData() {
   const { success, error: showError, warning, info, confirm } = useNotification();
@@ -101,6 +102,7 @@ function RolesMasterData() {
       }
     } catch (error) {
       console.error('Failed to create role:', error);
+      mergeValidationErrorsFromApi(error, setAddFormErrors);
       showError(error.message || 'Failed to create role. Please try again.');
     } finally {
       setSaving(false);
@@ -237,6 +239,7 @@ function RolesMasterData() {
       }
     } catch (error) {
       console.error('Failed to update role:', error);
+      mergeValidationErrorsFromApi(error, setEditFormErrors);
       showError(error.message || 'Failed to update role. Please try again.');
     } finally {
       setSaving(false);

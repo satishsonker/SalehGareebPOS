@@ -8,6 +8,7 @@ import { useNotification } from '../../../components/Notification';
 import { getShops, getShopById, createShop, updateShop, deleteShop } from '../../../services/api/shopApi';
 import './ShopsMasterData.css';
 import { tableHeaderFormat } from '../../../utils/tableHeaderFormat';
+import { mergeValidationErrorsFromApi } from '../../../utils/apiError';
 
 function ShopsMasterData() {
   const { success, error: showError, warning, info, confirm } = useNotification();
@@ -124,6 +125,7 @@ function ShopsMasterData() {
       }
     } catch (error) {
       console.error('Failed to create shop:', error);
+      mergeValidationErrorsFromApi(error, setAddFormErrors);
       showError(error.message || 'Failed to create shop. Please try again.');
     } finally {
       setSaving(false);
@@ -280,6 +282,7 @@ function ShopsMasterData() {
       }
     } catch (error) {
       console.error('Failed to update shop:', error);
+      mergeValidationErrorsFromApi(error, setEditFormErrors);
       showError(error.message || 'Failed to update shop. Please try again.');
     } finally {
       setSaving(false);
