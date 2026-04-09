@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/ACER/source/repos/SalehGareebCentralApi/**)"
+    ]
+  }
+}

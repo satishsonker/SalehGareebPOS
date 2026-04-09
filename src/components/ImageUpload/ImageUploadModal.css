@@ -1,0 +1,114 @@
+.iup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Drop zone */
+.iup-drop-zone {
+  position: relative;
+  border: 2px dashed var(--border-color);
+  border-radius: 10px;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s, background-color 0.2s;
+  background-color: var(--bg-tertiary);
+  user-select: none;
+}
+
+.iup-drop-zone:hover,
+.iup-drop-zone.drag-over {
+  border-color: var(--accent-color);
+  background-color: color-mix(in srgb, var(--accent-color) 5%, var(--bg-tertiary));
+}
+
+.iup-drop-zone.has-image {
+  border-style: solid;
+  min-height: 220px;
+}
+
+/* Preview image */
+.iup-preview-img {
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  max-height: 280px;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
+}
+
+/* Hover overlay on existing image */
+.iup-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  color: #fff;
+  font-size: 0.85rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  border-radius: 8px;
+}
+
+.iup-overlay svg { font-size: 1.5rem; }
+
+.iup-drop-zone:hover .iup-overlay,
+.iup-drop-zone.drag-over .iup-overlay {
+  opacity: 1;
+}
+
+/* "New" badge shown on preview before upload */
+.iup-new-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: var(--accent-color);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  letter-spacing: 0.04em;
+}
+
+/* Placeholder (no image) */
+.iup-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  padding: 2rem;
+  text-align: center;
+}
+
+.iup-placeholder span { font-size: 0.9rem; }
+.iup-placeholder small { font-size: 0.75rem; }
+
+/* Error */
+.iup-error {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--danger-color, #dc3545);
+  padding: 0.4rem 0.6rem;
+  background-color: color-mix(in srgb, var(--danger-color, #dc3545) 8%, transparent);
+  border-radius: 5px;
+  border: 1px solid color-mix(in srgb, var(--danger-color, #dc3545) 20%, transparent);
+}
+
+/* Action buttons row */
+.iup-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}

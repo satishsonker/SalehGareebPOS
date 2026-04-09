@@ -4,34 +4,41 @@ import { get, post, del } from '../../utils/api';
  * Access Control API Service
  * Handles user access control, shop access, and menu access management
  */
-
+const API_CONTROLLER = '/AccessControl';
 // Get user access information
 export const getUserAccess = (userId) => {
-  return get(`/AccessControl/user/${userId}`);
+  return get(`${API_CONTROLLER}/user/${userId}`);
 };
 
-// Grant shop access to a role
+// Grant shop access to a user
 export const grantShopAccess = (data) => {
-  return post('/AccessControl/shop-access', data);
+  return post(`${API_CONTROLLER}/grant/access/shop`, data);
+};
+
+export const getAllShopAccess = () => {
+  return get(`${API_CONTROLLER}/shop-access/get/all`);
+};
+
+export const grantBulkShopAccess = (data) => {
+  return post(`${API_CONTROLLER}/grant/access/shop/bulk`, data);
 };
 
 // Grant menu access to a role
 export const grantMenuAccess = (data) => {
-  return post('/AccessControl/menu-access', data);
+  return post(`${API_CONTROLLER}/grant/access/menu`, data);
 };
 
-// Remove shop access from a role
-export const removeShopAccess = (roleId, shopId) => {
-  return del(`/AccessControl/shop-access/${roleId}/${shopId}`);
+// Revoke shop access from a user
+export const removeShopAccess = (userId, shopId) => {
+  return del(`${API_CONTROLLER}/revoke/access/shop/${userId}/${shopId}`);
 };
 
 // Remove menu access from a role
 export const removeMenuAccess = (roleId, shopId, menuId) => {
-  return del(`/AccessControl/menu-access/${roleId}/${shopId}/${menuId}`);
+  return del(`${API_CONTROLLER}/menu-access/${roleId}/${shopId}/${menuId}`);
 };
-
 export const getShopAccessByUser = (userId) => {
-  return del(`/AccessControl/shop-access/by/user/${userId}`);
+  return post(`${API_CONTROLLER}/shop-access/by/user/${userId}`);
 };
 
 

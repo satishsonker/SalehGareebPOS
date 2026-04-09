@@ -89,7 +89,7 @@ function OtpVerification() {
 
       if (result.success) {
         // Redirect to intended page or default to admin
-        const from = location.state?.from?.pathname || '/admin';
+        const from = '/shop/selection';
         navigate(from, { replace: true });
       } else {
         setError(result.message || 'Invalid OTP or session ID');
@@ -124,6 +124,10 @@ function OtpVerification() {
     }
   };
 
+  const handleCancel=()=>{
+    navigate('/login', { replace: true });
+  }
+
   const contactInfo = `${location.state?.mobile} & ${location.state?.email}` || 'your registered contact';
   const canResend = cooldownSeconds === 0 && !resendLoading && !loading;
 
@@ -138,7 +142,7 @@ function OtpVerification() {
           <div className='alert alert-primary small' role="alert">
             Please enter the OTP sent to {contactInfo}
           </div>
-          <p>OTP {location.state.otp}</p>
+          <p>OTP {location.state?.otp}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -212,6 +216,7 @@ function OtpVerification() {
           </button>
           <button
            type="button"
+           onClick={handleCancel}
             className="login-button" style={{width:'46%'}}
             >
             Cancel

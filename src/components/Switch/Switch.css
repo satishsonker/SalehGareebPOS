@@ -1,0 +1,145 @@
+/* ============================================================
+   Switch Component
+   ============================================================ */
+
+.custom-switch-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: fit-content;
+}
+
+.custom-switch-control {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Hide native checkbox */
+.custom-switch-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Track */
+.custom-switch-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.custom-switch-track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  cursor: pointer;
+  background-color: var(--bg-tertiary);
+  border: 1.5px solid var(--border-color);
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.2s ease;
+  user-select: none;
+}
+
+.custom-switch-track:focus-within {
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+}
+
+/* Track sizes */
+.custom-switch-track-small  { width: 36px; height: 20px; padding: 0 3px; }
+.custom-switch-track-medium { width: 48px; height: 26px; padding: 0 4px; }
+.custom-switch-track-large  { width: 60px; height: 32px; padding: 0 5px; }
+
+/* Track — ON state per variant */
+.custom-switch-track-primary.custom-switch-track-checked  { background-color: var(--accent-color);  border-color: var(--accent-color); }
+.custom-switch-track-success.custom-switch-track-checked  { background-color: var(--success-color); border-color: var(--success-color); }
+.custom-switch-track-danger.custom-switch-track-checked   { background-color: var(--danger-color);  border-color: var(--danger-color); }
+.custom-switch-track-warning.custom-switch-track-checked  { background-color: var(--warning-color); border-color: var(--warning-color); }
+
+/* Track — disabled */
+.custom-switch-track-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Track — error */
+.custom-switch-track-error {
+  border-color: var(--danger-color);
+}
+
+/* Track label (on/off text inside track) */
+.custom-switch-track-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  text-align: center;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.custom-switch-track-checked .custom-switch-track-label {
+  color: #fff;
+}
+
+/* Thumb */
+.custom-switch-thumb {
+  position: absolute;
+  border-radius: 50%;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, background-color 0.2s ease;
+  left: 3px;
+  flex-shrink: 0;
+}
+
+/* Thumb sizes */
+.custom-switch-thumb-small  { width: 14px; height: 14px; }
+.custom-switch-thumb-medium { width: 18px; height: 18px; }
+.custom-switch-thumb-large  { width: 22px; height: 22px; }
+
+/* Thumb — ON position */
+.custom-switch-thumb-small.custom-switch-thumb-checked  { transform: translateX(16px); }
+.custom-switch-thumb-medium.custom-switch-thumb-checked { transform: translateX(22px); }
+.custom-switch-thumb-large.custom-switch-thumb-checked  { transform: translateX(28px); }
+
+/* Label */
+.custom-switch-label {
+  cursor: pointer;
+  color: var(--text-primary);
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.custom-switch-label-small  { font-size: 0.8rem; }
+.custom-switch-label-medium { font-size: 0.875rem; }
+.custom-switch-label-large  { font-size: 1rem; }
+
+.custom-switch-label-disabled {
+  cursor: not-allowed;
+  color: var(--text-tertiary);
+}
+
+.custom-switch-required {
+  color: var(--danger-color);
+  margin-left: 0.2rem;
+}
+
+/* Helper / error text */
+.custom-switch-helper-text {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.custom-switch-error-message {
+  font-size: 0.75rem;
+  color: var(--danger-color);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}

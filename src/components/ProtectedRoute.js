@@ -9,14 +9,15 @@ import { useAuth } from '../contexts/AuthContext';
 function ProtectedRoute({ children, requireAdmin = false }) {
   const { isAuthenticated, loading, user } = useAuth();
   const location = useLocation();
+  
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh' 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh'
       }}>
         <div>Loading...</div>
       </div>
@@ -29,7 +30,7 @@ function ProtectedRoute({ children, requireAdmin = false }) {
   }
 
   // Check if admin access is required
-  if (requireAdmin && (!user || !user.isAdmin)) {
+  if (requireAdmin && (!user || user.role !== 'Admin')) {
     return <Navigate to="/" replace />;
   }
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
@@ -11,7 +11,7 @@ import OtpVerification from './pages/auth/OtpVerification';
 import Home from './pages/public/Home';
 import About from './pages/public/About';
 import Dashboard from './pages/admin/Dashboard';
-import MasterData from './pages/admin/MasterData';
+import SystemData from './pages/admin/SystemData';
 import Products from './pages/admin/Products';
 import Orders from './pages/admin/Orders';
 import Settings from './pages/admin/Settings';
@@ -20,6 +20,13 @@ import ShopSelection from './pages/auth/ShopSelection';
 import './App.css';
 
 function App() {
+  useEffect(() => { 
+    if (!localStorage.getItem('device-id')) {
+    localStorage.setItem('device-id', crypto.randomUUID());
+  }
+}, []);
+ 
+  crypto.randomUUID(); // Pre-warm crypto module to avoid delays on first use
   return (
     <ThemeProvider>
       <AuthProvider>
@@ -28,8 +35,8 @@ function App() {
           <Routes>
             {/* Login Route - Public */}
             <Route path="/login" element={<Login />} />
-            <Route path="otp/verify" element={<OtpVerification />} />
-            <Route path="shop/selection" element={<ShopSelection />} />
+            <Route path="/otp/verify" element={<OtpVerification />} />
+            <Route path="/shop/selection" element={<ShopSelection />} />
             {/* Public Routes - Protected */}
             <Route 
               path="/" 
@@ -53,7 +60,7 @@ function App() {
               }
             >
               <Route index element={<Dashboard />} />
-              <Route path="master-data" element={<MasterData />} />
+              <Route path="system-data" element={<SystemData />} />
               <Route path="products" element={<Products />} />
               <Route path="orders" element={<Orders />} />
               <Route path="settings" element={<Settings />} />

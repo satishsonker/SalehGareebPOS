@@ -1,0 +1,46 @@
+/* ============================================================
+   Shared styles for all MasterData pages
+   ============================================================ */
+
+/* Generic modal form layout — used in all view/edit/add modals */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Detail view row */
+.detail-row {
+  display: flex;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row label {
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 150px;
+  flex-shrink: 0;
+}
+
+.detail-row span {
+  color: var(--text-primary);
+  flex: 1;
+}
+
+/* Form group */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}

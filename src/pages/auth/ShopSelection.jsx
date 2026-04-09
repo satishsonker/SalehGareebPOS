@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth, selectedShop, setSelectedShop } from '../../contexts/AuthContext';
-import { FiLock, FiLogIn, FiRefreshCw } from 'react-icons/fi';
+import { useAuth } from '../../contexts/AuthContext';
+import { FiLogIn } from 'react-icons/fi';
 import { apiBasePath } from '../../services/api/commonApi';
 import { getShopAccessByUser } from '../../services/api/accessControlApi';
 import ShopAccessList from '../../components/Shop/ShopAccessList';
-import './Login.css';
+import './ShopSelection.css';
+import { jwtDecode } from "jwt-decode";
 
 function ShopSelection() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { isAuthenticated } = useAuth();
-    const [formData, setFormData] = useState({
-        shopId: '',
-    });
-    const [loading, setLoading] = useState(false);
+    const { isAuthenticated, selectedShop, setSelectedShop } = useAuth();
     const [error, setError] = useState('');
     const [shopList, setShopList] = useState([])
 
@@ -22,16 +19,24 @@ function ShopSelection() {
 
     // Redirect if already authenticated
     useEffect(() => {
-        if (!isAuthenticated) {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        const user = localStorage.getItem('user');
+        if (!token || !user) {
             const from = '/login';
             navigate(from, { replace: true });
         }
-
-        const user = localStorage.getItem('user');
         if (user) {
-            var userData = JSON.parse(user);
+            var userDataTemp = jwtDecode(token);
+            var userData = {
+                userId: userDataTemp["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
+                email: userDataTemp["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
+                firstName: userDataTemp["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"],
+                lastName: userDataTemp["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"],
+                phone: userDataTemp["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone"],
+                role: userDataTemp["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+            };
             setUserData(userData);
-            fetchShops(userData.id);
+            fetchShops(userData.userId);
         }
     }, [isAuthenticated, navigate, location]);
 
@@ -46,91 +51,51 @@ function ShopSelection() {
             });
     };
 
-    useEffect(() => {
-        const sessionIdFromState = location.state?.sessionId;
-        const sessionIdFromStorage = localStorage.getItem('sessionId');
-        const sessionId = sessionIdFromState || sessionIdFromStorage || '';
-
-        if (!sessionId) {
-            navigate('/login', { replace: true });
-            return;
-        }
-    }, [location.state, navigate]);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value,
-        }));
-        setError(''); // Clear error on input change
-    };
-
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         setError('');
-        setLoading(true);
 
-        try {
-            const credentials = {
-                otp: formData.otp.trim(),
-                sessionId: formData.sessionId
-            };
-
-            const result = await validateOtp(credentials);
-
-            if (result.success) {
-                // Redirect to intended page or default to admin
-                const from = location.state?.from?.pathname || '/admin';
-                navigate(from, { replace: true });
-            } else {
-                setError(result.message || 'Invalid OTP or session ID');
-            }
-        } catch (err) {
-            setError(err.message || 'An error occurred during OTP verification');
-        } finally {
-            setLoading(false);
+        if (!selectedShop) {
+            setError('Please select a shop to continue.');
+            return;
         }
+
+        localStorage.setItem('selectedShop', JSON.stringify(selectedShop));
+        const from = location.state?.from?.pathname || '/admin';
+        navigate(from, { replace: true });
     };
 
     return (
-        <div className="login-container">
-            <div className="login-card">
-                <div className="login-header">
-                    <div className="login-icon">
+        <div className="shopselection-container">
+            <div className="shopselection-card">
+                <div className="shopselection-header">
+                    <div className="shopselection-icon">
                         <img src={`${apiBasePath}/logo/logo.png`} alt="Saleh Gareeb POS Icon" className="logo" />
                     </div>
                     <h1>Welcome Back {userData?.firstName}</h1>
                 </div>
 
-                <form onSubmit={handleSubmit} className="login-form">
+                <form onSubmit={handleSubmit} className="shopselection-form">
                     {error && (
                         <div className="error-message">
                             {error}
                         </div>
                     )}
-                        <ShopAccessList shops={shopList} selectedShop={selectedShop} setSelectedShop={setSelectedShop} />
+                    <ShopAccessList shops={shopList} selectedShop={selectedShop} setSelectedShop={setSelectedShop} />
                     <button
                         type="submit"
-                        className="login-button"
-                        disabled={loading || !formData.otp.trim()}
+                        className="shopselection-button"
+                        disabled={!selectedShop}
                     >
-                        {loading ? (
-                            <>
-                                <span className="spinner"></span>
-                                Signing in...
-                            </>
-                        ) : (
-                            <>
-                                <FiLogIn />
-                                Verify OTP
-                            </>
-                        )}
+                        <>
+                            <FiLogIn />
+                            Continue
+                        </>
                     </button>
                 </form>
 
-                <div className="login-footer">
-                    <p>Need help? Contact your administrator</p>
+                <div className="shopselection-footer">
+                    <p>If shop is not listed, please contact your administrator</p>
                 </div>
             </div>
         </div>

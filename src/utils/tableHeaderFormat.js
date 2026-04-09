@@ -1,4 +1,4 @@
-import  {commonLogic}  from './commonLogic';
+import { commonLogic } from './commonLogic';
 export const tableHeaderFormat = {
     masterUserData: [
         {
@@ -7,7 +7,7 @@ export const tableHeaderFormat = {
             width: '100px',
             align: 'center',
             render: (value) => (
-                <img src={value ? `${process.env.REACT_APP_API_URL || 'https://localhost:7194'}/images/${value}` : '/default-profile.png'} alt="Profile" className="profile-picture" />
+                <img src={value ? `${process.env.REACT_APP_API_URL || 'https://localhost:7194'}/${value}` : '/default-profile.png'} alt="Profile" className="profile-picture" />
             ),
         },
         {
@@ -92,39 +92,81 @@ export const tableHeaderFormat = {
             render: commonLogic.formatDate,
         },
     ],
-    masterShopData:  [
-    {
-      key: 'id',
-      header: 'ID',
-      width: '80px',
-      align: 'center',
-    },
-    {
-      key: 'name',
-      header: 'Shop Name',
-    },
-    {
-      key: 'code',
-      header: 'Code',
-      width: '120px',
-    },
-    {
-      key: 'address',
-      header: 'Address',
-    },
-    {
-      key: 'phone',
-      header: 'Phone',
-      width: '150px',
-    },
-    {
-      key: 'email',
-      header: 'Email',
-    },
-    {
-      key: 'trn',
-      header: 'TRN',
-      width: '120px',
-    },
-  ],
+    masterShopData: [
+        {
+            key: 'id',
+            header: 'ID',
+            width: '80px',
+            align: 'center',
+        },
+        {
+            key: 'name',
+            header: 'Shop Name',
+        },
+        {
+            key: 'code',
+            header: 'Code',
+            width: '120px',
+        },
+        {
+            key: 'address',
+            header: 'Address',
+        },
+        {
+            key: 'phone',
+            header: 'Phone',
+            width: '150px',
+        },
+        {
+            key: 'email',
+            header: 'Email',
+        },
+        {
+            key: 'trn',
+            header: 'TRN',
+            width: '120px',
+        },
+    ],
+    masterData: [
+        {
+            key: 'id',
+            header: 'ID',
+            width: '80px',
+            align: 'center',
+        },
+        {
+            key: 'masterDataType',
+            header: 'Master Data Type',
+            width: '150px',
+        },
+        {
+            key: 'code',
+            header: 'Code',
+            width: '180px',
+        },
+        {
+            key: 'displayValue',
+            header: 'DisplayValue',
+        },
+        {
+            key: 'remark',
+            header: 'Remark',
+        },
+        {
+            key: 'displayOrder',
+            header: 'Order',
+            width: '80px',
+            align: 'center',
+        }, {
+            key: 'canDelete',
+            header: 'Can Delete',
+            width: '100px',
+            align: 'center',
+            render: (value) => (
+                <span className={value ? 'text-danger' : 'text-success' }>
+                    {value ? 'No' : 'Yes'}
+                </span>
+            ),
+        }
+    ]
 };

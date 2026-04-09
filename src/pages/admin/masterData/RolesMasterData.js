@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiRefreshCw, FiDownload, FiFilter, FiPlus, FiEye, FiEdit, FiTrash2, FiShield, FiKey } from 'react-icons/fi';
+import { FiRefreshCw, FiDownload, FiFilter, FiPlus, FiShield, FiKey } from 'react-icons/fi';
 import DataGrid from '../../../components/DataGrid';
 import Modal from '../../../components/Modal/Modal';
 import Button from '../../../components/Button/Button';
@@ -10,9 +10,12 @@ import './RolesMasterData.css';
 import { mergeValidationErrorsFromApi } from '../../../utils/apiError';
 
 function RolesMasterData() {
-  const { success, error: showError, warning, info, confirm } = useNotification();
+  const { success, error: showError, info, confirm } = useNotification();
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [pageNo, setPageNo] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -28,17 +31,17 @@ function RolesMasterData() {
   const [editFormErrors, setEditFormErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
-  // Fetch roles on component mount
   useEffect(() => {
     fetchRoles();
-  }, []);
+  }, [pageNo, pageSize]);
 
   const fetchRoles = async () => {
     setLoading(true);
     try {
-      const response = await getRoles(1, 1000);
+      const response = await getRoles(pageNo, pageSize);
       if (response.success && response.data) {
-        setRoles(response.data?.data || response.data || []);
+        setRoles(response.data?.data || []);
+        setTotalRecords(response.data?.totalRecords ?? 0);
       }
     } catch (error) {
       console.error('Failed to fetch roles:', error);
@@ -328,7 +331,11 @@ function RolesMasterData() {
         columns={columns}
         onAction={handleAction}
         loading={loading}
-        pageSize={10}
+        pageSize={pageSize}
+        serverSide={true}
+        page={pageNo}
+        totalRecords={totalRecords}
+        onPageChange={setPageNo}
         searchPlaceholder="Search roles by name, code, description..."
         emptyMessage="No roles found"
         defaultActions={{
@@ -352,7 +359,7 @@ function RolesMasterData() {
         type="info"
       >
         {selectedRole && (
-          <div className="role-details-modal">
+          <div className="modal-form">
             <div className="detail-row">
               <label>ID:</label>
               <span>{selectedRole.id}</span>
@@ -418,7 +425,7 @@ function RolesMasterData() {
         ]}
       >
         {selectedRole && (
-          <div className="role-edit-modal">
+          <div className="modal-form">
             <div className="form-group">
               <TextBox
                 id="edit-name"
@@ -520,7 +527,7 @@ function RolesMasterData() {
           },
         ]}
       >
-        <div className="role-add-modal">
+        <div className="modal-form">
           <div className="form-group">
             <TextBox
               id="add-name"

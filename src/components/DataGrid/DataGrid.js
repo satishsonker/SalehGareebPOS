@@ -46,6 +46,11 @@ function DataGrid({
   actionMenuItems = [],
   loading = false,
   toolbar = null,
+  // Server-side pagination
+  serverSide = false,
+  totalRecords = 0,
+  page = 1,
+  onPageChange,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,9 +60,9 @@ function DataGrid({
   const menuRefs = useRef({});
   const triggerRefs = useRef({});
 
-  // Filter data based on search term
+  // Filter data based on search term (client-side only)
   const filteredData = useMemo(() => {
-    if (!searchTerm) return data;
+    if (serverSide || !searchTerm) return data;
 
     return data.filter((row) => {
       return columns.some((column) => {
@@ -66,11 +71,11 @@ function DataGrid({
         return String(value).toLowerCase().includes(searchTerm.toLowerCase());
       });
     });
-  }, [data, searchTerm, columns]);
+  }, [data, searchTerm, columns, serverSide]);
 
-  // Sort data
+  // Sort data (client-side only)
   const sortedData = useMemo(() => {
-    if (!sortConfig.key) return filteredData;
+    if (serverSide || !sortConfig.key) return filteredData;
 
     return [...filteredData].sort((a, b) => {
       const aValue = a[sortConfig.key];
@@ -92,16 +97,26 @@ function DataGrid({
         return bStr.localeCompare(aStr);
       }
     });
-  }, [filteredData, sortConfig]);
+  }, [filteredData, sortConfig, serverSide]);
 
-  // Paginate data
+  // Paginate data (client-side only; server-side uses data as-is)
   const paginatedData = useMemo(() => {
+    if (serverSide) return data;
     const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    return sortedData.slice(startIndex, endIndex);
-  }, [sortedData, currentPage, pageSize]);
+    return sortedData.slice(startIndex, startIndex + pageSize);
+  }, [sortedData, currentPage, pageSize, serverSide, data]);
 
-  const totalPages = Math.ceil(sortedData.length / pageSize);
+  const effectivePage = serverSide ? page : currentPage;
+  const effectiveTotalRecords = serverSide ? totalRecords : sortedData.length;
+  const effectiveTotalPages = Math.max(1, Math.ceil(effectiveTotalRecords / pageSize));
+
+  const handlePageChange = (newPage) => {
+    if (serverSide) {
+      onPageChange && onPageChange(newPage);
+    } else {
+      setCurrentPage(newPage);
+    }
+  };
 
   // Reset to first page when search term changes
   useEffect(() => {
@@ -131,22 +146,13 @@ function DataGrid({
 
   // Handle action button click
   const handleAction = (action, row, index, event) => {
-    console.log('handleAction called:', { action, row, index }); // Debug log
-    
     if (event) {
       event.stopPropagation();
       event.preventDefault();
     }
-    
-    // Close menu immediately
     setOpenMenuId(null);
-    
-    // Call the action handler
     if (onAction) {
-      console.log('Calling onAction callback'); // Debug log
       onAction(action, row, index);
-    } else {
-      console.warn('onAction callback is not defined'); // Debug log
     }
   };
 
@@ -220,7 +226,6 @@ function DataGrid({
       });
     }
     
-    console.log('Menu items for row:', items); // Debug log
     return items;
   };
 
@@ -392,7 +397,7 @@ function DataGrid({
               </tr>
             ) : (
               paginatedData.map((row, rowIndex) => {
-                const actualRowIndex = (currentPage - 1) * pageSize + rowIndex;
+                const actualRowIndex = (effectivePage - 1) * pageSize + rowIndex;
                 const menuId = `menu-${actualRowIndex}`;
                 const isMenuOpen = openMenuId === actualRowIndex;
                 
@@ -423,7 +428,6 @@ function DataGrid({
                             >
                               {getMenuItems(row).map((menuItem) => {
                                 const handleMenuItemClick = (e) => {
-                                  console.log('Menu item clicked:', menuItem); // Debug log
                                   e.stopPropagation();
                                   e.preventDefault();
                                   handleAction(menuItem.action, row, actualRowIndex, e);
@@ -473,46 +477,46 @@ function DataGrid({
       </div>
 
       {/* Pagination */}
-      {showPagination && totalPages > 1 && (
+      {showPagination && effectiveTotalPages > 1 && (
         <div className="data-grid-pagination">
           <div className="pagination-info">
-            Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, sortedData.length)} of {sortedData.length} entries
+            Showing {((effectivePage - 1) * pageSize) + 1} to {Math.min(effectivePage * pageSize, effectiveTotalRecords)} of {effectiveTotalRecords} entries
           </div>
           <div className="pagination-controls">
             <button
               className="pagination-btn"
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
+              onClick={() => handlePageChange(Math.max(1, effectivePage - 1))}
+              disabled={effectivePage === 1}
               aria-label="Previous page"
             >
               <FiChevronLeft />
             </button>
             <div className="pagination-pages">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+              {Array.from({ length: effectiveTotalPages }, (_, i) => i + 1).map((p) => {
                 if (
-                  page === 1 ||
-                  page === totalPages ||
-                  (page >= currentPage - 1 && page <= currentPage + 1)
+                  p === 1 ||
+                  p === effectiveTotalPages ||
+                  (p >= effectivePage - 1 && p <= effectivePage + 1)
                 ) {
                   return (
                     <button
-                      key={page}
-                      className={`pagination-page ${currentPage === page ? 'active' : ''}`}
-                      onClick={() => setCurrentPage(page)}
+                      key={p}
+                      className={`pagination-page ${effectivePage === p ? 'active' : ''}`}
+                      onClick={() => handlePageChange(p)}
                     >
-                      {page}
+                      {p}
                     </button>
                   );
-                } else if (page === currentPage - 2 || page === currentPage + 2) {
-                  return <span key={page} className="pagination-ellipsis">...</span>;
+                } else if (p === effectivePage - 2 || p === effectivePage + 2) {
+                  return <span key={p} className="pagination-ellipsis">...</span>;
                 }
                 return null;
               })}
             </div>
             <button
               className="pagination-btn"
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(Math.min(effectiveTotalPages, effectivePage + 1))}
+              disabled={effectivePage === effectiveTotalPages}
               aria-label="Next page"
             >
               <FiChevronRight />

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { FaArrowRotateRight, FaDownload, FaFilter, FaPlus,FaIdCard, FiEye, FiEdit, FiTrash2,FaCode, FaMapLocation, FaPhone, FaRegEnvelope, FaHouseFlag } from 'react-icons/fa6';
+import { FaArrowRotateRight, FaDownload, FaFilter, FaPlus, FaIdCard, FaCode, FaMapLocation, FaPhone, FaRegEnvelope, FaHouseFlag, FaCamera } from 'react-icons/fa6';
 import DataGrid from '../../../components/DataGrid';
 import Modal from '../../../components/Modal/Modal';
 import Button from '../../../components/Button/Button';
 import TextBox from '../../../components/TextBox/TextBox';
 import { useNotification } from '../../../components/Notification';
 import { getShops, getShopById, createShop, updateShop, deleteShop } from '../../../services/api/shopApi';
+import { uploadMedia } from '../../../services/api/mediaApi';
+import ImageUploadModal from '../../../components/ImageUpload/ImageUploadModal';
 import './ShopsMasterData.css';
 import { tableHeaderFormat } from '../../../utils/tableHeaderFormat';
 import { mergeValidationErrorsFromApi } from '../../../utils/apiError';
@@ -20,7 +22,8 @@ function ShopsMasterData() {
   const [selectedShop, setSelectedShop] = useState(null);
   const [editFormData, setEditFormData] = useState({});
   const [pageNo, setPageNo] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [addFormData, setAddFormData] = useState({
     name: '',
     code: '',
@@ -32,18 +35,21 @@ function ShopsMasterData() {
   const [addFormErrors, setAddFormErrors] = useState({});
   const [editFormErrors, setEditFormErrors] = useState({});
   const [saving, setSaving] = useState(false);
+  const [pictureModalOpen, setPictureModalOpen] = useState(false);
+  const [pictureShop, setPictureShop] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
-  // Fetch shops on component mount
   useEffect(() => {
     fetchShops();
-  }, []);
+  }, [pageNo, pageSize]);
 
   const fetchShops = async () => {
     setLoading(true);
     try {
       const response = await getShops(pageNo, pageSize);
-      if (response.success && response.data?.data) {
-        setShops(response.data.data);
+      if (response.success && response.data) {
+        setShops(response.data.data || []);
+        setTotalRecords(response.data.totalRecords ?? 0);
       }
     } catch (error) {
       console.error('Failed to fetch shops:', error);
@@ -227,8 +233,52 @@ function ShopsMasterData() {
           }
         });
         break;
+      case 'changePicture':
+        setPictureShop(row);
+        setPictureModalOpen(true);
+        break;
       default:
         break;
+    }
+  };
+
+  const handleUploadShopImage = async (file) => {
+    setUploading(true);
+    try {
+      const mediaRes = await uploadMedia(file, 'shops');
+      if (!mediaRes.success) {
+        showError(mediaRes.message || 'Failed to upload image');
+        return;
+      }
+      const imagePath = mediaRes.data?.relativePath || mediaRes.data;
+      const response = await updateShop(pictureShop.id, { ...pictureShop, shopImagePath: imagePath });
+      if (response.success) {
+        success('Shop image updated successfully');
+        fetchShops();
+      } else {
+        showError(response.message || 'Failed to update shop image');
+      }
+    } catch (err) {
+      showError(err.message || 'Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteShopImage = async () => {
+    setUploading(true);
+    try {
+      const response = await updateShop(pictureShop.id, { ...pictureShop, shopImagePath: null });
+      if (response.success) {
+        success('Shop image removed');
+        fetchShops();
+      } else {
+        showError(response.message || 'Failed to remove shop image');
+      }
+    } catch (err) {
+      showError(err.message || 'Failed to remove image. Please try again.');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -337,7 +387,11 @@ function ShopsMasterData() {
         columns={columns}
         onAction={handleAction}
         loading={loading}
-        pageSize={10}
+        pageSize={pageSize}
+        serverSide={true}
+        page={pageNo}
+        totalRecords={totalRecords}
+        onPageChange={setPageNo}
         searchPlaceholder="Search shops by name, code, address..."
         emptyMessage="No shops found"
         defaultActions={{
@@ -346,6 +400,15 @@ function ShopsMasterData() {
           delete: true,
           print: false,
         }}
+        actionMenuItems={[
+          {
+            id: 'changePicture',
+            label: 'Change Image',
+            icon: <FaCamera />,
+            action: 'changePicture',
+            visible: () => true,
+          },
+        ]}
         toolbar={customToolbar}
       />
 
@@ -361,7 +424,7 @@ function ShopsMasterData() {
         type="info"
       >
         {selectedShop && (
-          <div className="shop-details-modal">
+          <div className="modal-form">
             <div className="detail-row">
               <label><FaHouseFlag /> ID:</label>
               <span>{selectedShop.id}</span>
@@ -430,7 +493,7 @@ function ShopsMasterData() {
         ]}
       >
         {selectedShop && (
-          <div className="shop-edit-modal">
+          <div className="modal-form">
             <div className="form-group">
               <TextBox
                 id="edit-name"
@@ -586,7 +649,7 @@ function ShopsMasterData() {
           },
         ]}
       >
-        <div className="shop-add-modal">
+        <div className="modal-form">
           <div className="form-group">
             <TextBox
             label="Shop Name"
@@ -694,6 +757,18 @@ function ShopsMasterData() {
           </div>
         </div>
       </Modal>
+
+      {/* Shop Image Modal */}
+      <ImageUploadModal
+        isOpen={pictureModalOpen}
+        onClose={() => { setPictureModalOpen(false); setPictureShop(null); }}
+        title={pictureShop ? `Shop Image — ${pictureShop.name}` : 'Shop Image'}
+        currentImagePath={pictureShop?.shopImagePath || null}
+        onUpload={handleUploadShopImage}
+        onDelete={handleDeleteShopImage}
+        uploading={uploading}
+        deleting={uploading}
+      />
     </div>
   );
 }

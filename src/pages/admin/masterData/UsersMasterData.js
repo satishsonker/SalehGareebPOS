@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiRefreshCw, FiDownload, FiFilter, FiPlus, FiEye, FiMail, FiUser, FiEdit, FiTrash2, FiLock, FiUnlock, FiKey, FiPhoneCall, FiPrinter,FiShield } from 'react-icons/fi';
+import { FiRefreshCw, FiDownload, FiFilter, FiPlus, FiMail, FiUser, FiLock, FiUnlock, FiKey, FiPhoneCall, FiPrinter, FiShield, FiCamera } from 'react-icons/fi';
 import DataGrid from '../../../components/DataGrid';
 import Modal from '../../../components/Modal/Modal';
 import Button from '../../../components/Button/Button';
@@ -7,7 +7,8 @@ import TextBox from '../../../components/TextBox/TextBox';
 import Select from '../../../components/Select/Select';
 import CountrySelect from '../../../components/CountrySelect/CountrySelect';
 import { useNotification } from '../../../components/Notification';
-import { getUsers, getUserById, updateUser, deleteUser, blockUser, unblockUser, register } from '../../../services/api/usersApi';
+import { getUsers, getUserById, updateUser, deleteUser, blockUser, unblockUser, register, uploadProfilePicture, deleteProfilePicture } from '../../../services/api/usersApi';
+import ImageUploadModal from '../../../components/ImageUpload/ImageUploadModal';
 import { getRoles } from '../../../services/api/roleApi';
 import { tableHeaderFormat } from '../../../utils/tableHeaderFormat';
 import { commonLogic } from '../../../utils/commonLogic';
@@ -19,7 +20,8 @@ function UsersMasterData() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pageNo, setPageNo] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -33,13 +35,17 @@ function UsersMasterData() {
     lastName: '',
     isdCode: '',
     mobile: '',
-    roleId:0,
-    id:0,
+    roleId: 0,
+    id: 0,
   });
   const [roles, setRoles] = useState([]);
   const [addFormErrors, setAddFormErrors] = useState({});
   const [editFormErrors, setEditFormErrors] = useState({});
   const [saving, setSaving] = useState(false);
+  const [pictureModalOpen, setPictureModalOpen] = useState(false);
+  const [pictureUser, setPictureUser] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Fetch users and roles on component mount
   useEffect(() => {
@@ -49,7 +55,7 @@ function UsersMasterData() {
 
   const fetchRoles = async () => {
     try {
-      const response = await getRoles(1, 1000);
+      const response = await getRoles(1, 100);
       if (response.success && response.data) {
         setRoles(response.data?.data || []);
       }
@@ -64,17 +70,18 @@ function UsersMasterData() {
       const response = await getUsers(pageNo, pageSize);
       if (response.success && response.data) {
         setUsers(response.data?.data || []);
+        setTotalRecords(response.data?.totalRecords ?? 0);
       }
     } catch (error) {
       console.error('Failed to fetch users:', error);
-      alert('Failed to load users. Please try again.');
+      showError('Failed to load users. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleReload = () => {
-    fetchUsers(pageNo, pageSize);
+    fetchUsers();
   };
 
   const handleAddUser = () => {
@@ -139,6 +146,8 @@ function UsersMasterData() {
         roleId: parseInt(addFormData.roleId),
         firstName: addFormData.firstName || null,
         lastName: addFormData.lastName || null,
+        isdCode: addFormData.isdCode || null,
+        mobile: addFormData.mobile || null,
       });
       if (response.success) {
         success('User created successfully');
@@ -326,8 +335,46 @@ function UsersMasterData() {
           }
         });
         break;
+      case 'changePicture':
+        setPictureUser(row);
+        setPictureModalOpen(true);
+        break;
       default:
         break;
+    }
+  };
+
+  const handleUploadPicture = async (file) => {
+    setUploading(true);
+    try {
+      const response = await uploadProfilePicture(pictureUser.id, file);
+      if (response.success) {
+        success('Profile picture updated successfully');
+        fetchUsers();
+      } else {
+        showError(response.message || 'Failed to upload picture');
+      }
+    } catch (err) {
+      showError(err.message || 'Failed to upload picture. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeletePicture = async () => {
+    setDeleting(true);
+    try {
+      const response = await deleteProfilePicture(pictureUser.id);
+      if (response.success) {
+        success('Profile picture removed');
+        fetchUsers();
+      } else {
+        showError(response.message || 'Failed to delete picture');
+      }
+    } catch (err) {
+      showError(err.message || 'Failed to delete picture. Please try again.');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -384,6 +431,21 @@ function UsersMasterData() {
     }
   };
 
+  const handleAddUserChange = (e) => {
+    const { name, value } = e.target;
+    if (addFormErrors[name]) {
+      setAddFormErrors({ ...addFormErrors, [name]: '' });
+    }
+    if (name === 'email') {
+      const generatedUsername = value.split('@')[0];
+      setAddFormData({ ...addFormData, username: generatedUsername, [name]: value });
+      return;
+    }
+
+
+    setAddFormData({ ...addFormData, [name]: value });
+  }
+
   // Custom toolbar with button group
   const customToolbar = (
     <>
@@ -403,7 +465,7 @@ function UsersMasterData() {
             title="Export users to CSV/Excel"
             aria-label="Export"
           />
-           <Button
+          <Button
             variant="ghost"
             icon={<FiPrinter />}
             onClick={handleExport}
@@ -419,15 +481,15 @@ function UsersMasterData() {
             title="Reload users list"
             aria-label="Reload"
           />
-           <Button
-          variant="ghost"
-          icon={<FiPlus />}
-          onClick={handleAddUser}
-          title="Add new user"
-          aria-label="Add new"
-        />
+          <Button
+            variant="ghost"
+            icon={<FiPlus />}
+            onClick={handleAddUser}
+            title="Add new user"
+            aria-label="Add new"
+          />
         </div>
-       
+
       </div>
     </>
   );
@@ -439,7 +501,11 @@ function UsersMasterData() {
         columns={tableHeaderFormat.masterUserData}
         onAction={handleAction}
         loading={loading}
-        pageSize={10}
+        pageSize={pageSize}
+        serverSide={true}
+        page={pageNo}
+        totalRecords={totalRecords}
+        onPageChange={setPageNo}
         searchPlaceholder="Search users by username, email, name..."
         emptyMessage="No users found"
         defaultActions={{
@@ -465,7 +531,7 @@ function UsersMasterData() {
             visible: (row) => row.isBlocked,
             className: 'unblock-action',
           },
-           {
+          {
             id: 'changePassword',
             label: 'Change Password',
             icon: <FiKey />,
@@ -473,13 +539,21 @@ function UsersMasterData() {
             visible: (row) => !row.isBlocked,
             className: 'change-password-action',
           },
-           {
+          {
             id: 'changeRole',
             label: 'Change Role',
             icon: <FiShield />,
             action: 'changeRole',
             visible: (row) => !row.isBlocked,
             className: 'change-role-action',
+          },
+          {
+            id: 'changePicture',
+            label: 'Change Picture',
+            icon: <FiCamera />,
+            action: 'changePicture',
+            visible: () => true,
+            className: 'change-picture-action',
           },
         ]}
         toolbar={customToolbar}
@@ -499,7 +573,7 @@ function UsersMasterData() {
         closeOnOverlayClick={true}
       >
         {selectedUser && (
-          <div className="user-details-modal">
+          <div className="modal-form">
             <div className="detail-row">
               <label>ID:</label>
               <span>{selectedUser.id}</span>
@@ -598,7 +672,7 @@ function UsersMasterData() {
         ]}
       >
         {selectedUser && (
-          <div className="user-edit-modal">
+          <div className="modal-form">
             <div className="form-group">
               <TextBox
                 type="text"
@@ -697,7 +771,7 @@ function UsersMasterData() {
                 onChange={(value) => setEditFormData({ ...editFormData, roleId: value })}
                 required={true}
               />
-              
+
             </div>
           </div>
         )}
@@ -711,6 +785,8 @@ function UsersMasterData() {
           setAddFormData({
             username: '',
             email: '',
+            isdCode: '',
+            mobile: '',
             password: '',
             roleId: '',
             firstName: '',
@@ -735,6 +811,8 @@ function UsersMasterData() {
                 roleId: '',
                 firstName: '',
                 lastName: '',
+                mobile: '',
+                isdCode: '',
               });
             },
             variant: 'secondary',
@@ -748,87 +826,132 @@ function UsersMasterData() {
           },
         ]}
       >
-        <div className="user-edit-modal">
+        <div className="modal-form">
+
           <div className="form-group">
-            <label htmlFor="add-username">Username *</label>
-            <input
-              type="text"
-              id="add-username"
-              value={addFormData.username}
-              onChange={(e) => setAddFormData({ ...addFormData, username: e.target.value })}
-              className="form-input"
-              required
-              minLength={3}
-              maxLength={50}
-              placeholder="Enter username (min 3 characters)"
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="add-email">Email *</label>
-            <input
-              type="email"
+            <TextBox
               id="add-email"
+              type="email"
+              name="email"
+              label="Email"
+              required={true}
               value={addFormData.email}
-              onChange={(e) => setAddFormData({ ...addFormData, email: e.target.value })}
-              className="form-input"
-              required
+              onChange={handleAddUserChange}
               placeholder="Enter email address"
+              leftIcon={<FiMail />}
+              error={addFormErrors.email}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="add-password">Password *</label>
-            <input
-              type="password"
-              id="add-password"
-              value={addFormData.password}
-              onChange={(e) => setAddFormData({ ...addFormData, password: e.target.value })}
-              className="form-input"
-              required
-              minLength={6}
-              placeholder="Enter password (min 6 characters)"
+            <TextBox
+              id="add-username"
+              label="Username"
+              name="username"
+              required={true}
+              disabled={true}
+              value={addFormData.username}
+              onChange={handleAddUserChange}
+              placeholder="Enter username (min 3 characters)"
+              leftIcon={<FiUser />}
+              maxLength={50}
+              error={addFormErrors.username}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="add-roleId">Role *</label>
-            <select
-              id="add-roleId"
-              value={addFormData.roleId}
-              onChange={(e) => setAddFormData({ ...addFormData, roleId: e.target.value })}
-              className="form-input"
-              required
-            >
-              <option value="">Select a role</option>
-              {roles.map((role) => (
-                <option key={role.id} value={role.id}>
-                  {role.name} {role.isAdmin ? '(Admin)' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="add-firstName">First Name</label>
-            <input
-              type="text"
+            <TextBox
               id="add-firstName"
+              label="First Name"
+              name="firstName"
               value={addFormData.firstName}
-              onChange={(e) => setAddFormData({ ...addFormData, firstName: e.target.value })}
-              className="form-input"
-              placeholder="Enter first name (optional)"
+              onChange={handleAddUserChange}
+              placeholder="Enter first name"
+              leftIcon={<FiUser />}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="add-lastName">Last Name</label>
-            <input
-              type="text"
+            <TextBox
               id="add-lastName"
+              label="Last Name"
+              name="lastName"
               value={addFormData.lastName}
-              onChange={(e) => setAddFormData({ ...addFormData, lastName: e.target.value })}
-              className="form-input"
+              onChange={handleAddUserChange}
               placeholder="Enter last name (optional)"
+              leftIcon={<FiUser />}
             />
           </div>
+
+          <div className="form-group">
+            <TextBox
+              id="add-password"
+              type="password"
+              label="Password"
+              name="password"
+              required={true}
+              value={addFormData.password}
+              onChange={handleAddUserChange}
+              placeholder="Enter password (min 6 characters)"
+              leftIcon={<FiKey />}
+              error={addFormErrors.password}
+            />
+          </div>
+           <div className="form-group">
+            <TextBox
+              id="add-mobile"
+              type="text"
+              label="Mobile Number"
+              name="mobile"
+              required={true}
+              value={addFormData.mobile}
+              onChange={handleAddUserChange}
+              placeholder="Enter mobile number"
+              leftIcon={<FiPhoneCall />}
+              error={addFormErrors.mobile}
+            />
+          </div>
+           <div className="form-group">
+            <TextBox
+              id="add-isdCode"
+              type="text"
+              label="ISD Code"
+              name="isdCode"
+              required={true}
+              value={addFormData.isdCode}
+              onChange={handleAddUserChange}
+              placeholder="Enter ISD code (e.g. +1)"
+              leftIcon={<FiKey />}
+              error={addFormErrors.isdCode}
+            />
+          </div>
+          <div className="form-group">
+            <Select
+              label="Role"
+              required={true}
+              options={roles.map((role) => ({
+                value: role.id,
+                label: `${role.name}${role.isAdmin ? ' (Admin)' : ''}`,
+              }))}
+              name="roleId"
+              value={addFormData.roleId || ''}
+              onChange={e=>handleAddUserChange({ target: { name: 'roleId', value: e } })}
+              placeholder="Select a role"
+              error={addFormErrors.roleId}
+            />
+          </div>
+
         </div>
       </Modal>
+
+      {/* Profile Picture Modal */}
+      <ImageUploadModal
+        isOpen={pictureModalOpen}
+        onClose={() => { setPictureModalOpen(false); setPictureUser(null); }}
+        title={pictureUser ? `Profile Picture — ${pictureUser.username}` : 'Profile Picture'}
+        currentImagePath={pictureUser?.profilePicturePath || null}
+        onUpload={handleUploadPicture}
+        onDelete={handleDeletePicture}
+        uploading={uploading}
+        deleting={deleting}
+      />
     </div>
   );
 }

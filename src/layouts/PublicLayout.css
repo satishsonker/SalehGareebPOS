@@ -1,85 +1,263 @@
+/* ============================================================
+   Public Layout
+   ============================================================ */
+
 .public-layout {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-secondary);
-  transition: background-color 0.3s ease;
 }
+
+/* ── Header ─────────────────────────────────────────────── */
 
 .public-header {
-  background-color: var(--sidebar-bg);
-  color: white;
-  padding: 1rem 0;
-  box-shadow: 0 2px 4px var(--shadow);
+  background-color: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 1px 6px var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.public-header .container {
-  max-width: 1200px;
+.ph-container {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1.5rem;
+  height: 56px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-}
-
-.logo h2 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.public-nav {
-  display: flex;
-  gap: 2rem;
-}
-
-.public-nav a {
-  color: white;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.public-nav a:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.public-nav a.active {
-  background-color: var(--accent-color);
-}
-
-.user-menu {
-  display: flex;
-  align-items: center;
   gap: 1rem;
-  margin-left: auto;
 }
 
-.username {
-  color: white;
+/* Brand */
+.ph-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.ph-logo {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+}
+
+.ph-shop-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.ph-shop-name {
   font-size: 0.9rem;
-  padding: 0.5rem 1rem;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
 }
 
-.logout-btn-header {
+.ph-shop-code {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Nav icons */
+.ph-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ph-icon-btn {
   background: none;
   border: none;
-  color: white;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 4px;
+  color: var(--text-secondary);
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.3s;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
+  transition: background-color 0.18s ease, color 0.18s ease;
+  position: relative;
 }
 
-.logout-btn-header:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.ph-icon-btn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
 }
+
+.ph-icon-btn--active {
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+.ph-icon-btn--active:hover {
+  background-color: var(--accent-hover, var(--accent-color));
+  color: #fff;
+}
+
+/* Notification dot */
+.ph-notif-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--danger-color);
+  border: 1.5px solid var(--header-bg);
+}
+
+/* ── User avatar button ─────────────────────────────────── */
+
+.ph-user-menu {
+  position: relative;
+  margin-left: 0.25rem;
+}
+
+.ph-avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.3rem 0.5rem 0.3rem 0.3rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.ph-avatar-btn:hover,
+.ph-avatar-btn--open {
+  background-color: var(--bg-tertiary);
+  border-color: var(--accent-color);
+}
+
+.ph-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background-color: var(--accent-color);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+.ph-avatar-chevron {
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+.ph-avatar-btn--open .ph-avatar-chevron {
+  transform: rotate(180deg);
+}
+
+/* ── Dropdown ────────────────────────────────────────────── */
+
+.ph-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 240px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px var(--shadow);
+  z-index: 200;
+  overflow: hidden;
+  animation: ph-dropdown-in 0.15s ease;
+}
+
+@keyframes ph-dropdown-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ph-dropdown-section {
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.ph-dropdown-section-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+
+.ph-dropdown-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.ph-dropdown-row--muted {
+  color: var(--text-secondary);
+}
+
+.ph-dropdown-icon {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.ph-dropdown-role {
+  text-transform: capitalize;
+  background-color: var(--accent-color);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+}
+
+.ph-dropdown-divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 0;
+}
+
+.ph-dropdown-logout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--danger-color);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+  text-align: left;
+}
+
+.ph-dropdown-logout:hover {
+  background-color: rgba(231, 76, 60, 0.08);
+}
+
+/* ── Main & Footer ──────────────────────────────────────── */
 
 .public-main {
   flex: 1;
@@ -89,13 +267,19 @@
 
 .public-footer {
   background-color: var(--sidebar-bg);
-  color: white;
-  padding: 1.5rem 0;
+  color: var(--text-secondary);
+  padding: 1.25rem 0;
   text-align: center;
+  font-size: 0.82rem;
 }
 
-.public-footer .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
+.public-footer .ph-container {
+  justify-content: center;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .ph-shop-code { display: none; }
+  .ph-icon-btn  { width: 34px; height: 34px; font-size: 1rem; }
 }

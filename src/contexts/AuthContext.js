@@ -1,10 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, use } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   login as loginApi,
   logout as logoutApi,
   resendOtp as resendOtpApi,
-  validateOtp as validateOtpApi
+  validateOtp as validateOtpApi,
+  forgotPassword as forgotPasswordApi,
+  forgotUsername as forgotUsernameApi,
 } from '../services/api/authApi';
+
+import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext();
 
@@ -25,12 +29,10 @@ export const AuthProvider = ({ children }) => {
   // Check for existing session on mount
   useEffect(() => {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    const userData = localStorage.getItem('user');
     const selectedShopData = localStorage.getItem('selectedShop');
-    
-    if (token && userData) {
+    if (token) {
       try {
-        const parsedUser = JSON.parse(userData);
+        const parsedUser = getUserData(token);
         setUser(parsedUser);
         setIsAuthenticated(true);
         if (selectedShopData) {
@@ -54,7 +56,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('sessionId');
     localStorage.removeItem('selectedShop');
     sessionStorage.removeItem('selectedShop');
-
     setUser(null);
     setIsAuthenticated(false);
     setSelectedShop(null);
@@ -62,25 +63,29 @@ export const AuthProvider = ({ children }) => {
 
   const validateOtp = async ({ otp, sessionId }) => {
     const response = await validateOtpApi({ otp, sessionId });
-      if (response.success && response.data) {
-        const { accessToken, ...userData } = response.data;
-        
-        // Store token and user data
-        localStorage.setItem('token', accessToken);
-        localStorage.setItem('refreshToken', JSON.stringify(userData));
-        
-        setUser(userData);
+    if (response.success && response.data) {
+      const { accessToken, refreshToken } = response.data;
+      const userData = localStorage.getItem('user');
+
+      // Store token and user data
+      localStorage.setItem('token', accessToken);
+      localStorage.setItem('refreshToken', JSON.stringify(refreshToken));
+
+      if (userData && accessToken) {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
         setIsAuthenticated(true);
-        
-        return { success: true, data: userData };
-      } else {
-        // Handle API response with success: false
-        return { 
-          success: false, 
-          message: response.message || 'Login failed',
-          errors: response.errors || []
-        };
+        return { success: true };
       }
+
+      return { success: false, message: 'User session not found. Please login again.' };
+    }
+
+    return {
+      success: false,
+      message: response.message || 'OTP validation failed',
+      errors: response.errors || []
+    };
   };
 
   const resendOtp = async (sessionId) => {
@@ -90,30 +95,30 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await loginApi(credentials);
-      
+
       if (response.success && response.data) {
         const { sessionId } = response.data;
-        
+
         // Store token and user data
         localStorage.setItem('sessionId', sessionId);
         localStorage.setItem('user', JSON.stringify(response.data));
         return { success: true, data: response.data };
       } else {
         // Handle API response with success: false
-        return { 
-          success: false, 
+        return {
+          success: false,
           message: response.message || 'Login failed',
           errors: response.errors || []
         };
       }
     } catch (error) {
       console.error('Login error:', error);
-      
+
       // Extract error message from error object
       // The API utility already extracts the message from the response
       // and sets it as error.message, with error.response containing the full response
       let errorMessage = 'Login failed. Please check your credentials.';
-      
+
       if (error.message && !error.message.startsWith('API Error:')) {
         // Use the extracted message from API utility
         errorMessage = error.message;
@@ -128,9 +133,15 @@ export const AuthProvider = ({ children }) => {
         // Last resort: use error message as-is
         errorMessage = error.message;
       }
-      
-      return { 
-        success: false, 
+      if (errorMessage === "Failed to fetch") {
+        errorMessage = "Unable to connect to the server. Please check your internet connection or try again later.";
+      }
+      if (errorMessage && errorMessage.startsWith('A connection was successfully established with the server, but then an error occurred during the pre-login handshake.')) {
+        // Use the extracted message from API utility
+        errorMessage = 'Unable to connect with database';
+      }
+      return {
+        success: false,
         message: errorMessage,
         errors: error.response?.errors || []
       };
@@ -147,6 +158,32 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const forgetPassword = async (username) => {
+    try {
+      await logoutApi();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      clearAuth();
+    }
+  };
+
+  const getUserData = (token) => {
+    if (token) {
+      var userDataTemp = jwtDecode(token);
+      var userData = {
+        userId: userDataTemp["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
+        email: userDataTemp["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
+        firstName: userDataTemp["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"],
+        lastName: userDataTemp["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"],
+        phone: userDataTemp["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone"],
+        role: userDataTemp["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+      };
+      return userData;
+    }
+    return null;
+  };
+
   const value = {
     user,
     isAuthenticated,
@@ -157,7 +194,8 @@ export const AuthProvider = ({ children }) => {
     logout,
     clearAuth,
     selectedShop,
-    setSelectedShop
+    setSelectedShop,
+    getUserData
   };
 
   return (

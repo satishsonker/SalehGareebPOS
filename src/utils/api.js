@@ -34,10 +34,12 @@ export const apiRequest = async (endpoint, options = {}) => {
   
   // Get auth token
   const token = getAuthToken();
+  const deviceId = localStorage.getItem('device-id') || sessionStorage.getItem('device-id');
   const defaultOptions = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
+      'X-Device-ID': deviceId || '',
     },
     timeout: config.api.timeout,
   };

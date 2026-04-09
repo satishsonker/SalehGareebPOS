@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { FiDatabase, FiShoppingBag, FiUsers, FiShield } from 'react-icons/fi';
+import { FiDatabase, FiShoppingBag, FiUsers, FiShield, FiKey } from 'react-icons/fi';
 import ShopsMasterData from './masterData/ShopsMasterData';
 import RolesMasterData from './masterData/RolesMasterData';
 import UsersMasterData from './masterData/UsersMasterData';
+import MasterData from './masterData/MasterData';
+import UserShopAccess from './masterData/UserShopAccess';
 import './AdminPages.css';
-import './MasterData.css';
+import './SystemData.css';
+import './masterData/masterData.global.css';
 
-function MasterData() {
+function SystemData() {
   const [activeTab, setActiveTab] = useState('shops');
   const [error, setError] = useState(null);
   const tabs = [
     { id: 'shops', label: 'Shops', icon: FiShoppingBag },
     { id: 'roles', label: 'Roles', icon: FiShield },
     { id: 'users', label: 'Users', icon: FiUsers },
+    { id: 'master', label: 'Master Data', icon: FiDatabase },
+    { id: 'shopAccess', label: 'User Shop Access', icon: FiKey },
   ];
 
    // Suppress browser extension errors in console
@@ -43,6 +48,10 @@ function MasterData() {
           return <RolesMasterData />;
         case 'users':
           return <UsersMasterData />;
+        case 'master':
+          return <MasterData />;
+        case 'shopAccess':
+          return <UserShopAccess />;
         default:
           return <ShopsMasterData />;
       }
@@ -69,7 +78,7 @@ function MasterData() {
 
       <div className="master-data-container">
         <div className="master-data-tabs">
-          {tabs.map((tab) => {
+          {tabs?.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
@@ -92,4 +101,4 @@ function MasterData() {
   );
 }
 
-export default MasterData;
+export default SystemData;
