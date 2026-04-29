@@ -1,0 +1,114 @@
+/* ── ISD Code Selector ───────────────────────────────────────── */
+.isd-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Trigger button */
+.isd-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px 0 12px;
+  height: 100%;
+  min-height: 44px;
+  background: var(--color-bg-subtle, #f8fafc);
+  border: none;
+  border-right: 1.5px solid var(--color-border, #e2e8f0);
+  border-radius: 10px 0 0 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.isd-trigger:hover,
+.isd-trigger--open {
+  background: #eff6ff;
+}
+
+.isd-flag-img {
+  width: 24px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 2px;
+  display: block;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
+}
+
+.isd-code {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1e293b);
+}
+
+.isd-chevron {
+  color: var(--color-text-secondary, #94a3b8);
+  transition: transform 0.2s;
+}
+.isd-chevron--up { transform: rotate(180deg); }
+
+/* ── Dropdown ────────────────────────────────────────────────── */
+.isd-dropdown {
+  position: absolute; /* overridden inline to fixed coords via portal */
+  max-height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-surface, #fff);
+  border: 1.5px solid var(--color-border, #e2e8f0);
+  border-radius: 14px;
+  box-shadow: 0 10px 32px rgba(0,0,0,0.16);
+  z-index: 9500;
+  animation: isd-pop 0.15s ease;
+  padding: 4px 0;
+}
+
+.isd-dropdown::-webkit-scrollbar { width: 4px; }
+.isd-dropdown::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+
+@keyframes isd-pop {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+/* Option row */
+.isd-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 14px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+}
+.isd-option:hover       { background: var(--color-bg-subtle, #f8fafc); }
+.isd-option--active     { background: #eff6ff; }
+
+.isd-option__flag-img {
+  width: 26px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 3px;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
+}
+
+.isd-option__name {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #1e293b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.isd-option__code {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #64748b);
+  flex-shrink: 0;
+}

@@ -104,9 +104,17 @@
 }
 
 .custom-country-select-flag {
-  font-size: 1.25em;
-  line-height: 1;
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
+}
+
+.cs-flag-img {
+  width: 22px;
+  height: 15px;
+  object-fit: cover;
+  border-radius: 2px;
+  display: block;
 }
 
 .custom-country-select-name {
@@ -281,11 +289,10 @@
 }
 
 .custom-country-select-option-flag {
-  font-size: 1.25em;
-  line-height: 1;
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
-  width: 1.5em;
-  text-align: center;
+  width: 24px;
 }
 
 .custom-country-select-option-name {

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FiChevronDown, FiSearch, FiX } from 'react-icons/fi';
+import Flag from 'react-world-flags';
 import { useTheme } from '../../contexts/ThemeContext';
 import { countries } from './countries';
 import './CountrySelect.css';
@@ -76,7 +77,9 @@ function CountrySelect({
   };
 
   const filteredCountries = getFilteredCountries();
-  const selectedCountry = countries.find(c => c.code === value);
+  // Support both country code (e.g. "SA") and ISD code (e.g. "+966") as value
+  const selectedCountry = countries.find(c => c.code === value) ||
+                          countries.find(c => c.isd === value);
 
   // Handle click outside
   useEffect(() => {
@@ -143,14 +146,6 @@ function CountrySelect({
     setSearchTerm('');
   };
 
-  const getFlagEmoji = (countryCode) => {
-    const codePoints = countryCode
-      .toUpperCase()
-      .split('')
-      .map(char => 127397 + char.charCodeAt());
-    return String.fromCodePoint(...codePoints);
-  };
-
   const dropdownClasses = [
     'custom-country-select',
     `custom-country-select-${size}`,
@@ -183,7 +178,7 @@ function CountrySelect({
             <div className="custom-country-select-value">
               {showFlag && (
                 <span className="custom-country-select-flag">
-                  {getFlagEmoji(selectedCountry.code)}
+                  <Flag code={selectedCountry.code} className="cs-flag-img" fallback={<span>{selectedCountry.code}</span>} />
                 </span>
               )}
               <span className="custom-country-select-name">{selectedCountry.name}</span>
@@ -242,15 +237,15 @@ function CountrySelect({
                   <div
                     key={country.code}
                     className={`custom-country-select-option ${
-                      value === country.code ? 'custom-country-select-option-selected' : ''
+                      selectedCountry?.code === country.code ? 'custom-country-select-option-selected' : ''
                     }`}
                     onClick={() => handleSelect(country)}
                     role="option"
-                    aria-selected={value === country.code}
+                    aria-selected={selectedCountry?.code === country.code}
                   >
                     {showFlag && (
                       <span className="custom-country-select-option-flag">
-                        {getFlagEmoji(country.code)}
+                        <Flag code={country.code} className="cs-flag-img" fallback={<span>{country.code}</span>} />
                       </span>
                     )}
                     <span className="custom-country-select-option-name">{country.name}</span>

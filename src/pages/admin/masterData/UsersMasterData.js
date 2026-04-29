@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiRefreshCw, FiDownload, FiFilter, FiPlus, FiMail, FiUser, FiLock, FiUnlock, FiKey, FiPhoneCall, FiPrinter, FiShield, FiCamera } from 'react-icons/fi';
+import { FiRefreshCw, FiDownload, FiFilter, FiPlus, FiMail, FiUser, FiLock, FiUnlock, FiKey, FiPhoneCall, FiShield, FiCamera } from 'react-icons/fi';
 import DataGrid from '../../../components/DataGrid';
 import Modal from '../../../components/Modal/Modal';
 import Button from '../../../components/Button/Button';
@@ -467,13 +467,6 @@ function UsersMasterData() {
           />
           <Button
             variant="ghost"
-            icon={<FiPrinter />}
-            onClick={handleExport}
-            title="Print users list"
-            aria-label="Export"
-          />
-          <Button
-            variant="ghost"
             icon={<FiRefreshCw />}
             onClick={handleReload}
             disabled={loading}
@@ -506,6 +499,7 @@ function UsersMasterData() {
         page={pageNo}
         totalRecords={totalRecords}
         onPageChange={setPageNo}
+        printTitle="Users"
         searchPlaceholder="Search users by username, email, name..."
         emptyMessage="No users found"
         defaultActions={{
@@ -722,7 +716,7 @@ function UsersMasterData() {
             <div className="form-group">
               <TextBox
                 label="Mobile"
-                type="number"
+                type="tel"
                 id="edit-mobile"
                 placeholder="Enter mobile number"
                 value={editFormData.mobile || ''}
@@ -733,11 +727,8 @@ function UsersMasterData() {
                   }
                 }}
                 leftIcon={<FiPhoneCall />}
-                showVirtualKeyboard={true}
                 required={true}
-                min={0}
                 error={editFormErrors.mobile}
-                step={1}
               />
             </div>
             <div className="form-group">
@@ -897,7 +888,7 @@ function UsersMasterData() {
            <div className="form-group">
             <TextBox
               id="add-mobile"
-              type="text"
+              type="tel"
               label="Mobile Number"
               name="mobile"
               required={true}
@@ -909,16 +900,18 @@ function UsersMasterData() {
             />
           </div>
            <div className="form-group">
-            <TextBox
-              id="add-isdCode"
-              type="text"
+            <CountrySelect
               label="ISD Code"
-              name="isdCode"
               required={true}
+              showFlag={true}
+              showISD={true}
               value={addFormData.isdCode}
-              onChange={handleAddUserChange}
-              placeholder="Enter ISD code (e.g. +1)"
-              leftIcon={<FiKey />}
+              onChange={(e) => {
+                handleAddUserChange({ target: { name: 'isdCode', value: e.isd } });
+                if (addFormErrors.isdCode) {
+                  setAddFormErrors(prev => ({ ...prev, isdCode: '' }));
+                }
+              }}
               error={addFormErrors.isdCode}
             />
           </div>

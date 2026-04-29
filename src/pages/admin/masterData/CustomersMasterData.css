@@ -1,0 +1,228 @@
+.cust-master { height: 100%; }
+
+/* Detail view */
+.cust-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  background: var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.cust-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 14px;
+  background: var(--bg-primary);
+}
+.cust-detail-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+.cust-detail-value {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Two-column form layout */
+.cust-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Empty state */
+.cust-empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 32px 0;
+  font-size: 0.9rem;
+}
+
+/* Block History */
+.cust-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cust-history-card {
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1.5px solid;
+}
+.cust-history-card--blocked   { background: #fff5f5; border-color: #fca5a5; }
+.cust-history-card--unblocked { background: #f0fdf4; border-color: #86efac; }
+.cust-history-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cust-history-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.cust-history-badge--red   { background: #fee2e2; color: #dc2626; }
+.cust-history-badge--green { background: #dcfce7; color: #16a34a; }
+.cust-history-date {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+.cust-history-remark {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+.cust-history-remark--muted { color: var(--text-secondary); font-style: italic; }
+
+/* Addresses */
+.cust-addr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cust-addr-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-primary);
+}
+.cust-addr-card__type {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  width: 90px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.cust-addr-card__lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+.cust-addr-landmark { color: var(--text-secondary); font-style: italic; }
+.cust-addr-card__actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.cust-addr-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.cust-addr-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.cust-addr-btn--danger:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+
+/* Block type badge in Block modal */
+.cust-block-type-row {
+  margin-bottom: 14px;
+}
+.cust-block-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.cust-block-type-badge--admin {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+.cust-block-type-badge--salesman {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+}
+
+/* Optional address section in Add Customer */
+.cust-optional-addr-section {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cust-toggle-addr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg-secondary, #f8fafc);
+  border: 1.5px dashed var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  color: var(--accent-color, #2563eb);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.cust-toggle-addr-btn:hover {
+  background: #eff6ff;
+  border-color: var(--accent-color, #2563eb);
+}
+.cust-optional-addr-form {
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 10px;
+  padding: 14px;
+  background: var(--bg-secondary, #f8fafc);
+}
+
+/* Address type buttons */
+.cust-addr-type-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cust-addr-type-btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cust-addr-type-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+.cust-addr-type-btn--active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #fff;
+  font-weight: 600;
+}

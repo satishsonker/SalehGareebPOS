@@ -5,8 +5,7 @@ import Modal from '../../../components/Modal/Modal';
 import Button from '../../../components/Button/Button';
 import TextBox from '../../../components/TextBox/TextBox';
 import { useNotification } from '../../../components/Notification';
-import { getShops, getShopById, createShop, updateShop, deleteShop } from '../../../services/api/shopApi';
-import { uploadMedia } from '../../../services/api/mediaApi';
+import { getShops, getShopById, createShop, updateShop, deleteShop, uploadShopPicture, deleteShopPicture } from '../../../services/api/shopApi';
 import ImageUploadModal from '../../../components/ImageUpload/ImageUploadModal';
 import './ShopsMasterData.css';
 import { tableHeaderFormat } from '../../../utils/tableHeaderFormat';
@@ -245,18 +244,12 @@ function ShopsMasterData() {
   const handleUploadShopImage = async (file) => {
     setUploading(true);
     try {
-      const mediaRes = await uploadMedia(file, 'shops');
-      if (!mediaRes.success) {
-        showError(mediaRes.message || 'Failed to upload image');
-        return;
-      }
-      const imagePath = mediaRes.data?.relativePath || mediaRes.data;
-      const response = await updateShop(pictureShop.id, { ...pictureShop, shopImagePath: imagePath });
+      const response = await uploadShopPicture(pictureShop.id, file);
       if (response.success) {
         success('Shop image updated successfully');
         fetchShops();
       } else {
-        showError(response.message || 'Failed to update shop image');
+        showError(response.message || 'Failed to upload image');
       }
     } catch (err) {
       showError(err.message || 'Failed to upload image. Please try again.');
@@ -268,7 +261,7 @@ function ShopsMasterData() {
   const handleDeleteShopImage = async () => {
     setUploading(true);
     try {
-      const response = await updateShop(pictureShop.id, { ...pictureShop, shopImagePath: null });
+      const response = await deleteShopPicture(pictureShop.id);
       if (response.success) {
         success('Shop image removed');
         fetchShops();
@@ -392,6 +385,7 @@ function ShopsMasterData() {
         page={pageNo}
         totalRecords={totalRecords}
         onPageChange={setPageNo}
+        printTitle="Shops"
         searchPlaceholder="Search shops by name, code, address..."
         emptyMessage="No shops found"
         defaultActions={{

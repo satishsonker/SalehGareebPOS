@@ -10,6 +10,11 @@ import Login from './pages/auth/Login';
 import OtpVerification from './pages/auth/OtpVerification';
 import Home from './pages/public/Home';
 import About from './pages/public/About';
+import CreateOrder from './pages/public/CreateOrder';
+import SearchOrders from './pages/public/SearchOrders';
+import Customers from './pages/public/Customers';
+import CustomersMasterData from './pages/admin/masterData/CustomersMasterData';
+import OrderPriceMasterData from './pages/admin/masterData/OrderPriceMasterData';
 import Dashboard from './pages/admin/Dashboard';
 import SystemData from './pages/admin/SystemData';
 import Products from './pages/admin/Products';
@@ -48,6 +53,9 @@ function App() {
             >
               <Route index element={<Home />} />
               <Route path="about" element={<About />} />
+              <Route path="orders/create" element={<CreateOrder />} />
+              <Route path="orders/search" element={<SearchOrders />} />
+              <Route path="customers" element={<Customers />} />
             </Route>
 
             {/* Admin Routes - Protected with Admin Check */}
@@ -65,6 +73,8 @@ function App() {
               <Route path="orders" element={<Orders />} />
               <Route path="settings" element={<Settings />} />
               <Route path="components-example" element={<ComponentsExample />} />
+              <Route path="customers" element={<CustomersMasterData />} />
+              <Route path="order-prices" element={<OrderPriceMasterData />} />
             </Route>
 
             {/* Catch all - redirect to login */}

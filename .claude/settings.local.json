@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Read(//c/Users/ACER/source/repos/SalehGareebCentralApi/**)"
+      "Read(//c/Users/ACER/source/repos/SalehGareebCentralApi/**)",
+      "Bash(npm install:*)",
+      "Read(//c/Users/ACER/source/repos/SalehGareebPOS//**)",
+      "Read(//c/Users/ACER/source/repos//**)",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/react-to-print/package.json'\\).version\\)\")"
     ]
   }
 }

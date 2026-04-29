@@ -337,6 +337,7 @@ function RolesMasterData() {
         totalRecords={totalRecords}
         onPageChange={setPageNo}
         searchPlaceholder="Search roles by name, code, description..."
+        printTitle="Roles"
         emptyMessage="No roles found"
         defaultActions={{
           view: true,

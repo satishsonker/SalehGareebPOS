@@ -1,59 +1,59 @@
 .shopselection-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 2rem;
-    background-color: var(--bg-secondary);
-    background-image: linear-gradient(135deg, var(--accent-color) 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+  background-color: var(--bg-secondary);
+  background-image: linear-gradient(135deg, var(--accent-color) 0%, #764ba2 100%);
 }
 
 .shopselection-card {
-    width: 100%;
-    max-width: 1200px;
-    background: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    padding: 2.5rem;
-    transition: all 0.3s ease;
+  width: 100%;
+  max-width: 1200px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  padding: 2.5rem;
+  transition: all 0.3s ease;
 }
 
 .shopselection-header {
-   display: flex;
-    margin-bottom: 2rem;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  margin-bottom: 2rem;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .shopselection-icon {
-    width: 64px;
-    height: 64px;
-    background: linear-gradient(135deg, var(--accent-color) 0%, #764ba2 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 2rem;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--accent-color) 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
 }
 
 .shopselection-header h1 {
-    margin: 0 0 0.5rem 0;
-    color: var(--text-primary);
-    font-size: 1.75rem;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.75rem;
 }
 
 .shopselection-header p {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
 }
 
 .shopselection-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .spinner {
@@ -95,10 +95,11 @@
   }
 }
 
-.logo{
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
+.logo {
+  width: 64px;
+  height: 64px;
+  object-fit: fill;
+  border-radius: 50%;
 }
 
 .error-message {

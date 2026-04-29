@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useReactToPrint } from 'react-to-print';
 import { FiSearch, FiRefreshCw, FiEdit, FiTrash2, FiEye, FiChevronLeft, FiChevronRight, FiMoreVertical, FiPrinter } from 'react-icons/fi';
 import './DataGrid.css';
 
@@ -46,6 +47,7 @@ function DataGrid({
   actionMenuItems = [],
   loading = false,
   toolbar = null,
+  printTitle = null,   // when set, a print button appears in the toolbar
   // Server-side pagination
   serverSide = false,
   totalRecords = 0,
@@ -59,6 +61,11 @@ function DataGrid({
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const menuRefs = useRef({});
   const triggerRefs = useRef({});
+  const printRef = useRef(null);
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: printTitle || 'Table',
+  });
 
   // Filter data based on search term (client-side only)
   const filteredData = useMemo(() => {
@@ -348,12 +355,39 @@ function DataGrid({
     );
   };
 
+  // Print button rendered separately so each page can remove their own FiPrinter
+  const renderPrintButton = () => {
+    if (!printTitle) return null;
+    return (
+      <button
+        className="dg-print-btn"
+        onClick={handlePrint}
+        title={`Print ${printTitle}`}
+        aria-label={`Print ${printTitle}`}
+        type="button"
+      >
+        <FiPrinter />
+      </button>
+    );
+  };
+
   return (
     <div className="data-grid-container">
       {/* Toolbar */}
       <div className="data-grid-toolbar">
         {renderToolbar()}
+        {renderPrintButton()}
       </div>
+
+      {/* Printable area — ref covers only this block */}
+      <div ref={printRef}>
+        {/* Print-only header (hidden on screen) */}
+        {printTitle && (
+          <div className="dg-print-header">
+            <h2 className="dg-print-title">{printTitle}</h2>
+            <span className="dg-print-date">{new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          </div>
+        )}
 
       {/* Table */}
       <div className="data-grid-table-wrapper">
@@ -524,6 +558,7 @@ function DataGrid({
           </div>
         </div>
       )}
+      </div>{/* end printRef div */}
     </div>
   );
 }

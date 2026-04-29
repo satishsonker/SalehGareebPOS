@@ -61,7 +61,7 @@ function ShopSelection() {
         }
 
         localStorage.setItem('selectedShop', JSON.stringify(selectedShop));
-        const from = location.state?.from?.pathname || '/admin';
+        const from = location.state?.from?.pathname || '/';
         navigate(from, { replace: true });
     };
 
@@ -70,7 +70,7 @@ function ShopSelection() {
             <div className="shopselection-card">
                 <div className="shopselection-header">
                     <div className="shopselection-icon">
-                        <img src={`${apiBasePath}/logo/logo.png`} alt="Saleh Gareeb POS Icon" className="logo" />
+                        <img src={`${apiBasePath}${shopList[0]?.userImageThumbPath || "/assets/images/default-shop-image.jpg"}`} alt="Saleh Gareeb POS Icon" className="logo" />
                     </div>
                     <h1>Welcome Back {userData?.firstName}</h1>
                 </div>

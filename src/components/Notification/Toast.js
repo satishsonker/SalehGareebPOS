@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { FiCheckCircle, FiAlertCircle, FiInfo, FiAlertTriangle, FiX } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import './Toast.css';
@@ -67,15 +66,14 @@ function Toast({ id, type = 'info', message = '', duration = 5000, onClose, icon
     .filter(Boolean)
     .join(' ');
 
-  return createPortal(
+  return (
     <div className={toastClasses}>
       <div className="toast-icon">{getDefaultIcon()}</div>
       <div className="toast-message">{message}</div>
       <button className="toast-close" onClick={handleClose} aria-label="Close">
         <FiX />
       </button>
-    </div>,
-    document.body
+    </div>
   );
 }
 

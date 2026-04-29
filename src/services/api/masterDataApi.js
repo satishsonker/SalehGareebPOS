@@ -3,8 +3,8 @@ import { get, post, put, del } from '../../utils/api';
 
 
 // Get all MasterDatas
-export const getMasterDatas = (pageNo = 1, pageSize = 10) => {
-  return get(`/MasterData?pageNo=${pageNo}&pageSize=${pageSize}`);
+export const getMasterDatas = (q) => {
+  return get(`/MasterData?${q}`);
 };
 
 // Get MasterData by ID

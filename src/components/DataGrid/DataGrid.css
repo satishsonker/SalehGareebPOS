@@ -1,3 +1,94 @@
+/* ── Print button in toolbar ──────────────────────────────────── */
+.dg-print-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.dg-print-btn:hover {
+  background: var(--bg-hover, #f1f5f9);
+  color: var(--text-primary, #1e293b);
+}
+
+/* Print-only header: hidden on screen */
+.dg-print-header {
+  display: none;
+}
+
+/* ── @media print ─────────────────────────────────────────────── */
+@media print {
+  /* Show the print header */
+  .dg-print-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 0 0 12px;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #333;
+  }
+  .dg-print-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #000;
+  }
+  .dg-print-date {
+    font-size: 0.8rem;
+    color: #555;
+  }
+
+  /* Hide non-printable elements */
+  .data-grid-toolbar,
+  .data-grid-pagination,
+  .actions-column,
+  .actions-cell,
+  .dg-print-btn,
+  .action-menu-container {
+    display: none !important;
+  }
+
+  /* Clean table for paper */
+  .data-grid-container {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+  }
+  .data-grid-table-wrapper {
+    overflow: visible !important;
+  }
+  .data-grid-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 0.8rem;
+  }
+  .data-grid-table th {
+    background: #f0f0f0 !important;
+    color: #000 !important;
+    border: 1px solid #999 !important;
+    padding: 6px 8px !important;
+    font-weight: 700;
+    text-align: left;
+  }
+  .data-grid-table td {
+    background: #fff !important;
+    color: #000 !important;
+    border: 1px solid #ccc !important;
+    padding: 5px 8px !important;
+  }
+  .data-grid-table tr:nth-child(even) td {
+    background: #f9f9f9 !important;
+  }
+}
+
+/* ── DataGrid container ───────────────────────────────────────── */
 .data-grid-container {
   background: var(--card-bg);
   border-radius: 8px;

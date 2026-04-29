@@ -25,13 +25,10 @@
   max-width: 400px;
   pointer-events: auto;
   opacity: 0;
-  transform: translateX(400px);
+  transform: translateX(110%);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: fixed;
   overflow: hidden;
-  bottom: 33px;
-  right: 10px;
-  z-index: 100000;
+  position: relative;
 }
 
 .toast::before {
@@ -51,7 +48,7 @@
 
 .toast-leaving {
   opacity: 0;
-  transform: translateX(400px);
+  transform: translateX(110%);
 }
 
 /* Toast Types */

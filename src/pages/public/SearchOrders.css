@@ -1,0 +1,301 @@
+/* ── Search Orders Page ───────────────────────────────────────── */
+.so-root {
+  min-height: 100vh;
+  background: var(--color-background, #f1f5f9);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Page header ─────────────────────────────────────────────── */
+.so-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 28px;
+  background: var(--color-surface, #fff);
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+
+.so-back-btn {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 10px;
+  background: var(--color-bg-subtle, #f1f5f9);
+  color: var(--color-text-primary, #1e293b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.so-back-btn:hover { background: #e2e8f0; }
+
+.so-header__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #1e293b;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.so-header__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1e293b);
+}
+
+/* ── Body ────────────────────────────────────────────────────── */
+.so-body {
+  flex: 1;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* ── Search input ────────────────────────────────────────────── */
+.so-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.so-search-icon {
+  position: absolute;
+  left: 16px;
+  color: var(--color-text-placeholder, #94a3b8);
+  pointer-events: none;
+}
+
+.so-search-input {
+  width: 100%;
+  padding: 14px 18px 14px 44px;
+  border: 1.5px solid var(--color-border, #e2e8f0);
+  border-radius: 14px;
+  font-size: 0.9375rem;
+  color: var(--color-text-primary, #1e293b);
+  background: var(--color-surface, #fff);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.so-search-input:focus {
+  border-color: var(--color-primary, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+.so-search-input::placeholder {
+  color: var(--color-text-placeholder, #94a3b8);
+}
+
+/* ── Filters ─────────────────────────────────────────────────── */
+.so-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.so-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-border, #e2e8f0);
+  background: var(--color-surface, #fff);
+  color: var(--color-text-secondary, #64748b);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.so-filter-btn:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #2563eb;
+}
+
+.so-filter-btn--active {
+  background: var(--color-primary, #2563eb);
+  border-color: var(--color-primary, #2563eb);
+  color: #fff;
+}
+.so-filter-btn--active:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #fff;
+}
+
+/* ── Results list ────────────────────────────────────────────── */
+.so-results {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--color-surface, #fff);
+  border-radius: 16px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+/* ── Order card ──────────────────────────────────────────────── */
+.so-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border, #f1f5f9);
+  transition: background 0.12s;
+}
+.so-card:last-child { border-bottom: none; }
+.so-card:hover { background: #f8fafc; }
+
+.so-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--color-bg-subtle, #f1f5f9);
+  color: var(--color-text-secondary, #64748b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.so-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.so-card__row1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.so-card__orderno {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #1e293b);
+}
+
+.so-card__name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #1e293b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.so-card__meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.so-card__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #64748b);
+}
+
+.so-card__arrow {
+  color: var(--color-text-placeholder, #cbd5e1);
+  flex-shrink: 0;
+}
+
+/* ── Status badges ───────────────────────────────────────────── */
+.so-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.so-badge--delivered {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.so-badge--cancelled {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.so-badge--pending {
+  background: #fef9c3;
+  color: #b45309;
+}
+
+.so-badge--processing {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.so-badge--completed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.so-badge--default {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* ── States ──────────────────────────────────────────────────── */
+.so-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 56px 24px;
+  color: var(--color-text-secondary, #94a3b8);
+  font-size: 0.9375rem;
+}
+
+.so-state--error { color: #dc2626; }
+
+.so-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e2e8f0;
+  border-top-color: var(--color-primary, #2563eb);
+  border-radius: 50%;
+  animation: so-spin 0.7s linear infinite;
+}
+
+@keyframes so-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .so-body { padding: 16px; }
+  .so-header { padding: 14px 16px; }
+  .so-card { padding: 14px 16px; gap: 12px; }
+}

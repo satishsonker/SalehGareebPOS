@@ -1,4 +1,4 @@
-import { get, post, put, del } from '../../utils/api';
+import { get, post, put, del, apiRequest } from '../../utils/api';
 
 // Get all shops
 export const getShops = (pageNo, pageSize) => {
@@ -23,4 +23,19 @@ export const updateShop = (id, data) => {
 // Delete a shop
 export const deleteShop = (id) => {
   return del(`/shops/${id}`);
+};
+
+// Upload shop image
+export const uploadShopPicture = (shopId, file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return apiRequest(`/shops/${shopId}/shop-picture`, {
+    method: 'POST',
+    body: formData,
+  });
+};
+
+// Delete shop image
+export const deleteShopPicture = (shopId) => {
+  return del(`/shops/${shopId}/shop-picture`);
 };

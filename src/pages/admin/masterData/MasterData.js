@@ -362,6 +362,7 @@ function MasterData() {
                 totalRecords={totalRecords}
                 onPageChange={setPageNo}
                 searchPlaceholder="Search by type, key, value..."
+                printTitle="Master Data"
                 emptyMessage="No master data found"
                 defaultActions={{
                     view: true,

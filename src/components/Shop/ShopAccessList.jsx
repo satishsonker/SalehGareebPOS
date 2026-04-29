@@ -1,4 +1,5 @@
 import React from "react";
+import { apiBasePath } from "../../utils/api";
 
 const ShopAccessList = ({ shops = [], selectedShop, setSelectedShop }) => {
   return (
@@ -37,11 +38,11 @@ const ShopAccessList = ({ shops = [], selectedShop, setSelectedShop }) => {
             {/* LEFT: Image */}
             <div style={{ flexShrink: 0 }}>
               <img
-                src={shop.shopImagePath || "/assets/images/default-shop-image.jpg"}
+                src={apiBasePath + (shop.shopImageThumbPath || "/assets/images/default-shop-image.jpg")}
                 alt="Shop"
                 loading="lazy"
                 onError={(e) =>
-                  (e.target.src = "/assets/images/default-shop-image.jpg")
+                  (e.target.src =  "/assets/images/default-shop-image.jpg")
                 }
                 style={{
                   width: "120px",

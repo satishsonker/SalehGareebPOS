@@ -1,0 +1,65 @@
+/* Hidden wrapper for wrap-mode printing */
+.pb-hidden-content {
+  display: none;
+}
+@media print {
+  .pb-hidden-content {
+    display: block;
+  }
+}
+
+/* Button base */
+.pb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+/* Sizes */
+.pb-btn--sm { padding: 6px 10px; font-size: 0.8125rem; }
+.pb-btn--md { padding: 8px 14px; font-size: 0.875rem;  }
+
+/* Ghost variant (matches admin toolbar buttons) */
+.pb-btn--ghost {
+  background: transparent;
+  color: var(--text-secondary, #64748b);
+  border: none;
+}
+.pb-btn--ghost:hover {
+  background: var(--bg-hover, #f1f5f9);
+  color: var(--text-primary, #1e293b);
+}
+
+/* Primary variant */
+.pb-btn--primary {
+  background: var(--accent-color, #2563eb);
+  color: #fff;
+}
+.pb-btn--primary:hover {
+  background: #1d4ed8;
+}
+
+/* Default variant */
+.pb-btn--default {
+  background: var(--bg-secondary, #f8fafc);
+  color: var(--text-secondary, #64748b);
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+.pb-btn--default:hover {
+  background: var(--bg-hover, #f1f5f9);
+  color: var(--text-primary, #1e293b);
+}
+
+.pb-icon { flex-shrink: 0; }
+.pb-label { line-height: 1; }
+
+/* Never show the button itself during print */
+@media print {
+  .pb-btn { display: none !important; }
+}
