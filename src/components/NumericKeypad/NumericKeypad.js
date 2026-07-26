@@ -21,7 +21,7 @@ const ROWS = [
  *   label       string   — header label
  *   maxLength   number   — default 10
  */
-function NumericKeypad({ isOpen, value = '', onChange, onConfirm, onClose, label = 'Enter Amount', maxLength = 10 }) {
+function NumericKeypad({ isOpen, value = '', onChange, onConfirm, onClose, label = 'Enter Amount', maxLength = 10, name = 'numeric-pad' }) {
 
   // Physical keyboard passthrough
   useEffect(() => {
@@ -46,7 +46,7 @@ function NumericKeypad({ isOpen, value = '', onChange, onConfirm, onClose, label
   };
 
   const handleConfirm = () => {
-    onConfirm(value);
+    onConfirm({ value: value, name: name });
     onClose();
   };
 

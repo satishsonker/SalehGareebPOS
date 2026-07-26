@@ -10,6 +10,7 @@ import config from '../config';
 import './PublicLayout.css';
 import { apiBasePath } from '../services/api/commonApi';
 import { NotificationBell } from '../components/Notification';
+import SystemNotificationBanner from '../components/SystemNotificationBanner/SystemNotificationBanner';
 
 function PublicLayout() {
   const location = useLocation();
@@ -182,6 +183,8 @@ function PublicLayout() {
           </nav>
         </div>
       </header>
+
+      <SystemNotificationBanner />
 
       <main className="public-main">
         <Outlet />

@@ -1,0 +1,164 @@
+/* ── Header actions ───────────────────────────────────────────── */
+.cm-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Spinner ──────────────────────────────────────────────────── */
+.cm-spin { animation: cm-spin 0.9s linear infinite; }
+@keyframes cm-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Empty / loading state ────────────────────────────────────── */
+.cm-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 4rem 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* ── Group section ────────────────────────────────────────────── */
+.cm-group-section {
+  margin-bottom: 1.5rem;
+}
+
+.cm-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.cm-group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.cm-group-count {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 20px;
+}
+
+/* ── Table wrapper ────────────────────────────────────────────── */
+.cm-table-wrap {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ── Table ────────────────────────────────────────────────────── */
+.cm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.cm-table thead {
+  background: var(--bg-tertiary);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.cm-table th {
+  padding: 0.6rem 1rem;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.cm-table td {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.cm-table tbody tr:last-child td { border-bottom: none; }
+.cm-table tbody tr:hover { background: var(--bg-tertiary); }
+
+/* ── Cell types ───────────────────────────────────────────────── */
+.cm-display-name {
+  font-weight: 500;
+}
+
+.cm-service-badge {
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.cm-method-cell {
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+/* ── Actions column ───────────────────────────────────────────── */
+.cm-actions-col { width: 80px; text-align: center; }
+
+.cm-actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cm-action-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.cm-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cm-action-btn--trigger:hover:not(:disabled) {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+.cm-action-btn--loading {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+/* ── Dark mode service badge ──────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .cm-service-badge {
+    background: rgba(59, 130, 246, 0.15);
+    color: #93c5fd;
+  }
+}

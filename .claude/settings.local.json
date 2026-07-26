@@ -5,7 +5,12 @@
       "Bash(npm install:*)",
       "Read(//c/Users/ACER/source/repos/SalehGareebPOS//**)",
       "Read(//c/Users/ACER/source/repos//**)",
-      "Bash(node -e \"console.log\\(require\\('./node_modules/react-to-print/package.json'\\).version\\)\")"
+      "Bash(node -e \"console.log\\(require\\('./node_modules/react-to-print/package.json'\\).version\\)\")",
+      "Read(//c/Users/ACER/source/repos/**)",
+      "Bash(xargs grep *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\ACER\\source\\repos\\SalehGareebCentralApi\\SalehGareebCentralApi.Application\\DTOs\\Cache"
     ]
   }
 }

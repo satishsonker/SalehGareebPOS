@@ -1,31 +1,39 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { FiTag, FiSave, FiPlus, FiUser, FiPhone, FiCalendar, FiImage, FiX, FiFolder, FiCamera, FiChevronRight, FiEye, FiEdit2 } from 'react-icons/fi';
-import CameraCapture from '../../components/Camera/CameraCapture';
-import IsdSelect, { MIDDLE_EAST_COUNTRIES } from '../../components/PhoneInput/IsdSelect';
-import NumericKeypad from '../../components/NumericKeypad/NumericKeypad';
-import { } from '../../services/api/masterDataApi';
-import { } from '../../services/api/customersApi';
-import { } from '../../services/api/ordersApi';
-import { getOrderPrices } from '../../services/api/orderPriceApi';
-import Modal from '../../components/Modal/Modal';
+import { FiTag, FiSave, FiPlus, FiUser, FiPhone, FiCalendar, FiImage, FiX, FiFolder, FiCamera, FiChevronRight, FiEye, FiEdit2, FiStar } from 'react-icons/fi';
+import { FcFlowChart } from 'react-icons/fc';
+import { FaCrown } from "react-icons/fa";
+import CameraCapture from '../../../components/Camera/CameraCapture';
+import IsdSelect from '../../../components/PhoneInput/IsdSelect';
+import NumericKeypad from '../../../components/NumericKeypad/NumericKeypad';
+import { getEmirates } from '../../../services/api/masterDataApi';
+import { getCustomers } from '../../../services/api/customersApi';
+import { } from '../../../services/api/ordersApi';
+import { getOrderPrices } from '../../../services/api/orderPriceApi';
+import Modal from '../../../components/Modal/Modal';
 import './CreateOrder.css';
+import { multipleGet } from '../../../utils/api';
+import Select from '../../../components/Select/Select';
+import DatePickerModal from "../../../components/DatePicker/DatePickerModal";
+import {
+  KeyboardProvider,
+  VirtualKeyboard,
+  KeyboardInput,
+  DatePicker
+} from "../../../components/VirtualKeyboard";
 
 // ── Constants ────────────────────────────────────────────────────
 
-const EMPTY_ITEM = () => ({
+const EMPTY_CREATE_ORDER = () => ({
   id: Date.now(),
-  personName: '',
-  chest: '',
-  back: '',
-  hands: '',
-  height: '',
-  neck: '',
-  deep: '',
-  armLoose: '',
-  notes: '',
-  price: null,
-  customPrice: '',
-  images: [],
+  isd: '+971',
+  mobile: '',
+  emirate: '',
+  customerId: 0,
+  customerName: '',
+  customerClass: 'Regular',
+  orderDate: new Date().toISOString().split('T')[0],
+  deliveryDate: '',
+  orderDetails: []
 });
 
 const MEASUREMENT_FIELDS = [
@@ -38,7 +46,7 @@ const MEASUREMENT_FIELDS = [
 ];
 
 function todayLabel() {
-  return new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  return new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
 }
 
 // ── Sub-components ───────────────────────────────────────────────
@@ -70,16 +78,18 @@ function Field({ label, children }) {
 
 // ── Main Component ───────────────────────────────────────────────
 function CreateOrder() {
-  // Customer
-  const [customerName, setCustomerName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [isdCountry, setIsdCountry] = useState(MIDDLE_EAST_COUNTRIES[0]); // default: Saudi Arabia
 
+  const [customerName, setCustomerName] = useState('');
+  const [customerList, setCustomerList] = useState([])
+  const [emirates, setEmirates] = useState([])
+  const [phone, setPhone] = useState('');
+  const [isdCountry, setIsdCountry] = useState({ code: '+971', name: 'UAE', short: 'ARE' }); // default: Saudi Arabia
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   // Dates
   const [deliveryDate, setDeliveryDate] = useState('');
 
   // Items
-  const [items, setItems] = useState([EMPTY_ITEM()]);
+  const [createdOrder, setCreatedOrder] = useState(EMPTY_CREATE_ORDER());
   const [activeItemIdx, setActiveItemIdx] = useState(0);
 
   // Custom price UI state
@@ -105,31 +115,35 @@ function CreateOrder() {
   const fileInputRef = useRef(null);
   const pickerRef = useRef(null);
 
-  const activeItem = items[activeItemIdx];
+  const activeItem = createdOrder[activeItemIdx];
 
   const [presetPrices, setPresetPrices] = useState([]);
   useEffect(() => {
-    getOrderPrices()
-      .then(res => setPresetPrices(res.data.data))
-      .catch(err => console.error('Failed to load order prices:', err));
+    multipleGet([getOrderPrices(), getCustomers(1, 100), getEmirates()])
+      .then(([pricesRes, customersRes, emiratesRes]) => {
+        setPresetPrices(pricesRes.data.data);
+        setCustomerList(customersRes.data.data);
+        setEmirates(emiratesRes.data.data);
+      })
+      .catch(err => console.error('Failed to load order prices or customers:', err));
   }, []);
 
   const updateActiveItem = useCallback((patch) => {
-    setItems(prev => prev.map((item, i) => i === activeItemIdx ? { ...item, ...patch } : item));
+    setCreatedOrder(prev => prev.map((item, i) => i === activeItemIdx ? { ...item, ...patch } : item));
   }, [activeItemIdx]);
 
   const addItem = () => {
-    const newItem = EMPTY_ITEM();
-    setItems(prev => [...prev, newItem]);
-    setActiveItemIdx(items.length);
+    const newItem = EMPTY_CREATE_ORDER();
+    setCreatedOrder(prev => [...prev, newItem]);
+    setActiveItemIdx(createdOrder.length);
     setShowCustomInput(false);
   };
 
   const removeItem = (idx, e) => {
     e.stopPropagation();
-    if (items.length === 1) return;
-    const next = items.filter((_, i) => i !== idx);
-    setItems(next);
+    if (createdOrder.length === 1) return;
+    const next = createdOrder.filter((_, i) => i !== idx);
+    setCreatedOrder(next);
     setActiveItemIdx(Math.min(activeItemIdx, next.length - 1));
   };
 
@@ -139,12 +153,12 @@ function CreateOrder() {
   };
 
   const applyCustomPrice = () => {
-    const val = parseFloat(activeItem.customPrice);
+    const val = parseFloat(activeItem?.customPrice);
     if (!isNaN(val) && val > 0) updateActiveItem({ price: val });
   };
 
   const addImages = useCallback((newImgs) => {
-    setItems(prev => prev.map((item, i) =>
+    setCreatedOrder(prev => prev.map((item, i) =>
       i === activeItemIdx ? { ...item, images: [...item.images, ...newImgs] } : item
     ));
   }, [activeItemIdx]);
@@ -158,7 +172,7 @@ function CreateOrder() {
   };
 
   const removeImage = (imgIdx) => {
-    updateActiveItem({ images: activeItem.images.filter((_, i) => i !== imgIdx) });
+    updateActiveItem({ images: activeItem?.images.filter((_, i) => i !== imgIdx) });
   };
 
   // Close picker on outside click
@@ -202,19 +216,71 @@ function CreateOrder() {
 
   const handleSave = () => {
     // TODO: wire up to order API
-    console.log('Save order', { customerName, phone: `${isdCountry.code}${phone}`, deliveryDate, items });
+    console.log('Save order', { customerName, phone: `${isdCountry.code}${phone}`, deliveryDate, createdOrder });
     setPreviewOpen(false);
   };
 
   const itemLabel = (item, idx) => `Item ${idx + 1}`;
   const itemSub = (item) => item.price ? `${item.price.toLocaleString()} ب.د` : 'No price';
+  const renderOption = (option) => (
+    <>
+      {option.icon}
+      <span style={{ flex: 1 }}>{option.label}</span>
+      <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+        {option.price}
+      </span>
+    </>
+  );
+  const renderValue = (selected) => {
+    if (!selected) return <span className="custom-select-placeholder">Select a plan</span>;
+    return (
+      <div className="custom-select-value">
+        {selected.icon}
+        <span>{selected.label}</span>
+        <span style={{ marginLeft: 'auto', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+          {selected.price}
+        </span>
+      </div>
+    );
+  };
+
+  const onCreateOrderInputChangeHandler = (e) => {
+    const { name, value } = e.target;
+    setCreatedOrder(prev => ({ ...prev, [name]: value }));
+  }
+  const onNumericPadChangeHandler = (e) => {
+    var event = {
+      target: e
+    };
+    onCreateOrderInputChangeHandler(event);
+    if (e?.name === 'mobile') {
+      const customer = customerList.find(x => `${x.isdCode}${x.mobile}` === `${createdOrder.isd}${e?.value}`);
+      if (customer) {
+        event.target = {
+          name: 'customerId',
+          value: customer.id
+        };
+        onCreateOrderInputChangeHandler(event);
+        event.target = {
+          name: 'customerName',
+          value: `${customer.firstName} ${customer.lastName}`
+        };
+        onCreateOrderInputChangeHandler(event);
+        event.target = {
+          name: 'customerClass',
+          value: customer.customerClass
+        };
+        onCreateOrderInputChangeHandler(event);
+      }
+    }
+  }
 
   return (
     <div className="co-root">
       {/* ── Left column ─────────────────────────── */}
       <div className="co-col co-col--left">
         <SectionCard title="Customer Info">
-          
+
           <Field label={<><FiPhone className="co-field__icon" /> Phone Number</>}>
             <div className={`co-phone-wrap ${keypadMode === 'phone' ? 'co-phone-wrap--active' : ''}`}>
               <IsdSelect value={isdCountry} onChange={setIsdCountry} />
@@ -226,36 +292,77 @@ function CreateOrder() {
                 onClick={openPhoneKeypad}
               />
             </div>
-          </Field><Field label={<><FiUser className="co-field__icon" /> Customer Name</>}>
-            <input
+          </Field>
+          <Field label={<><FiUser className="co-field__icon" /> Customer Name</>}>
+            <KeyboardInput
+              keyboard="alphabet"
+              value={createdOrder.customerName}
+              onChange={onCreateOrderInputChangeHandler}
+              label="Customer Name"
+              name="customerName"
+              placeholder="Enter customer name"
               className="co-input"
-              placeholder="Enter name"
-              value={customerName}
-              onChange={e => setCustomerName(e.target.value)}
+              disabled={createdOrder.customerId > 0}
             />
           </Field>
+          <Field label={<><FcFlowChart className="co-field__icon" /> Emirate</>}>
+            <Select
+              options={emirates.map(e => ({ value: e.id, label: e.displayValue }))}
+              value={createdOrder.emirate}
+              onChange={(val) => (val)}
+              name="emirate"
+              placeholder="Search and select..."
+              showSearch={false}
+              renderOption={renderOption}
+              renderValue={renderValue}
+            />
+          </Field>
+          <div className="inline-field">
+            <Field label="Order Date">
+              <div className="co-input co-input--readonly">{todayLabel()}</div>
+            </Field>
+            <Field label="Delivery Date">
+              <div className="co-input-wrap">
+                <input
+                  className="co-input"
+                  type="text"
+                  value={deliveryDate}
+                  icon=""
+                  readOnly
+                  onClick={() => setIsDatePickerOpen(true)}
+                />
+                {!deliveryDate && <span className="co-date-placeholder">Select date</span>}
+              </div>
+              <DatePickerModal
+                isOpen={isDatePickerOpen}
+                value={deliveryDate}
+                label="Delivery Date"
+                disablePastDates={true}
+                onChange={setDeliveryDate}
+                onConfirm={(date) => {
+                  console.log("Selected Date:", date);
+                  setDeliveryDate(date);
+                }}
+                onClose={() => setIsDatePickerOpen(false)}
+              />
+            </Field>
+          </div>
+          <div className="inline-field-column">
+            <Field label="Customer Type">
+            </Field>
+            <div className="inline-field">
+              <div className={ `text-icon ${createdOrder.customerClass === 'Regular' ? 'active' : ''}` }><FiUser /><span>Regular</span></div>
+              <div className={ `text-icon ${createdOrder.customerClass === 'VIP' ? 'active' : ''}` }><FiStar /><span>VIP</span></div>
+              <div className={ `text-icon ${createdOrder.customerClass === 'VVIP' ? 'active' : ''}` }><FaCrown /><span>VVIP</span></div>
+            </div>
+          </div>
         </SectionCard>
 
         <SectionCard title="Dates">
-          <Field label="Order Date">
-            <div className="co-input co-input--readonly">{todayLabel()}</div>
-          </Field>
-          <Field label="Delivery Date">
-            <div className="co-input-wrap">
-              <FiCalendar className="co-input-icon" />
-              <input
-                className="co-input co-input--icon"
-                type="date"
-                value={deliveryDate}
-                onChange={e => setDeliveryDate(e.target.value)}
-              />
-              {!deliveryDate && <span className="co-date-placeholder">Select date</span>}
-            </div>
-          </Field>
-        </SectionCard>
 
+        </SectionCard>
         <SectionCard
-          title={`Items (${items.length})`}
+          title={`Items (${createdOrder.length})`}
           icon={FiUser}
           action={
             <button className="co-btn co-btn--add" onClick={addItem}>
@@ -264,7 +371,7 @@ function CreateOrder() {
           }
         >
           <div className="co-items-list">
-            {items.map((item, idx) => (
+            {createdOrder?.orderDetails?.map((item, idx) => (
               <div
                 key={item.id}
                 className={`co-item-tab ${idx === activeItemIdx ? 'co-item-tab--active' : ''}`}
@@ -274,7 +381,7 @@ function CreateOrder() {
                   <span className="co-item-tab__name">{itemLabel(item, idx)}</span>
                   <span className="co-item-tab__sub">{itemSub(item)}</span>
                 </div>
-                {items.length > 1 && (
+                {createdOrder?.orderDetails?.length > 1 && (
                   <button className="co-item-tab__remove" onClick={(e) => removeItem(idx, e)}>
                     <FiX size={14} />
                   </button>
@@ -299,7 +406,7 @@ function CreateOrder() {
             <input
               className="co-input"
               placeholder="Who is this for?"
-              value={activeItem.personName}
+              value={activeItem?.personName}
               onChange={e => updateActiveItem({ personName: e.target.value })}
             />
           </Field>
@@ -312,7 +419,7 @@ function CreateOrder() {
                   type="number"
                   min="0"
                   placeholder="0"
-                  value={activeItem[key]}
+                  value={activeItem?.[key]}
                   onChange={e => updateActiveItem({ [key]: e.target.value })}
                 />
               </Field>
@@ -325,7 +432,7 @@ function CreateOrder() {
               type="number"
               min="0"
               placeholder="0"
-              value={activeItem.armLoose}
+              value={activeItem?.armLoose}
               onChange={e => updateActiveItem({ armLoose: e.target.value })}
             />
           </Field>
@@ -335,7 +442,7 @@ function CreateOrder() {
               className="co-textarea"
               placeholder="Special instructions"
               rows={4}
-              value={activeItem.notes}
+              value={activeItem?.notes}
               onChange={e => updateActiveItem({ notes: e.target.value })}
             />
           </Field>
@@ -343,7 +450,7 @@ function CreateOrder() {
           <div className="co-field">
             <label className="co-field__label">Images</label>
             <div className="co-images">
-              {activeItem.images.map((img, i) => (
+              {activeItem?.images.map((img, i) => (
                 <div key={i} className="co-img-thumb">
                   <img src={img.url} alt={`item-${i}`} />
                   <button className="co-img-thumb__remove" onClick={() => removeImage(i)}><FiX size={12} /></button>
@@ -412,9 +519,9 @@ function CreateOrder() {
           </div>
 
           {/* Selected price display */}
-          <div className={`co-price-display ${activeItem.price ? 'co-price-display--set' : ''}`}>
-            {activeItem.price
-              ? <><span className="co-price-display__label">Selected Price</span><span className="co-price-display__val">{activeItem.price.toLocaleString()} ب.د</span></>
+          <div className={`co-price-display ${activeItem?.price ? 'co-price-display--set' : ''}`}>
+            {activeItem?.price
+              ? <><span className="co-price-display__label">Selected Price</span><span className="co-price-display__val">{activeItem?.price.toLocaleString()} ب.د</span></>
               : <span className="co-price-display__placeholder">No price selected</span>
             }
           </div>
@@ -423,7 +530,7 @@ function CreateOrder() {
             {presetPrices?.map(p => (
               <button
                 key={p}
-                className={`co-price-btn ${activeItem.price === p ? 'co-price-btn--selected' : ''}`}
+                className={`co-price-btn ${activeItem?.price === p ? 'co-price-btn--selected' : ''}`}
                 onClick={() => selectPrice(p?.price)}
               >
                 {p?.price.toLocaleString()}
@@ -437,14 +544,14 @@ function CreateOrder() {
                 className={`co-input co-input--center co-input--keypad ${keypadMode === 'price' ? 'co-input--keypad-open' : ''}`}
                 readOnly
                 placeholder="Enter amount"
-                value={activeItem.customPrice}
+                value={activeItem?.customPrice}
                 onClick={openPriceKeypad}
               />
               <button className="co-btn co-btn--ghost co-btn--sm" onClick={() => { setShowCustomInput(false); closeKeypad(); }}>Cancel</button>
             </div>
           ) : (
             <button
-              className={`co-custom-btn ${activeItem.price > 5000 ? 'co-custom-btn--selected' : ''}`}
+              className={`co-custom-btn ${activeItem?.price > 5000 ? 'co-custom-btn--selected' : ''}`}
               onClick={() => { setShowCustomInput(true); setTimeout(openPriceKeypad, 50); }}
             >
               Custom (Above 5000 ب.د)
@@ -499,12 +606,12 @@ function CreateOrder() {
 
           {/* Items */}
           <div className="op-items">
-            {items.map((item, idx) => (
-              <div key={item.id} className="op-item">
+            {createdOrder.orderDetails?.map((item, idx) => (
+              <div key={item?.id} className="op-item">
                 <div className="op-item__header">
-                  <span className="op-item__title">Item {idx + 1}{item.personName ? ` — ${item.personName}` : ''}</span>
-                  {item.price
-                    ? <span className="op-item__price">{item.price.toLocaleString()} ب.د</span>
+                  <span className="op-item__title">Item {idx + 1}{item?.personName ? ` — ${item?.personName}` : ''}</span>
+                  {item?.price
+                    ? <span className="op-item__price">{item?.price.toLocaleString()} ب.د</span>
                     : <span className="op-item__price op-item__price--none">No price</span>
                   }
                 </div>
@@ -512,10 +619,10 @@ function CreateOrder() {
                 {/* Measurements */}
                 <div className="op-measurements">
                   {[
-                    ['Chest', item.chest], ['Back', item.back],
-                    ['Hands', item.hands], ['Height', item.height],
-                    ['Neck', item.neck], ['Deep', item.deep],
-                    ['Arm Loose', item.armLoose],
+                    ['Chest', item?.chest], ['Back', item?.back],
+                    ['Hands', item?.hands], ['Height', item?.height],
+                    ['Neck', item?.neck], ['Deep', item?.deep],
+                    ['Arm Loose', item?.armLoose],
                   ].map(([lbl, val]) => val ? (
                     <div key={lbl} className="op-meas-row">
                       <span className="op-meas-lbl">{lbl}</span>
@@ -525,14 +632,14 @@ function CreateOrder() {
                 </div>
 
                 {/* Notes */}
-                {item.notes && (
-                  <div className="op-notes"><span className="op-lbl">Notes</span><p>{item.notes}</p></div>
+                {item?.notes && (
+                  <div className="op-notes"><span className="op-lbl">Notes</span><p>{item?.notes}</p></div>
                 )}
 
                 {/* Images */}
-                {item.images.length > 0 && (
+                {item?.images.length > 0 && (
                   <div className="op-images">
-                    {item.images.map((img, i) => (
+                    {item?.images.map((img, i) => (
                       <img key={i} src={img.url} alt={`item-${idx}-img-${i}`} className="op-img-thumb" />
                     ))}
                   </div>
@@ -542,10 +649,10 @@ function CreateOrder() {
           </div>
 
           {/* Total */}
-          {items.length > 1 && (
+          {createdOrder.length > 1 && (
             <div className="op-total">
               <span>Total</span>
-              <span>{items.reduce((s, it) => s + (it.price || 0), 0).toLocaleString()} ب.د</span>
+              <span>{createdOrder.reduce((s, it) => s + (it.price || 0), 0).toLocaleString()} ب.د</span>
             </div>
           )}
         </div>
@@ -555,8 +662,9 @@ function CreateOrder() {
       <NumericKeypad
         isOpen={keypadMode === 'phone'}
         value={phone}
+        name="mobile"
         onChange={setPhone}
-        onConfirm={setPhone}
+        onConfirm={onNumericPadChangeHandler}
         onClose={closeKeypad}
         label="Phone Number"
         maxLength={15}
@@ -565,7 +673,8 @@ function CreateOrder() {
       {/* Numeric keypad — custom price */}
       <NumericKeypad
         isOpen={keypadMode === 'price'}
-        value={activeItem.customPrice}
+        name="orderPrice"
+        value={activeItem?.customPrice}
         onChange={val => updateActiveItem({ customPrice: val })}
         onConfirm={val => {
           const n = parseFloat(val);

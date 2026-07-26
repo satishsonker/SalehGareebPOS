@@ -177,13 +177,15 @@ function MasterData() {
             case 'edit':
                 try {
                     const response = await getMasterDataById(row.id);
+
                     const data = response.success && response.data ? response.data : row;
                     setSelectedItem(data);
                     setEditFormData({
-                        type: data.type || '',
-                        key: data.key || '',
-                        value: data.value || '',
+                        masterDataType: data.masterDataType || '',
+                        displayValue: data.displayValue || '',
+                        code: data.code || '',
                         remark: data.remark || '',
+                        dataType: data.dataType || '',
                         displayOrder: data.displayOrder ?? 1,
                     });
                     setEditFormErrors({});
@@ -192,10 +194,11 @@ function MasterData() {
                     console.error('Failed to fetch master data details:', error);
                     setSelectedItem(row);
                     setEditFormData({
-                        type: row.type || '',
-                        key: row.key || '',
-                        value: row.value || '',
+                        masterDataType: row.masterDataType || '',
+                        displayValue: row.displayValue || '',
+                        code: row.code || '',
                         remark: row.remark || '',
+                        dataType: row.dataType || '',
                         displayOrder: row.displayOrder ?? 1,
                     });
                     setEditFormErrors({});
@@ -239,14 +242,14 @@ function MasterData() {
 
         const errors = {};
 
-        if (!editFormData.type || editFormData.type.trim() === '') {
-            errors.type = 'Type is required';
+        if (!editFormData.displayValue || editFormData.displayValue.trim() === '') {
+            errors.displayValue = 'Display Value is required';
         }
-        if (!editFormData.key || editFormData.key.trim() === '') {
-            errors.key = 'Key is required';
+        if (!editFormData.code || editFormData.code.trim() === '') {
+            errors.code = 'Code is required';
         }
-        if (!editFormData.value || editFormData.value.trim() === '') {
-            errors.value = 'Value is required';
+        if (!editFormData.dataType || editFormData.dataType.trim() === '') {
+            errors.dataType = 'Data Type is required';
         }
 
         setEditFormErrors(errors);
@@ -258,7 +261,8 @@ function MasterData() {
 
         setSaving(true);
         try {
-            const response = await updateMasterData(selectedItem.id, editFormData);
+            editFormData.id = selectedItem.id; // Ensure the ID is included in the data to be sent
+            const response = await updateMasterData(editFormData);
             if (response.success) {
                 success('Master data updated successfully');
                 setEditModalOpen(false);
@@ -472,7 +476,10 @@ function MasterData() {
                                 required={true}
                                 name="displayValue"
                                 value={editFormData.displayValue || ''}
-                                onChange={onChange}
+                               onChange={(e) => {
+                                    setEditFormData({ ...editFormData, displayValue: e.target.value });
+                                    if (editFormErrors.displayValue) setEditFormErrors({ ...editFormErrors, displayValue: '' });
+                                }}
                                 placeholder="Enter display value"
                                 leftIcon={<FiDatabase />}
                                 error={editFormErrors.displayValue}
@@ -500,7 +507,10 @@ function MasterData() {
                                 required={true}
                                 name="displayOrder"
                                 value={editFormData.displayOrder || ''}
-                                onChange={onChange}
+                                 onChange={(e) => {
+                                    setEditFormData({ ...editFormData, displayOrder: e.target.value });
+                                    if (editFormErrors.displayOrder) setEditFormErrors({ ...editFormErrors, displayOrder: '' });
+                                }}
                                 placeholder="Enter display order"
                                 leftIcon={<FiFileText />}
                                 error={editFormErrors.displayOrder}

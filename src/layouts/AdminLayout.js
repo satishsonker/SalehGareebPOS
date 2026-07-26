@@ -4,7 +4,7 @@ import {
   FiMenu, FiX, FiGrid, FiDatabase, FiPackage, FiShoppingCart,
   FiSettings, FiLogOut, FiSun, FiMoon, FiCode,
   FiUser, FiMail, FiPhone, FiShield,
-  FiShoppingBag, FiMapPin, FiTag, FiChevronDown, FiHome, FiDollarSign
+  FiShoppingBag, FiMapPin, FiTag, FiChevronDown, FiHome, FiDollarSign, FiBell, FiServer, FiBox
 } from 'react-icons/fi';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -16,6 +16,9 @@ const menuItems = [
   { path: '/admin/system-data',       icon: FiDatabase,     label: 'System Data' },
   { path: '/admin/customers',         icon: FiUser,         label: 'Customers' },
   { path: '/admin/order-prices',      icon: FiDollarSign,   label: 'Order Prices' },
+  { path: '/admin/notifications',     icon: FiBell,         label: 'Notifications' },
+  { path: '/admin/design-models',     icon: FiBox,          label: 'Design Models' },
+  { path: '/admin/cache',             icon: FiServer,       label: 'Cache' },
   { path: '/admin/products',          icon: FiPackage,      label: 'Products' },
   { path: '/admin/orders',            icon: FiShoppingCart, label: 'Orders' },
   { path: '/admin/settings',          icon: FiSettings,     label: 'Settings' },

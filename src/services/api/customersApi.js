@@ -3,16 +3,16 @@ import { get, post, put, del } from '../../utils/api';
 const BASE = '/customers';
 
 // ── CRUD ─────────────────────────────────────────────────────────
-export const getCustomers    = (pageNo = 1, pageSize = 10) =>
+export const getCustomers = (pageNo = 1, pageSize = 10) =>
   get(`${BASE}?pageNo=${pageNo}&pageSize=${pageSize}`);
 
 export const getCustomerById = (id) => get(`${BASE}/${id}`);
 
-export const createCustomer  = (data) => post(BASE, data);
+export const createCustomer = (data) => post(BASE, data);
 
-export const updateCustomer  = (id, data) => put(`${BASE}/${id}`, data);
+export const updateCustomer = (id, data) => put(`${BASE}/${id}`, data);
 
-export const deleteCustomer  = (id) => del(`${BASE}/${id}`);
+export const deleteCustomer = (id) => del(`${BASE}/${id}`);
 
 // ── Search / Check ────────────────────────────────────────────────
 export const searchCustomers = (q, pageNo = 1, pageSize = 10) =>
@@ -34,9 +34,9 @@ export const unblockCustomer = (id, adminId) =>
 export const getBlockHistory = (id) => get(`${BASE}/${id}/block-history`);
 
 // ── Addresses ─────────────────────────────────────────────────────
-export const getCustomerAddresses  = (id) => get(`${BASE}/${id}/addresses`);
+export const getCustomerAddresses = (id) => get(`${BASE}/${id}/addresses`);
 
-export const addCustomerAddress    = (id, data) => post(`${BASE}/${id}/addresses`, data);
+export const addCustomerAddress = (id, data) => post(`${BASE}/${id}/addresses`, data);
 
 export const updateCustomerAddress = (id, addressId, data) =>
   put(`${BASE}/${id}/addresses/${addressId}`, data);

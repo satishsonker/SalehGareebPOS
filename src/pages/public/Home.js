@@ -1,26 +1,28 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import {
-  FiShoppingCart, FiSearch, FiClock, FiBarChart2,
-  FiCheckCircle, FiUsers, FiDollarSign, FiImage, FiXCircle,
-} from 'react-icons/fi';
+import { getTiles } from '../../services/api/tileApiService';
+import * as FiIcons from 'react-icons/fi';
 import './Home.css';
 
-const LARGE_TILES = [
-  { id: 'createOrder',     label: 'Create Order',      icon: FiShoppingCart, color: '#2563eb', path: '/orders/create' },
-  { id: 'searchOrders',    label: 'Search Orders',     icon: FiSearch,        color: '#1e293b', path: '/orders/search' },
-  { id: 'pendingOrders',   label: 'Pending Orders',    icon: FiClock,         color: '#ea580c', path: '/orders/pending' },
-  { id: 'dailyReports',    label: 'Daily Reports',     icon: FiBarChart2,     color: '#7c3aed', path: '/reports/daily' },
-  { id: 'completedOrders', label: 'Completed Orders',  icon: FiCheckCircle,  color: '#16a34a', path: '/orders/completed' },
-  { id: 'customers',       label: 'Customers',         icon: FiUsers,         color: '#dc2626', path: '/customers' },
-];
+let LARGE_TILES = [];
 
-const SMALL_TILES = [
-  { id: 'advance',       label: 'Advance',       subtitle: 'Manage advance payments', icon: FiDollarSign, color: '#0891b2', path: '/advance' },
-  { id: 'updateImage',   label: 'Update Image',  subtitle: 'Update product images',   icon: FiImage,      color: '#d97706', path: '/products/images' },
-  { id: 'cancelOrder',   label: 'Cancel Order',  subtitle: 'Cancel existing orders',  icon: FiXCircle,    color: '#be123c', path: '/orders/cancel' },
-];
+// [
+//   { id: 'createOrder', label: 'Create Order', icon: FiShoppingCart, color: '#2563eb', path: '/orders/create' },
+//   { id: 'fabricSale', label: 'Fabric Sale', icon: FiClock, color: '#ea580c', path: '/fabric/sale' },
+//   { id: 'alteration', label: 'Alteration', icon: FiBarChart2, color: '#7c3aed', path: '/orders/alteration' },
+//   { id: 'searchOrders', label: 'Search Orders', icon: FiSearch, color: '#1e293b', path: '/orders/search' },
+//   { id: 'orderAlert', label: 'Order Alerts', icon: FiCheckCircle, color: '#16a34a', path: '/orders/alerts' },
+//   { id: 'advance', label: 'Advance', icon: FiDollarSign, color: '#dc2626', path: '/orders/advance' },
+// ];
+
+let SMALL_TILES = []
+
+// [
+//   { id: 'customers', label: 'Customers', subtitle: 'Manage customers', icon: FiUsers, color: '#0891b2', path: '/customers' },
+//   { id: 'updateImage', label: 'Update Image', subtitle: 'Update product images', icon: FiImage, color: '#d97706', path: '/products/images' },
+//   { id: 'cancelOrder', label: 'Cancel Order', subtitle: 'Cancel existing orders', icon: FiXCircle, color: '#be123c', path: '/orders/cancel' },
+// ];
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -36,7 +38,7 @@ function formatDate() {
 }
 
 function LargeTile({ tile, onClick }) {
-  const Icon = tile.icon;
+  const Icon = FiIcons[tile.icon];
   return (
     <button
       className="home-tile home-tile--large"
@@ -52,7 +54,7 @@ function LargeTile({ tile, onClick }) {
 }
 
 function SmallTile({ tile, onClick }) {
-  const Icon = tile.icon;
+  const Icon = FiIcons[tile.icon];
   return (
     <button
       className="home-tile home-tile--small"
@@ -73,9 +75,25 @@ function Home() {
   const { user, selectedShop } = useAuth();
 
   const greeting = useMemo(() => getGreeting(), []);
-  const dateStr  = useMemo(() => formatDate(), []);
+  const dateStr = useMemo(() => formatDate(), []);
 
   const firstName = user?.firstName || user?.username || 'User';
+  const [tiles, setTiles] = useState([]);
+
+  useEffect(() => {
+    const fetchTiles = async () => {
+      try {
+        const response = await getTiles();
+        setTiles(response.data?.data || []);
+        LARGE_TILES=response.data?.data?.filter(tile => tile.size?.toLowerCase() === 'large') || [];
+        SMALL_TILES=response.data?.data?.filter(tile => tile.size?.toLowerCase() === 'small') || [];
+      } catch (error) {
+        console.error('Error fetching tiles:', error);
+      }
+    };
+
+    fetchTiles();
+  }, []);
 
   return (
     <div className="home-root">
@@ -94,7 +112,7 @@ function Home() {
       </div>
 
       {/* Stats row */}
-      <div className="home-stats">
+      {/* <div className="home-stats">
         <div className="home-stat-card">
           <span className="home-stat-card__value">0</span>
           <span className="home-stat-card__label">Daily Sales</span>
@@ -107,7 +125,7 @@ function Home() {
           <span className="home-stat-card__value">0</span>
           <span className="home-stat-card__label">Late Orders</span>
         </div>
-      </div>
+      </div> */}
 
       {/* Large tile grid */}
       <div className="home-grid home-grid--large">

@@ -147,4 +147,10 @@ export const del = (endpoint, options = {}) => {
   return apiRequest(endpoint, { ...options, method: 'DELETE' });
 };
 
+export const multipleGet = async (requests) => {
+  return Promise.all(
+    requests.map(request => request)
+  );
+};
+
 export const apiBasePath = config.api.url;

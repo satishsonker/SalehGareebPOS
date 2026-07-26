@@ -54,8 +54,8 @@ export function SelectWithSearchExample() {
   const [value, setValue] = useState(null);
 
   const options = Array.from({ length: 50 }, (_, i) => ({
-    value: `option${i + 1}`,
-    label: `Option ${i + 1}`,
+    value: `option_value${i + 1}`,
+    label: `Option Label${i + 1}`,
   }));
 
   return (

@@ -1,0 +1,1198 @@
+/* ==========================================================
+   Virtual Keyboard
+   ========================================================== */
+
+:root {
+
+    --vk-bg: #ffffff;
+    --vk-text: #1f2937;
+    --vk-border: #d1d5db;
+
+    --vk-overlay: rgba(0,0,0,.45);
+
+    --vk-primary: #2563eb;
+    --vk-success: #16a34a;
+    --vk-warning: #d97706;
+    --vk-danger: #dc2626;
+
+    --vk-key-bg: #ffffff;
+    --vk-key-hover: #f3f4f6;
+    --vk-key-active: #e5e7eb;
+
+    --vk-shadow:
+        0 12px 40px rgba(0,0,0,.18);
+
+    --vk-radius: 12px;
+
+    --vk-transition: .18s ease;
+
+}
+
+/* ==========================================================
+   Overlay
+   ========================================================== */
+
+.vk-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 99999;
+
+    background: var(--vk-overlay);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: flex-end;
+
+    padding: 20px;
+
+    animation: vkFade .18s ease;
+
+    touch-action: none;
+
+}
+
+/* ==========================================================
+   Container
+   ========================================================== */
+
+.vk-container {
+
+    width: 100%;
+
+    max-width: 820px;
+
+    background: var(--vk-bg);
+
+    border-radius: var(--vk-radius);
+
+    box-shadow: var(--vk-shadow);
+
+    overflow: hidden;
+
+    animation: vkSlideUp .2s ease;
+
+    user-select: none;
+
+}
+
+/* ==========================================================
+   Header
+   ========================================================== */
+
+.vk-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 16px 20px;
+
+    border-bottom: 1px solid var(--vk-border);
+
+}
+
+.vk-title {
+
+    font-size: 18px;
+
+    font-weight: 600;
+
+    color: var(--vk-text);
+
+}
+
+.vk-close-button {
+
+    width: 36px;
+
+    height: 36px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    cursor: pointer;
+
+    background: transparent;
+
+    font-size: 18px;
+
+    transition: var(--vk-transition);
+
+}
+
+.vk-close-button:hover {
+
+    background: var(--vk-key-hover);
+
+}
+
+/* ==========================================================
+   Display
+   ========================================================== */
+
+.vk-display {
+
+    padding: 20px;
+
+    border-bottom: 1px solid var(--vk-border);
+
+}
+
+.vk-display-input {
+
+    width: 100%;
+
+    border: 1px solid var(--vk-border);
+
+    border-radius: 10px;
+
+    padding: 14px;
+
+    font-size: 22px;
+
+    outline: none;
+
+    background: white;
+
+    color: var(--vk-text);
+
+}
+
+/* ==========================================================
+   Keyboard Body
+   ========================================================== */
+
+.vk-body {
+
+    padding: 14px;
+
+}
+
+.vk-row {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-bottom: 10px;
+
+}
+
+.vk-row:last-child {
+
+    margin-bottom: 0;
+
+}
+
+/* ==========================================================
+   Keys
+   ========================================================== */
+
+.vk-key {
+
+    flex: 1;
+
+    height: 60px;
+
+    border: 1px solid var(--vk-border);
+
+    border-radius: 10px;
+
+    background: var(--vk-key-bg);
+
+    cursor: pointer;
+
+    font-size: 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    transition:
+
+        background var(--vk-transition),
+
+        transform .08s ease,
+
+        box-shadow var(--vk-transition);
+
+    position: relative;
+
+    overflow: hidden;
+
+}
+
+.vk-key:hover {
+
+    background: var(--vk-key-hover);
+
+}
+
+.vk-key:active {
+
+    transform: scale(.97);
+
+    background: var(--vk-key-active);
+
+}
+
+/* ==========================================================
+   Widths
+   ========================================================== */
+
+.vk-normal {
+
+    flex: 1;
+
+}
+
+.vk-wide {
+
+    flex: 1.6;
+
+}
+
+.vk-extra-wide {
+
+    flex: 2.5;
+
+}
+
+/* ==========================================================
+   Disabled
+   ========================================================== */
+
+.vk-disabled {
+
+    opacity: .45;
+
+    cursor: not-allowed;
+
+    pointer-events: none;
+
+}
+
+/* ==========================================================
+   Active
+   ========================================================== */
+
+.vk-active {
+
+    background: var(--vk-primary);
+
+    color: white;
+
+}
+
+/* ==========================================================
+   Footer
+   ========================================================== */
+
+.vk-footer {
+
+    display: flex;
+
+    gap: 12px;
+
+    padding: 18px;
+
+    border-top: 1px solid var(--vk-border);
+
+}
+
+.vk-footer-button {
+
+    flex: 1;
+
+    height: 52px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    transition: var(--vk-transition);
+
+}
+
+.vk-confirm {
+
+    background: var(--vk-success);
+
+    color: white;
+
+}
+
+.vk-confirm:hover {
+
+    filter: brightness(.95);
+
+}
+
+.vk-cancel {
+
+    background: var(--vk-danger);
+
+    color: white;
+
+}
+
+.vk-cancel:hover {
+
+    filter: brightness(.95);
+
+}
+
+/* ==========================================================
+   Animations
+   ========================================================== */
+
+@keyframes vkFade {
+
+    from {
+
+        opacity: 0;
+
+    }
+
+    to {
+
+        opacity: 1;
+
+    }
+
+}
+
+@keyframes vkSlideUp {
+
+    from {
+
+        opacity: 0;
+
+        transform: translateY(40px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform: translateY(0);
+
+    }
+
+}
+
+/* ==========================================================
+   Color Variants
+   ========================================================== */
+
+.vk-default {
+    background: var(--vk-key-bg);
+    color: var(--vk-text);
+}
+
+.vk-primary {
+    background: var(--vk-primary);
+    color: #fff;
+    border-color: var(--vk-primary);
+}
+
+.vk-success {
+    background: var(--vk-success);
+    color: #fff;
+    border-color: var(--vk-success);
+}
+
+.vk-warning {
+    background: var(--vk-warning);
+    color: #fff;
+    border-color: var(--vk-warning);
+}
+
+.vk-danger {
+    background: var(--vk-danger);
+    color: #fff;
+    border-color: var(--vk-danger);
+}
+
+.vk-primary:hover,
+.vk-success:hover,
+.vk-warning:hover,
+.vk-danger:hover {
+    filter: brightness(.95);
+}
+
+/* ==========================================================
+   Button Variants
+   ========================================================== */
+
+.vk-filled {
+}
+
+.vk-outlined {
+    background: transparent;
+}
+
+.vk-outlined.vk-default {
+    border: 2px solid var(--vk-border);
+}
+
+.vk-outlined.vk-primary {
+    background: transparent;
+    color: var(--vk-primary);
+    border: 2px solid var(--vk-primary);
+}
+
+.vk-outlined.vk-success {
+    background: transparent;
+    color: var(--vk-success);
+    border: 2px solid var(--vk-success);
+}
+
+.vk-outlined.vk-warning {
+    background: transparent;
+    color: var(--vk-warning);
+    border: 2px solid var(--vk-warning);
+}
+
+.vk-outlined.vk-danger {
+    background: transparent;
+    color: var(--vk-danger);
+    border: 2px solid var(--vk-danger);
+}
+
+.vk-text {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.vk-text:hover {
+    background: rgba(0,0,0,.05);
+}
+
+/* ==========================================================
+   Focus
+   ========================================================== */
+
+.vk-key:focus-visible,
+.vk-footer-button:focus-visible,
+.vk-close-button:focus-visible {
+
+    outline: 3px solid rgba(37,99,235,.35);
+
+    outline-offset: 2px;
+
+}
+
+/* ==========================================================
+   Ripple
+   ========================================================== */
+
+.vk-key::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    border-radius: inherit;
+
+    opacity: 0;
+
+    background: rgba(255,255,255,.35);
+
+    transition: opacity .25s ease;
+
+    pointer-events: none;
+
+}
+
+.vk-key:active::after {
+
+    opacity: 1;
+
+}
+
+/* ==========================================================
+   Icon Alignment
+   ========================================================== */
+
+.vk-key svg {
+
+    width: 22px;
+
+    height: 22px;
+
+    flex-shrink: 0;
+
+}
+
+/* ==========================================================
+   Press Animation
+   ========================================================== */
+
+.vk-key {
+
+    will-change: transform;
+
+}
+
+.vk-key:active {
+
+    transform: scale(.96);
+
+}
+
+/* ==========================================================
+   Scrollbar
+   ========================================================== */
+
+.vk-body::-webkit-scrollbar {
+
+    width: 8px;
+
+}
+
+.vk-body::-webkit-scrollbar-thumb {
+
+    background: #bdbdbd;
+
+    border-radius: 20px;
+
+}
+
+.vk-body::-webkit-scrollbar-track {
+
+    background: transparent;
+
+}
+
+/* ==========================================================
+   Dark Theme
+   ========================================================== */
+
+.vk-theme-dark {
+
+    --vk-bg: #1f2937;
+
+    --vk-text: #f9fafb;
+
+    --vk-border: #374151;
+
+    --vk-key-bg: #2d3748;
+
+    --vk-key-hover: #374151;
+
+    --vk-key-active: #4b5563;
+
+    --vk-overlay: rgba(0,0,0,.65);
+
+}
+
+.vk-theme-dark .vk-display-input {
+
+    background: #111827;
+
+    color: white;
+
+    border-color: #374151;
+
+}
+
+.vk-theme-dark .vk-title {
+
+    color: white;
+
+}
+
+.vk-theme-dark .vk-close-button {
+
+    color: white;
+
+}
+
+.vk-theme-dark .vk-close-button:hover {
+
+    background: rgba(255,255,255,.08);
+
+}
+
+/* ==========================================================
+   Prevent Text Selection
+   ========================================================== */
+
+.vk-container,
+.vk-key,
+.vk-header,
+.vk-footer {
+
+    -webkit-user-select: none;
+    user-select: none;
+
+}
+
+/* ==========================================================
+   Touch Optimization
+   ========================================================== */
+
+.vk-key,
+.vk-footer-button,
+.vk-close-button {
+
+    touch-action: manipulation;
+
+    -webkit-tap-highlight-color: transparent;
+
+}
+
+/* ==========================================================
+   Disable Callout
+   ========================================================== */
+
+.vk-key {
+
+    -webkit-touch-callout: none;
+
+}
+
+/* ==========================================================
+   Safe Area (iPhone)
+   ========================================================== */
+
+.vk-container {
+
+    padding-bottom: env(safe-area-inset-bottom);
+
+}
+
+/* ==========================================================
+   Landscape
+   ========================================================== */
+
+@media (orientation: landscape) {
+
+    .vk-overlay {
+
+        align-items: center;
+
+    }
+
+    .vk-container {
+
+        max-width: 960px;
+
+    }
+
+}
+
+/* ==========================================================
+   Responsive - Tablet
+   ========================================================== */
+
+@media (max-width: 1024px) {
+
+    .vk-container {
+
+        max-width: 760px;
+
+    }
+
+}
+
+/* ==========================================================
+   Responsive - Mobile
+   ========================================================== */
+
+@media (max-width: 768px) {
+
+    .vk-overlay {
+
+        padding: 0;
+
+        align-items: flex-end;
+
+    }
+
+    .vk-container {
+
+        width: 100%;
+
+        max-width: 100%;
+
+        border-radius: 20px 20px 0 0;
+
+        max-height: 90vh;
+
+        overflow-y: auto;
+
+    }
+
+    .vk-header {
+
+        padding: 14px 16px;
+
+    }
+
+    .vk-title {
+
+        font-size: 17px;
+
+    }
+
+    .vk-display {
+
+        padding: 14px;
+
+    }
+
+    .vk-display-input {
+
+        font-size: 20px;
+
+        padding: 12px;
+
+    }
+
+    .vk-body {
+
+        padding: 12px;
+
+    }
+
+    .vk-row {
+
+        gap: 8px;
+
+        margin-bottom: 8px;
+
+    }
+
+    .vk-key {
+
+        min-height: 56px;
+
+        font-size: 18px;
+
+    }
+
+    .vk-footer {
+
+        padding: 14px;
+
+    }
+
+    .vk-footer-button {
+
+        height: 50px;
+
+        font-size: 15px;
+
+    }
+
+}
+
+/* ==========================================================
+   Small Mobile
+   ========================================================== */
+
+@media (max-width: 480px) {
+
+    .vk-header {
+
+        padding: 12px;
+
+    }
+
+    .vk-title {
+
+        font-size: 16px;
+
+    }
+
+    .vk-display-input {
+
+        font-size: 18px;
+
+    }
+
+    .vk-key {
+
+        min-height: 52px;
+
+        font-size: 17px;
+
+    }
+
+    .vk-key svg {
+
+        width: 20px;
+
+        height: 20px;
+
+    }
+
+    .vk-footer {
+
+        gap: 10px;
+
+    }
+
+}
+
+/* ==========================================================
+   Large Key Mode
+   ========================================================== */
+
+.vk-large-keys .vk-key {
+
+    min-height: 72px;
+
+    font-size: 24px;
+
+}
+
+.vk-large-keys .vk-key svg {
+
+    width: 28px;
+
+    height: 28px;
+
+}
+
+/* ==========================================================
+   Compact Mode
+   ========================================================== */
+
+.vk-compact .vk-row {
+
+    gap: 6px;
+
+    margin-bottom: 6px;
+
+}
+
+.vk-compact .vk-key {
+
+    min-height: 46px;
+
+    font-size: 16px;
+
+}
+
+.vk-compact .vk-display {
+
+    padding: 10px;
+
+}
+
+.vk-compact .vk-footer {
+
+    padding: 10px;
+
+}
+
+/* ==========================================================
+   Full Width Mode
+   ========================================================== */
+
+.vk-full-width {
+
+    width: 100%;
+
+    max-width: 100%;
+
+}
+
+/* ==========================================================
+   Loading State
+   ========================================================== */
+
+.vk-loading {
+
+    opacity: .6;
+
+    pointer-events: none;
+
+}
+
+/* ==========================================================
+   Shake Animation
+   ========================================================== */
+
+.vk-shake {
+
+    animation: vkShake .35s ease;
+
+}
+
+@keyframes vkShake {
+
+    0% { transform: translateX(0); }
+
+    20% { transform: translateX(-6px); }
+
+    40% { transform: translateX(6px); }
+
+    60% { transform: translateX(-4px); }
+
+    80% { transform: translateX(4px); }
+
+    100% { transform: translateX(0); }
+
+}
+
+/* ==========================================================
+   Fade In
+   ========================================================== */
+
+.vk-fade-in {
+
+    animation: vkFade .2s ease;
+
+}
+
+/* ==========================================================
+   Zoom
+   ========================================================== */
+
+.vk-zoom {
+
+    animation: vkZoom .18s ease;
+
+}
+
+@keyframes vkZoom {
+
+    from {
+
+        transform: scale(.96);
+
+        opacity: 0;
+
+    }
+
+    to {
+
+        transform: scale(1);
+
+        opacity: 1;
+
+    }
+
+}
+
+/* ==========================================================
+   Utilities
+   ========================================================== */
+
+.vk-hidden {
+
+    display: none !important;
+
+}
+
+.vk-text-center {
+
+    text-align: center;
+
+}
+
+.vk-flex {
+
+    display: flex;
+
+}
+
+.vk-flex-1 {
+
+    flex: 1;
+
+}
+
+.vk-gap-sm {
+
+    gap: 6px;
+
+}
+
+.vk-gap-md {
+
+    gap: 10px;
+
+}
+
+.vk-gap-lg {
+
+    gap: 16px;
+
+}
+
+/* ==========================================================
+   Print
+   ========================================================== */
+
+@media print {
+
+    .vk-overlay {
+
+        display: none !important;
+
+    }
+
+}
+
+/* ==========================================================
+   Accessibility
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    * {
+
+        animation: none !important;
+
+        transition: none !important;
+
+        scroll-behavior: auto !important;
+
+    }
+
+}
+
+/* ==========================================================
+   High Contrast
+   ========================================================== */
+
+@media (prefers-contrast: more) {
+
+    .vk-key {
+
+        border-width: 2px;
+
+    }
+
+    .vk-display-input {
+
+        border-width: 2px;
+
+    }
+
+}
+
+/* ==========================
+   Date Picker
+========================== */
+
+.vk-datepicker {
+    max-width: 420px;
+}
+
+.dp-month-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+}
+
+.dp-month-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.dp-nav {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.dp-nav:hover {
+    background: var(--vk-key-hover);
+}
+
+.dp-weekdays,
+.dp-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.dp-weekdays {
+    padding: 0 16px;
+    margin-bottom: 8px;
+}
+
+.dp-weekday {
+    text-align: center;
+    font-weight: 600;
+    padding: 8px 0;
+}
+
+.dp-grid {
+    gap: 6px;
+    padding: 0 16px 16px;
+}
+
+.dp-empty {
+    height: 46px;
+}
+
+.dp-day {
+    height: 46px;
+    border: 1px solid var(--vk-border);
+    border-radius: 8px;
+    background: var(--vk-key-bg);
+    cursor: pointer;
+    font-size: 15px;
+    transition: .15s;
+}
+
+.dp-day:hover:not(:disabled) {
+    background: var(--vk-key-hover);
+}
+
+.dp-selected {
+    background: var(--vk-primary);
+    color: #fff;
+    border-color: var(--vk-primary);
+}
+
+.dp-disabled {
+    opacity: .35;
+    cursor: not-allowed;
+}
+
+@media (max-width:768px) {
+
+    .vk-datepicker {
+        max-width: 100%;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .dp-day {
+        height: 42px;
+    }
+
+}
+/* ==========================================================
+   End of File
+   ========================================================== */

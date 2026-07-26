@@ -4,17 +4,17 @@ import {
   FiArrowLeft, FiSearch, FiPlus, FiUser, FiPhone, FiMapPin,
   FiChevronRight, FiEdit2, FiTrash2, FiLock, FiUnlock, FiX, FiCheck,
 } from 'react-icons/fi';
-import Modal from '../../components/Modal/Modal';
-import TextBox from '../../components/TextBox/TextBox';
-import CountrySelect from '../../components/CountrySelect/CountrySelect';
-import { useNotification } from '../../components/Notification';
-import { useAuth } from '../../contexts/AuthContext';
+import Modal from '../../../components/Modal/Modal';
+import TextBox from '../../../components/TextBox/TextBox';
+import CountrySelect from '../../../components/CountrySelect/CountrySelect';
+import { useNotification } from '../../../components/Notification';
+import { useAuth } from '../../../contexts/AuthContext';
 import {
   searchCustomers, getCustomerById, createCustomer, updateCustomer,
   getCustomerAddresses, addCustomerAddress, updateCustomerAddress, deleteCustomerAddress,
-} from '../../services/api/customersApi';
-import { commonLogic } from '../../utils/commonLogic';
-import { mergeValidationErrorsFromApi } from '../../utils/apiError';
+} from '../../../services/api/customersApi';
+import { commonLogic } from '../../../utils/commonLogic';
+import { mergeValidationErrorsFromApi } from '../../../utils/apiError';
 import './Customers.css';
 
 const EMPTY_CUSTOMER = {

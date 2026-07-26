@@ -1,0 +1,112 @@
+/* ── Banner stack ─────────────────────────────────────────────── */
+.snb-stack {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  /* Sits between the sticky header and main content in the flow */
+}
+
+/* ── Individual banner ────────────────────────────────────────── */
+.snb-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  animation: snb-slide-in 0.25s ease;
+  border-bottom: 1px solid transparent;
+}
+
+@keyframes snb-slide-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Type variants ────────────────────────────────────────────── */
+.snb--info {
+  background: #dbeafe;
+  color: #1e3a5f;
+  border-bottom-color: #bfdbfe;
+}
+
+.snb--warning {
+  background: #fef3c7;
+  color: #78350f;
+  border-bottom-color: #fde68a;
+}
+
+.snb--error {
+  background: #fee2e2;
+  color: #7f1d1d;
+  border-bottom-color: #fecaca;
+}
+
+.snb--success {
+  background: #dcfce7;
+  color: #14532d;
+  border-bottom-color: #bbf7d0;
+}
+
+.snb--announcement {
+  background: #f3e8ff;
+  color: #4c1d95;
+  border-bottom-color: #e9d5ff;
+}
+
+/* ── Icon ─────────────────────────────────────────────────────── */
+.snb-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin-top: 1px;
+  opacity: 0.85;
+}
+
+/* ── Body ─────────────────────────────────────────────────────── */
+.snb-body {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.snb-title {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.snb-message {
+  opacity: 0.9;
+}
+
+/* ── Close button ─────────────────────────────────────────────── */
+.snb-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  color: inherit;
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.15s, background 0.15s;
+  margin-top: 1px;
+}
+
+.snb-close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* ── Dark theme adjustments ───────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .snb--info         { background: #1e3a5f; color: #bfdbfe; border-bottom-color: #1d4ed8; }
+  .snb--warning      { background: #451a03; color: #fde68a; border-bottom-color: #b45309; }
+  .snb--error        { background: #450a0a; color: #fecaca; border-bottom-color: #dc2626; }
+  .snb--success      { background: #052e16; color: #bbf7d0; border-bottom-color: #15803d; }
+  .snb--announcement { background: #2e1065; color: #e9d5ff; border-bottom-color: #7e22ce; }
+}

@@ -1,0 +1,101 @@
+/* ── Type badge ───────────────────────────────────────────────── */
+.sn-type-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.sn-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sn-type-badge--info         { background: #dbeafe; color: #1d4ed8; }
+.sn-type-badge--warning      { background: #fef3c7; color: #b45309; }
+.sn-type-badge--success      { background: #dcfce7; color: #15803d; }
+.sn-type-badge--error        { background: #fee2e2; color: #dc2626; }
+.sn-type-badge--announcement { background: #f3e8ff; color: #7e22ce; }
+
+/* ── Status badge ─────────────────────────────────────────────── */
+.sn-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.sn-status-badge--sent      { background: #dcfce7; color: #15803d; }
+.sn-status-badge--scheduled { background: #fef3c7; color: #b45309; }
+.sn-status-badge--draft     { background: #f1f5f9; color: #64748b; }
+
+/* ── Detail message (wraps long text) ────────────────────────── */
+.sn-detail-message {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.55;
+}
+
+/* ── Form layout ──────────────────────────────────────────────── */
+.sn-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.sn-form-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.sn-required {
+  color: var(--danger-color, #ef4444);
+  margin-left: 2px;
+}
+
+/* ── Textarea ─────────────────────────────────────────────────── */
+.sn-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.95rem;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.sn-textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.sn-textarea--error {
+  border-color: var(--danger-color, #ef4444);
+}
+
+.sn-field-error {
+  font-size: 0.8rem;
+  color: var(--danger-color, #ef4444);
+  margin-top: 0.15rem;
+}
+
+@media (max-width: 480px) {
+  .sn-form-row {
+    grid-template-columns: 1fr;
+  }
+}
