@@ -9,6 +9,7 @@ export const getCustomers = (pageNo = 1, pageSize = 10) =>
 export const getCustomerById = (id) => get(`${BASE}/${id}`);
 
 export const createCustomer = (data) => post(BASE, data);
+export const createCustomerBasic = (data) => post(`${BASE}/create-basic`, data);
 
 export const updateCustomer = (id, data) => put(`${BASE}/${id}`, data);
 

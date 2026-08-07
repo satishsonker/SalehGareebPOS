@@ -1,6 +1,6 @@
 import { get, post, put, del } from '../../utils/api';
 
-export const getOrderPrices = (pageNo = 1, pageSize = 10) =>
+export const getOrderPrices = (pageNo = 1, pageSize = 100) =>
   get(`/orderprices?pageNo=${pageNo}&pageSize=${pageSize}`);
 
 export const getOrderPriceById = (id) => get(`/orderprices/${id}`);

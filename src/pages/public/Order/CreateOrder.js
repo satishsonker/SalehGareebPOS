@@ -1,25 +1,31 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { FiTag, FiSave, FiPlus, FiUser, FiPhone, FiCalendar, FiImage, FiX, FiFolder, FiCamera, FiChevronRight, FiEye, FiEdit2, FiStar } from 'react-icons/fi';
 import { FcFlowChart } from 'react-icons/fc';
-import { FaCrown } from "react-icons/fa";
+import { FaCrown, FaTag } from "react-icons/fa";
 import CameraCapture from '../../../components/Camera/CameraCapture';
 import IsdSelect from '../../../components/PhoneInput/IsdSelect';
 import NumericKeypad from '../../../components/NumericKeypad/NumericKeypad';
 import { getEmirates } from '../../../services/api/masterDataApi';
-import { getCustomers } from '../../../services/api/customersApi';
+import { getWorkTypes } from '../../../services/api/workTypeApi';
+import { getCustomers, createCustomerBasic } from '../../../services/api/customersApi';
 import { } from '../../../services/api/ordersApi';
-import { getOrderPrices } from '../../../services/api/orderPriceApi';
 import Modal from '../../../components/Modal/Modal';
 import './CreateOrder.css';
 import { multipleGet } from '../../../utils/api';
 import Select from '../../../components/Select/Select';
 import DatePickerModal from "../../../components/DatePicker/DatePickerModal";
+import { useNotification } from '../../../components/Notification';
 import {
   KeyboardProvider,
   VirtualKeyboard,
   KeyboardInput,
   DatePicker
 } from "../../../components/VirtualKeyboard";
+import StepHeading from './StepHeading';
+import WorkTypeSelector from './WorkTypeSelector';
+import Field from '../../../components/Field/Field';
+import SubOrderConfig from './SubOrderConfig';
+import OrderPriceSelector from './OrderPriceSelector';
 
 // ── Constants ────────────────────────────────────────────────────
 
@@ -27,9 +33,9 @@ const EMPTY_CREATE_ORDER = () => ({
   id: Date.now(),
   isd: '+971',
   mobile: '',
-  emirate: '',
   customerId: 0,
   customerName: '',
+  emirateId: 0,
   customerClass: 'Regular',
   orderDate: new Date().toISOString().split('T')[0],
   deliveryDate: '',
@@ -67,24 +73,17 @@ function SectionCard({ title, icon: Icon, action, children }) {
   );
 }
 
-function Field({ label, children }) {
-  return (
-    <div className="co-field">
-      <label className="co-field__label">{label}</label>
-      {children}
-    </div>
-  );
-}
-
 // ── Main Component ───────────────────────────────────────────────
 function CreateOrder() {
 
   const [customerName, setCustomerName] = useState('');
   const [customerList, setCustomerList] = useState([])
-  const [emirates, setEmirates] = useState([])
+  const [emirateList, setEmirateList] = useState([])
+  const [workTypeList, setWorkTypeList] = useState([])
   const [phone, setPhone] = useState('');
   const [isdCountry, setIsdCountry] = useState({ code: '+971', name: 'UAE', short: 'ARE' }); // default: Saudi Arabia
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isCustomerExits, setIsCustomerExits] = useState(true);
   // Dates
   const [deliveryDate, setDeliveryDate] = useState('');
 
@@ -101,9 +100,8 @@ function CreateOrder() {
 
   // Order preview modal
   const [previewOpen, setPreviewOpen] = useState(false);
-
+  const [customerSaveOpen, setCustomerSaveOpen] = useState(false);
   const openPhoneKeypad = () => setKeypadMode('phone');
-  const openPriceKeypad = () => setKeypadMode('price');
   const closeKeypad = () => setKeypadMode(null);
 
   // Image source picker
@@ -114,51 +112,73 @@ function CreateOrder() {
   const [camLoading, setCamLoading] = useState(false);
   const fileInputRef = useRef(null);
   const pickerRef = useRef(null);
+  const { success, error: showError, confirm } = useNotification();
 
-  const activeItem = createdOrder[activeItemIdx];
-
-  const [presetPrices, setPresetPrices] = useState([]);
+  const activeItem = createdOrder?.orderDetails[activeItemIdx];
   useEffect(() => {
-    multipleGet([getOrderPrices(), getCustomers(1, 100), getEmirates()])
-      .then(([pricesRes, customersRes, emiratesRes]) => {
-        setPresetPrices(pricesRes.data.data);
+    multipleGet([getCustomers(1, 100), getEmirates(), getWorkTypes()])
+      .then(([ customersRes, emiratesRes, workTypesRes]) => {        
         setCustomerList(customersRes.data.data);
-        setEmirates(emiratesRes.data.data);
+        setEmirateList(emiratesRes.data.data);
+        var workTypes = workTypesRes.data;
+        (workTypes || []).push({ id: 0, code: 0, name: 'All', icon: 'FaCheckDouble' });
+        setWorkTypeList(workTypesRes.data);
       })
       .catch(err => console.error('Failed to load order prices or customers:', err));
   }, []);
 
   const updateActiveItem = useCallback((patch) => {
-    setCreatedOrder(prev => prev.map((item, i) => i === activeItemIdx ? { ...item, ...patch } : item));
+    var model = createdOrder;
+    if (patch?.updateType === 'orderDetails') {
+      if (patch?.name === 'customPrice') {
+        if (patch.value === '') {
+          model.orderDetails[activeItemIdx][patch?.name] = '';
+        }
+        else
+          model.orderDetails[activeItemIdx][patch?.name] = patch.value;
+      }
+      else
+        model.orderDetails[activeItemIdx][patch?.name] = patch.value;
+      setCreatedOrder({ ...model });
+    }
+    else {
+      model[patch.name] = patch.value;
+    }
+    setCreatedOrder({ ...model });
   }, [activeItemIdx]);
 
   const addItem = () => {
     const newItem = EMPTY_CREATE_ORDER();
     setCreatedOrder(prev => [...prev, newItem]);
-    setActiveItemIdx(createdOrder.length);
+    setActiveItemIdx(createdOrder.orderDetails.length);
     setShowCustomInput(false);
   };
 
   const removeItem = (idx, e) => {
     e.stopPropagation();
-    if (createdOrder.length === 1) return;
-    const next = createdOrder.filter((_, i) => i !== idx);
-    setCreatedOrder(next);
-    setActiveItemIdx(Math.min(activeItemIdx, next.length - 1));
+    if (createdOrder.orderDetails?.length === 1) return;
+    const next = createdOrder.orderDetails.filter((_, i) => i !== idx);
+    setCreatedOrder(prev => ({ ...prev, orderDetails: next }));
+    setActiveItemIdx(Math.min(activeItemIdx, next?.length - 1));
   };
 
   const selectPrice = (price) => {
-    updateActiveItem({ price, customPrice: '' });
+    updateActiveItem({ name: 'price', value: price.price, updateType: 'orderDetails' });
+    updateActiveItem({ name: 'customPrice', value: '', updateType: 'orderDetails' });
+    updateActiveItem({ name: 'price', value: price.price });
+    updateActiveItem({ name: 'customPrice', value: '' });
+    updateActiveItem({ name: 'priceGrade', value: price.grade });
+    updateActiveItem({ name: 'priceGrade', value: price.grade, updateType: 'orderDetails' });
     setShowCustomInput(false);
   };
 
   const applyCustomPrice = () => {
     const val = parseFloat(activeItem?.customPrice);
-    if (!isNaN(val) && val > 0) updateActiveItem({ price: val });
+    if (!isNaN(val) && val > 0) updateActiveItem({ name: 'price', value: val, updateType: 'orderDetails' });
   };
 
   const addImages = useCallback((newImgs) => {
-    setCreatedOrder(prev => prev.map((item, i) =>
+    setCreatedOrder(prev => prev?.map((item, i) =>
       i === activeItemIdx ? { ...item, images: [...item.images, ...newImgs] } : item
     ));
   }, [activeItemIdx]);
@@ -172,7 +192,7 @@ function CreateOrder() {
   };
 
   const removeImage = (imgIdx) => {
-    updateActiveItem({ images: activeItem?.images.filter((_, i) => i !== imgIdx) });
+    updateActiveItem({ name: 'images', value: activeItem?.orderDetails?.images.filter((_, i) => i !== imgIdx), updateType: 'orderDetails' });
   };
 
   // Close picker on outside click
@@ -186,7 +206,7 @@ function CreateOrder() {
   // Enumerate cameras (requests permission first to get labels)
   const openPicker = async () => {
     setPickerOpen(p => !p);
-    if (cameraDevices.length > 0) return; // already loaded
+    if (cameraDevices?.length > 0) return; // already loaded
     setCamLoading(true);
     try {
       const tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -220,6 +240,32 @@ function CreateOrder() {
     setPreviewOpen(false);
   };
 
+  const handleCustomerSave = () => {
+    // TODO: wire up to order API
+    var data = {
+      firstName: createdOrder.customerName,
+      isdCode: isdCountry.code,
+      mobile: phone,
+      emirateId: createdOrder.emirateId,
+    };
+    console.log('Save Customer', data);
+    createCustomerBasic(data).then(res => {
+      showError(res?.message);
+      var model = createdOrder;
+      model.customerId = res.data?.id;
+      model.customerName = `${res.data?.firstName} ${res.data?.lastName}`.trim();
+      setCreatedOrder({ ...model });
+      console.debug(res);
+      console.debug(createdOrder);
+      setIsCustomerExits(true);
+    }).catch(err => {
+      showError("Customer not Saved!!")
+      console.error(err);
+      setIsCustomerExits(false);
+    });
+    setCustomerSaveOpen(false);
+  };
+
   const itemLabel = (item, idx) => `Item ${idx + 1}`;
   const itemSub = (item) => item.price ? `${item.price.toLocaleString()} ب.د` : 'No price';
   const renderOption = (option) => (
@@ -248,36 +294,45 @@ function CreateOrder() {
     const { name, value } = e.target;
     setCreatedOrder(prev => ({ ...prev, [name]: value }));
   }
-  const onNumericPadChangeHandler = (e) => {
-    var event = {
-      target: e
-    };
-    onCreateOrderInputChangeHandler(event);
-    if (e?.name === 'mobile') {
-      const customer = customerList.find(x => `${x.isdCode}${x.mobile}` === `${createdOrder.isd}${e?.value}`);
-      if (customer) {
-        event.target = {
-          name: 'customerId',
-          value: customer.id
-        };
-        onCreateOrderInputChangeHandler(event);
-        event.target = {
-          name: 'customerName',
-          value: `${customer.firstName} ${customer.lastName}`
-        };
-        onCreateOrderInputChangeHandler(event);
-        event.target = {
-          name: 'customerClass',
-          value: customer.customerClass
-        };
-        onCreateOrderInputChangeHandler(event);
-      }
+
+  const onNumericPadChangeHandler = ({ name, value }) => {
+    const updateField = (fieldName, fieldValue) =>
+      onCreateOrderInputChangeHandler({
+        target: {
+          name: fieldName,
+          value: fieldValue,
+        },
+      });
+
+    // Update the edited field
+    updateField(name, value);
+
+    if (name !== 'mobile') return;
+
+    const customer = customerList.find(
+      ({ isdCode, mobile }) =>
+        `${isdCode}${mobile}` === `${createdOrder.isd}${value}`
+    );
+
+    if (!customer) {
+      updateField('customerId', 0);
+      updateField('customerName', '');
+      updateField('customerClass', '');
+      updateField('emirateId', 0);
+      setIsCustomerExits(false);
+      return;
     }
-  }
+
+    updateField('customerId', customer.id);
+    updateField('emirateId', customer.emirateId);
+    updateField('customerName', `${customer.firstName} ${customer.lastName}`);
+    updateField('customerClass', customer.customerClass);
+    setIsCustomerExits(true);
+  };
 
   return (
     <div className="co-root">
-      {/* ── Left column ─────────────────────────── */}
+      {/* ── 1st column ─────────────────────────── */}
       <div className="co-col co-col--left">
         <SectionCard title="Customer Info">
 
@@ -294,23 +349,29 @@ function CreateOrder() {
             </div>
           </Field>
           <Field label={<><FiUser className="co-field__icon" /> Customer Name</>}>
-            <KeyboardInput
-              keyboard="alphabet"
-              value={createdOrder.customerName}
-              onChange={onCreateOrderInputChangeHandler}
-              label="Customer Name"
-              name="customerName"
-              placeholder="Enter customer name"
-              className="co-input"
-              disabled={createdOrder.customerId > 0}
-            />
+            <div className='inline-field'>
+              <KeyboardInput
+                keyboard="alphabet"
+                value={createdOrder.customerName}
+                onChange={onCreateOrderInputChangeHandler}
+                label="Customer Name"
+                name="customerName"
+                placeholder="Enter customer name"
+                className="co-input"
+                disabled={createdOrder.customerId > 0}
+              />
+              {!isCustomerExits && <button disabled={createdOrder.customerName?.length < 3} className="co-btn co-btn--add" onClick={e => setCustomerSaveOpen(true)}>
+                <FiPlus /> Add Customer
+              </button>
+              }
+            </div>
           </Field>
           <Field label={<><FcFlowChart className="co-field__icon" /> Emirate</>}>
             <Select
-              options={emirates.map(e => ({ value: e.id, label: e.displayValue }))}
-              value={createdOrder.emirate}
-              onChange={(val) => (val)}
-              name="emirate"
+              options={emirateList.map(e => ({ value: e.id, label: e.displayValue }))}
+              value={createdOrder?.emirateId}
+              onChange={(val) => { updateActiveItem({ "name": "emirateId", value: val }) }}
+              name="emirateId"
               placeholder="Search and select..."
               showSearch={false}
               renderOption={renderOption}
@@ -351,48 +412,158 @@ function CreateOrder() {
             <Field label="Customer Type">
             </Field>
             <div className="inline-field">
-              <div className={ `text-icon ${createdOrder.customerClass === 'Regular' ? 'active' : ''}` }><FiUser /><span>Regular</span></div>
-              <div className={ `text-icon ${createdOrder.customerClass === 'VIP' ? 'active' : ''}` }><FiStar /><span>VIP</span></div>
-              <div className={ `text-icon ${createdOrder.customerClass === 'VVIP' ? 'active' : ''}` }><FaCrown /><span>VVIP</span></div>
+              <div className={`text-icon ${createdOrder.customerClass === 'Regular' ? 'active' : ''}`}><FiUser /><span>Regular</span></div>
+              <div className={`text-icon ${createdOrder.customerClass === 'VIP' ? 'active' : ''}`}><FiStar /><span>VIP</span></div>
+              <div className={`text-icon ${createdOrder.customerClass === 'VVIP' ? 'active' : ''}`}><FaCrown /><span>VVIP</span></div>
             </div>
-          </div>
-        </SectionCard>
-
-        <SectionCard title="Dates">
-
-        </SectionCard>
-        <SectionCard
-          title={`Items (${createdOrder.length})`}
-          icon={FiUser}
-          action={
-            <button className="co-btn co-btn--add" onClick={addItem}>
-              <FiPlus /> Add Item
-            </button>
-          }
-        >
-          <div className="co-items-list">
-            {createdOrder?.orderDetails?.map((item, idx) => (
-              <div
-                key={item.id}
-                className={`co-item-tab ${idx === activeItemIdx ? 'co-item-tab--active' : ''}`}
-                onClick={() => { setActiveItemIdx(idx); setShowCustomInput(false); }}
-              >
-                <div className="co-item-tab__info">
-                  <span className="co-item-tab__name">{itemLabel(item, idx)}</span>
-                  <span className="co-item-tab__sub">{itemSub(item)}</span>
-                </div>
-                {createdOrder?.orderDetails?.length > 1 && (
-                  <button className="co-item-tab__remove" onClick={(e) => removeItem(idx, e)}>
-                    <FiX size={14} />
-                  </button>
-                )}
-              </div>
-            ))}
           </div>
         </SectionCard>
       </div>
 
-      {/* ── Middle column ───────────────────────── */}
+      {/* ── 2nd column ───────────────────────── */}
+      <OrderPriceSelector order={createdOrder} setOrder={setCreatedOrder} />
+
+
+      {/* ── 3rd column ──────────────────────────
+      <div className="co-col co-col--mid">
+        <div className="co-card co-card--scroll">
+          <div className="co-card__header">
+            <span className="co-card__title">
+              <FiTag className="co-card__title-icon" />
+              Measurements — Item {activeItemIdx + 1}
+            </span>
+          </div>
+
+          <div className="co-grid-2">
+            {MEASUREMENT_FIELDS.map(({ key, label }) => (
+              <Field key={key} label={label}>
+                <input
+                  className="co-input co-input--center"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={activeItem?.[key]}
+                  onChange={e => updateActiveItem({ name: key, value: e.target.value, updateType: 'orderDetails' })}
+                />
+              </Field>
+            ))}
+          </div>
+
+          <Field label="Arm Loose">
+            <input
+              className="co-input co-input--center"
+              type="number"
+              min="0"
+              placeholder="0"
+              value={activeItem?.armLoose}
+              onChange={e => updateActiveItem({ name: 'armLoose', value: e.target.value, updateType: 'orderDetails' })}
+            />
+          </Field>
+
+          <Field label="Notes">
+            <textarea
+              className="co-textarea"
+              placeholder="Special instructions"
+              rows={4}
+              value={activeItem?.notes}
+              onChange={e => updateActiveItem({ name: 'notes', value: e.target.value, updateType: 'orderDetails' })}
+            />
+          </Field>
+
+          <div className="co-field">
+            <label className="co-field__label">Images</label>
+            <div className="co-images">
+              {activeItem?.images?.map((img, i) => (
+                <div key={i} className="co-img-thumb">
+                  <img src={img.url} alt={`item-${i}`} />
+                  <button className="co-img-thumb__remove" onClick={() => removeImage(i)}><FiX size={12} /></button>
+                </div>
+              ))}
+                */}
+
+      {/* Add image button + source picker */}
+      {/* <div className="co-img-picker-wrap" ref={pickerRef}>
+                <button className="co-img-add" onClick={openPicker} title="Add image">
+                  <FiImage size={22} />
+                </button>
+
+                {pickerOpen && (
+                  <div className="co-img-picker">*/}
+      {/* From computer */}
+      {/*   <button className="co-img-picker__item" onClick={() => { fileInputRef.current?.click(); setPickerOpen(false); }}>
+                      <span className="co-img-picker__icon co-img-picker__icon--folder"><FiFolder size={16} /></span>
+                      <span className="co-img-picker__label">From Computer</span>
+                    </button>
+                    */}
+
+      {/* Camera divider */}
+      {/*     <div className="co-img-picker__divider">
+                      <FiCamera size={12} /> Camera
+                    </div>
+
+                    {camLoading && (
+                      <div className="co-img-picker__loading">
+                        <span className="co-img-picker__spinner" /> Detecting cameras…
+                      </div>
+                    )}
+
+                    {!camLoading && cameraDevices?.length === 0 && (
+                      <div className="co-img-picker__empty">No cameras detected</div>
+                    )}
+
+                    {!camLoading && cameraDevices?.map(cam => (
+                      <button key={cam.deviceId} className="co-img-picker__item" onClick={() => launchCamera(cam)}>
+                        <span className="co-img-picker__icon co-img-picker__icon--cam"><FiCamera size={16} /></span>
+                        <span className="co-img-picker__label">{cam.label}</span>
+                        <FiChevronRight size={14} className="co-img-picker__arrow" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+                */}
+
+      {/* Hidden file input */}
+      {/* <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleFileSelect}
+                  style={{ display: 'none' }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> */}
+
+      {/* ── 3rd column ────────────────────────── */}
+      <div className="co-col co-col--mid">
+         {/* ── 3/1 column ────────────────────────── */}
+        <div className="co-card co-card--scroll">
+          <div className="co-card__header">
+            <div className="justify-between">
+              <StepHeading step={2} title="Work Steps + Qty" />
+             {createdOrder?.orderDetails?.[activeItemIdx]?.price>0 && <div className="selected-price"> {createdOrder?.orderDetails?.[activeItemIdx]?.price} AED . {createdOrder?.orderDetails?.[activeItemIdx]?.priceGrade}</div>}
+            </div>
+          </div>
+
+          <WorkTypeSelector activeIndex={activeItemIdx} WorkTypeList={workTypeList} order={createdOrder} setOrder={setCreatedOrder} />
+        </div>
+         {/* ── 3/2 column ────────────────────────── */}
+         <div className="co-card co-card--scroll">
+          <div className="co-card__header">
+            <div className="justify-between">
+              <StepHeading step="Per Sub Config" showStep={false} />
+             <div className="selected-price"> {createdOrder?.orderDetails?.length || 0} Sub Orders</div>
+            </div>
+          </div>
+
+          <SubOrderConfig order={createdOrder} />
+        </div>
+      </div>
+
+      {/* ── 4th column ────────────────────────── */}
       <div className="co-col co-col--mid">
         <div className="co-card co-card--scroll">
           <div className="co-card__header">
@@ -407,7 +578,7 @@ function CreateOrder() {
               className="co-input"
               placeholder="Who is this for?"
               value={activeItem?.personName}
-              onChange={e => updateActiveItem({ personName: e.target.value })}
+              onChange={e => updateActiveItem({ name: 'personName', value: e.target.value, updateType: 'orderDetails' })}
             />
           </Field>
 
@@ -420,7 +591,7 @@ function CreateOrder() {
                   min="0"
                   placeholder="0"
                   value={activeItem?.[key]}
-                  onChange={e => updateActiveItem({ [key]: e.target.value })}
+                  onChange={e => updateActiveItem({ name: key, value: e.target.value, updateType: 'orderDetails' })}
                 />
               </Field>
             ))}
@@ -433,7 +604,7 @@ function CreateOrder() {
               min="0"
               placeholder="0"
               value={activeItem?.armLoose}
-              onChange={e => updateActiveItem({ armLoose: e.target.value })}
+              onChange={e => updateActiveItem({ name: 'armLoose', value: e.target.value, updateType: 'orderDetails' })}
             />
           </Field>
 
@@ -443,14 +614,14 @@ function CreateOrder() {
               placeholder="Special instructions"
               rows={4}
               value={activeItem?.notes}
-              onChange={e => updateActiveItem({ notes: e.target.value })}
+              onChange={e => updateActiveItem({ name: 'notes', value: e.target.value, updateType: 'orderDetails' })}
             />
           </Field>
 
           <div className="co-field">
             <label className="co-field__label">Images</label>
             <div className="co-images">
-              {activeItem?.images.map((img, i) => (
+              {activeItem?.images?.map((img, i) => (
                 <div key={i} className="co-img-thumb">
                   <img src={img.url} alt={`item-${i}`} />
                   <button className="co-img-thumb__remove" onClick={() => removeImage(i)}><FiX size={12} /></button>
@@ -482,11 +653,11 @@ function CreateOrder() {
                       </div>
                     )}
 
-                    {!camLoading && cameraDevices.length === 0 && (
+                    {!camLoading && cameraDevices?.length === 0 && (
                       <div className="co-img-picker__empty">No cameras detected</div>
                     )}
 
-                    {!camLoading && cameraDevices.map(cam => (
+                    {!camLoading && cameraDevices?.map(cam => (
                       <button key={cam.deviceId} className="co-img-picker__item" onClick={() => launchCamera(cam)}>
                         <span className="co-img-picker__icon co-img-picker__icon--cam"><FiCamera size={16} /></span>
                         <span className="co-img-picker__label">{cam.label}</span>
@@ -511,59 +682,6 @@ function CreateOrder() {
         </div>
       </div>
 
-      {/* ── Right column ────────────────────────── */}
-      <div className="co-col co-col--right">
-        <div className="co-card">
-          <div className="co-card__header">
-            <span className="co-card__title">Price (ب.د) — Item {activeItemIdx + 1}</span>
-          </div>
-
-          {/* Selected price display */}
-          <div className={`co-price-display ${activeItem?.price ? 'co-price-display--set' : ''}`}>
-            {activeItem?.price
-              ? <><span className="co-price-display__label">Selected Price</span><span className="co-price-display__val">{activeItem?.price.toLocaleString()} ب.د</span></>
-              : <span className="co-price-display__placeholder">No price selected</span>
-            }
-          </div>
-
-          <div className="co-price-grid">
-            {presetPrices?.map(p => (
-              <button
-                key={p}
-                className={`co-price-btn ${activeItem?.price === p ? 'co-price-btn--selected' : ''}`}
-                onClick={() => selectPrice(p?.price)}
-              >
-                {p?.price.toLocaleString()}
-              </button>
-            ))}
-          </div>
-
-          {showCustomInput ? (
-            <div className="co-custom-row">
-              <input
-                className={`co-input co-input--center co-input--keypad ${keypadMode === 'price' ? 'co-input--keypad-open' : ''}`}
-                readOnly
-                placeholder="Enter amount"
-                value={activeItem?.customPrice}
-                onClick={openPriceKeypad}
-              />
-              <button className="co-btn co-btn--ghost co-btn--sm" onClick={() => { setShowCustomInput(false); closeKeypad(); }}>Cancel</button>
-            </div>
-          ) : (
-            <button
-              className={`co-custom-btn ${activeItem?.price > 5000 ? 'co-custom-btn--selected' : ''}`}
-              onClick={() => { setShowCustomInput(true); setTimeout(openPriceKeypad, 50); }}
-            >
-              Custom (Above 5000 ب.د)
-            </button>
-          )}
-        </div>
-
-        <button className="co-preview-btn" onClick={() => setPreviewOpen(true)}>
-          <FiEye size={18} />
-          Preview Order
-        </button>
-      </div>
       {/* ── Order Preview Modal ──────────────────── */}
       <Modal
         isOpen={previewOpen}
@@ -607,7 +725,7 @@ function CreateOrder() {
           {/* Items */}
           <div className="op-items">
             {createdOrder.orderDetails?.map((item, idx) => (
-              <div key={item?.id} className="op-item">
+              <div key={idx + 1} className="op-item">
                 <div className="op-item__header">
                   <span className="op-item__title">Item {idx + 1}{item?.personName ? ` — ${item?.personName}` : ''}</span>
                   {item?.price
@@ -637,7 +755,7 @@ function CreateOrder() {
                 )}
 
                 {/* Images */}
-                {item?.images.length > 0 && (
+                {item?.images?.length > 0 && (
                   <div className="op-images">
                     {item?.images.map((img, i) => (
                       <img key={i} src={img.url} alt={`item-${idx}-img-${i}`} className="op-img-thumb" />
@@ -649,14 +767,50 @@ function CreateOrder() {
           </div>
 
           {/* Total */}
-          {createdOrder.length > 1 && (
+          {createdOrder.orderDetails?.length > 1 && (
             <div className="op-total">
               <span>Total</span>
-              <span>{createdOrder.reduce((s, it) => s + (it.price || 0), 0).toLocaleString()} ب.د</span>
+              <span>{createdOrder.orderDetails.reduce((s, it) => s + (it.price || 0), 0).toLocaleString()} ب.د</span>
             </div>
           )}
         </div>
       </Modal>
+
+      {/* ── Save Customer Modal ──────────────────── */}
+      <Modal
+        isOpen={customerSaveOpen}
+        onClose={() => setCustomerSaveOpen(false)}
+        title="Save Customer"
+        size="mid"
+        type="default"
+        showCloseButton
+        closeOnOverlayClick
+        footer={
+          <div className="op-footer">
+            <div className="op-footer__right">
+              <button className="op-btn op-btn--danger" onClick={() => { setCustomerSaveOpen(false); }}>
+                <FiX size={15} /> Cancel
+              </button>
+              <button className="op-btn op-btn--save" onClick={handleCustomerSave}>
+                <FiSave size={15} /> Save Customer
+              </button>
+            </div>
+          </div>
+        }
+      >
+        <div className="op-body">
+          {/* Customer & Phone Number */}
+          <div className="op-section-grid-single">
+            <div className="op-section">
+              <h4 className="op-section__title"><FiUser size={14} /> Customer</h4>
+              <div className="op-row"><span className="op-lbl">Name</span><span className="op-val">{createdOrder.customerName || <em>—</em>}</span></div>
+              <div className="op-row"><span className="op-lbl">Phone</span><span className="op-val">{phone ? `${isdCountry.code} ${phone}` : <em>—</em>}</span></div>
+              <div className="op-row"><span className="op-lbl">Emirate</span><span className="op-val">{createdOrder.emirateId ? emirateList.find(e => e.id === createdOrder.emirateId)?.name : <em>—</em>}</span></div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
 
       {/* Numeric keypad — phone */}
       <NumericKeypad
@@ -670,19 +824,7 @@ function CreateOrder() {
         maxLength={15}
       />
 
-      {/* Numeric keypad — custom price */}
-      <NumericKeypad
-        isOpen={keypadMode === 'price'}
-        name="orderPrice"
-        value={activeItem?.customPrice}
-        onChange={val => updateActiveItem({ customPrice: val })}
-        onConfirm={val => {
-          const n = parseFloat(val);
-          if (!isNaN(n) && n > 0) updateActiveItem({ price: n, customPrice: val });
-        }}
-        onClose={closeKeypad}
-        label="Custom Price (ب.د)"
-      />
+     
 
       {/* Camera capture modal */}
       <CameraCapture

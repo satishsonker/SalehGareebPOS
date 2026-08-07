@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Toast from './Toast';
 import ConfirmDialog from './ConfirmDialog';
 import { useAuth } from '../../contexts/AuthContext';
@@ -29,6 +30,7 @@ export const NotificationProvider = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
   const [toasts, setToasts] = useState([]);
   const [confirmDialog, setConfirmDialog] = useState(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   // API-backed notification inbox
   const [notifications, setNotifications] = useState([]);
@@ -117,6 +119,11 @@ export const NotificationProvider = ({ children }) => {
     setUnreadCount(0);
   }, []);
 
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+
   // ── Fetch + polling on auth change ────────────────────────
 
   useEffect(() => {
@@ -197,15 +204,24 @@ export const NotificationProvider = ({ children }) => {
     clearInbox,
   };
 
+  const portalRoot = typeof document !== 'undefined' ? document.body : null;
+
   return (
     <NotificationContext.Provider value={value}>
       {children}
-      <div className="toast-container">
-        {toasts.map((toast) => (
-          <Toast key={toast.id} {...toast} onClose={removeToast} />
-        ))}
-      </div>
-      {confirmDialog && <ConfirmDialog isOpen={true} {...confirmDialog} />}
+      {isMounted && portalRoot
+        ? createPortal(
+            <div className="toast-container" role="region" aria-live="polite" aria-atomic="false">
+              {toasts.map((toast) => (
+                <Toast key={toast.id} {...toast} onClose={removeToast} />
+              ))}
+            </div>,
+            portalRoot
+          )
+        : null}
+      {confirmDialog && isMounted && portalRoot
+        ? createPortal(<ConfirmDialog isOpen={true} {...confirmDialog} />, portalRoot)
+        : null}
     </NotificationContext.Provider>
   );
 };

@@ -333,7 +333,7 @@ function MasterData() {
         var model = addFormData;
         if (name === "displayValue") {
             value = value.trimStart();
-            model.code = value.toUpperCase().replace(/\s+/g, '_');
+            model.code = value.toUpperCase().replace(/[^a-zA-Z0-9]/g, '').replace(/\s+/g, '_');
             if (addFormErrors.displayValue) setAddFormErrors({ ...addFormErrors, displayValue: '' });
             if (addFormErrors.code) setAddFormErrors({ ...addFormErrors, code: '' });
         }

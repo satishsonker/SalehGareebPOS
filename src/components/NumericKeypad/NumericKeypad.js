@@ -73,8 +73,8 @@ function NumericKeypad({ isOpen, value = '', onChange, onConfirm, onClose, label
 
         {/* Key grid */}
         <div className="nkp-grid">
-          {ROWS.map((row, ri) =>
-            row.map(key => (
+          {ROWS?.map((row, ri) =>
+            row?.map(key => (
               <button
                 key={`${ri}-${key}`}
                 className={`nkp-key ${key === 'DEL' ? 'nkp-key--del' : ''} ${key === '.' ? 'nkp-key--dot' : ''}`}

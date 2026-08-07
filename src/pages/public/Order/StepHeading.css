@@ -1,0 +1,16 @@
+.co-step-heading {
+   display: flex;
+   align-items: center;
+   gap: 4px;
+ }
+.step-heading__title {
+   font-size: 1.25rem;
+   font-weight: 600;
+   color: #111827;
+ }
+
+ .co-step-heading__step {
+   font-size: 1.25rem;
+   font-weight: 600;
+   color: #111827;
+ }

@@ -314,6 +314,18 @@ export const tableHeaderFormat = {
             align: 'right',
             render: (v) => v != null ? Number(v).toFixed(2) : '—',
         },
+         {
+            key: 'crystalPackets',
+            header: 'Crystal Packets',
+            width: '140px',
+            align: 'right',
+            render: (v) => v != null ? Number(v).toFixed(2) : '—',
+        },
+        {
+            key: 'grade',
+            header: 'Price Grade',
+            width: '140px'
+        },
         {
             key: 'validFrom',
             header: 'Valid From',

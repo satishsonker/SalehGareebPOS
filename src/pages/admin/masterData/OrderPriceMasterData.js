@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FiRefreshCw, FiDownload, FiPlus, FiDollarSign, FiCalendar } from 'react-icons/fi';
+import { FaGem } from 'react-icons/fa';
 import DataGrid from '../../../components/DataGrid';
 import Modal from '../../../components/Modal/Modal';
 import Button from '../../../components/Button/Button';
@@ -13,7 +14,7 @@ import { commonLogic } from '../../../utils/commonLogic';
 import { mergeValidationErrorsFromApi, parseApiValidationErrors } from '../../../utils/apiError';
 import './OrderPriceMasterData.css';
 
-const EMPTY_FORM = { price: '', validFrom: '', validTo: '' };
+const EMPTY_FORM = { price: '', validFrom: '', validTo: '',crystalPackets:0 };
 
 function OrderPriceMasterData() {
   const { success, error: showError, confirm } = useNotification();
@@ -60,6 +61,8 @@ function OrderPriceMasterData() {
     const errors = {};
     if (form.price === '' || form.price === undefined) errors.price = 'Price is required';
     else if (isNaN(Number(form.price)) || Number(form.price) < 0) errors.price = 'Enter a valid price';
+    if (form.crystalPackets === '' || form.crystalPackets === undefined) errors.crystalPackets = 'Crystal Packets is required';
+    else if (isNaN(Number(form.crystalPackets)) || Number(form.crystalPackets) < 0) errors.crystalPackets = 'Enter a valid Crystal Packets';
     if (!form.validFrom) errors.validFrom = 'Valid From date is required';
     if (!form.validTo) errors.validTo = 'Valid To date is required';
     if (form.validFrom && form.validTo && form.validTo < form.validFrom)
@@ -129,6 +132,7 @@ function OrderPriceMasterData() {
         price: parseFloat(addForm.price),
         validFrom: addForm.validFrom,
         validTo: addForm.validTo,
+        crystalPackets:addForm.crystalPackets
       });
       if (res.success) {
         success('Order price created');
@@ -160,6 +164,7 @@ function OrderPriceMasterData() {
         price: parseFloat(editForm.price),
         validFrom: editForm.validFrom,
         validTo: editForm.validTo,
+        crystalPackets:editForm.crystalPackets
       });
       if (res.success) {
         success('Order price updated');
@@ -227,6 +232,7 @@ function OrderPriceMasterData() {
             <Detail label="Price" value={selected.price != null ? Number(selected.price).toFixed(2) : '—'} />
             <Detail label="Valid From" value={commonLogic.formatDate(selected.validFrom)} />
             <Detail label="Valid To" value={commonLogic.formatDate(selected.validTo)} />
+            <Detail label="Crystal Packets" value={commonLogic.formatDate(selected.crystalPackets)} />
           </div>
         )}
       </Modal>
@@ -310,6 +316,17 @@ function PriceForm({ form, setForm, errors, setErrors }) {
           value={form.validTo}
           onChange={e => set('validTo', e.target.value)}
           error={errors.validTo}
+        />
+      </div>
+        <div className="form-group">
+        <TextBox
+          label="Crystal Packets" 
+          required 
+          type="number"
+          leftIcon={<FaGem />}
+          value={form.crystalPackets}
+          onChange={e => set('crystalPackets', e.target.value)}
+          error={errors.crystalPackets}
         />
       </div>
     </div>

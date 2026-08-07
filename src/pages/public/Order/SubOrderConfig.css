@@ -1,0 +1,47 @@
+.co-sub-order {
+        display: flex;
+    flex-direction: row;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.co-sub-order-item {
+   display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border: 1px solid #ccc;
+    flex-direction: column;
+    border-radius: 15px;
+    flex-wrap: wrap;
+    align-content: space-between;
+    padding: 10px 10px;
+    align-items: center;
+    transition: background 0.3s ease;
+}
+
+.co-sub-order-item:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+    transition: background 0.4s ease-in-out;
+}
+
+.co-sub-order-item.active {
+    background-color: #5271fa;
+    cursor: pointer;
+    transition: background 0.4s ease-in-out;
+    color: white;
+}
+
+.co-sub-order-item__number {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.co-sub-order-item__price {
+    display: flex;
+    flex-direction: column;
+}

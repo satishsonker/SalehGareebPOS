@@ -1,7 +1,7 @@
 /* ── Create Order Page ────────────────────────────────────────── */
 .co-root {
   display: grid;
-  grid-template-columns: 300px 1fr 340px;
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   padding: 24px;
   min-height: calc(100vh - 64px);
@@ -20,10 +20,10 @@
   min-width: 0;
 }
 
-.co-col--right {
+/* .co-col--right {
   position: sticky;
   top: 24px;
-}
+} */
 
 /* ── Cards ───────────────────────────────────────────────────── */
 .co-card {
@@ -42,7 +42,6 @@
 }
 
 .co-card__header {
-  display: flex;
   align-items: center;
   justify-content: space-between;
   padding-bottom: 4px;
@@ -600,7 +599,7 @@ input[type="date"]:focus {
 }
 
 .co-price-btn {
-  padding: 14px 8px;
+  padding: 8px;
   border-radius: 10px;
   border: 1.5px solid var(--color-border, #e2e8f0);
   background: var(--color-surface, #fff);
@@ -610,6 +609,40 @@ input[type="date"]:focus {
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.co-price-btn .price {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #525353;
+}
+.co-price-btn .grade {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #16a34a;
+}
+.price-grade
+{
+  color: #fff;
+    border-radius: 9px;
+    width: 50%;
+    font-size: 0.7rem;
+    padding: 2px;
+    text-align: center;
+}
+.grade-gray {
+  background: #64748b;
+}
+.grade-blue {
+  background: #2563eb;
+}
+.grade-purple {
+  background: #7c3aed;
+}
+.grade-green {
+  background: #3aed73;
 }
 
 .co-price-btn:hover {
@@ -647,6 +680,10 @@ input[type="date"]:focus {
   border-color: #2dd4bf;
 }
 
+.co-btn:disabled{
+  background-color: gray;
+  cursor: not-allowed;
+}
 .co-custom-row {
   display: flex;
   gap: 8px;
@@ -696,6 +733,11 @@ input[type="date"]:focus {
 .op-section-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.op-section-grid-single {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 16px;
 }
 
@@ -925,20 +967,48 @@ input[type="date"]:focus {
 }
 
 /* ── Responsive ──────────────────────────────────────────────── */
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .co-root {
-    grid-template-columns: 260px 1fr 300px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 20px;
+  }
+}
+
+/* 2 columns */
+@media (max-width: 900px) {
+  .co-root {
+    grid-template-columns: repeat(2, 1fr);
     gap: 14px;
     padding: 16px;
   }
 }
 
-@media (max-width: 900px) {
+/* 1 column */
+@media (max-width: 600px) {
   .co-root {
     grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px;
   }
+}
 
-  .co-col--right {
-    position: static;
-  }
+.justify-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.selected-price {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  background:#3a5685;
+  border: 1px solid #86efac;
+  padding: 3px 12px;
+  border-radius: 20px;
+}
+
+.w75 {
+  width: 75% !important;
 }

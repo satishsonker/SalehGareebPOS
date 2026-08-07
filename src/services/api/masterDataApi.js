@@ -30,7 +30,7 @@ export const getMasterDataByType = (type) => {
   return get(`/MasterData/by-type/${type}?pageNo=1&pageSize=100`);
 };
 export const getMasterDataByTypes = (types) => {
-  return get(`/MasterData/by-types?types=${types.join(',')}`);
+  return get(`/MasterData/by-types/${types.join('%2C')}?pageNo=1&pageSize=100`);
 };
 
 export const getMasterDataTypes = () => {
