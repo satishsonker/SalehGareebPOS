@@ -192,7 +192,7 @@ function PublicLayout() {
 
       <footer className="public-footer">
         <div className="ph-container">
-          <p>&copy; {new Date().getFullYear()} {config.app.name}. All rights reserved.</p>
+          <div>&copy; {new Date().getFullYear()} {config.app.name}. All rights reserved.</div>
         </div>
       </footer>
     </div>

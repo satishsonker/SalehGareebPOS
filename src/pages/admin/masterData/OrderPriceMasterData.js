@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FiRefreshCw, FiDownload, FiPlus, FiDollarSign, FiCalendar } from 'react-icons/fi';
+import { FiRefreshCw, FiDownload, FiPlus, FiDollarSign, FiCalendar, FiPaperclip } from 'react-icons/fi';
 import { FaGem } from 'react-icons/fa';
 import DataGrid from '../../../components/DataGrid';
 import Modal from '../../../components/Modal/Modal';
@@ -14,7 +14,7 @@ import { commonLogic } from '../../../utils/commonLogic';
 import { mergeValidationErrorsFromApi, parseApiValidationErrors } from '../../../utils/apiError';
 import './OrderPriceMasterData.css';
 
-const EMPTY_FORM = { price: '', validFrom: '', validTo: '',crystalPackets:0 };
+const EMPTY_FORM = { price: '', validFrom: '', validTo: '', crystalPackets: 0 };
 
 function OrderPriceMasterData() {
   const { success, error: showError, confirm } = useNotification();
@@ -61,7 +61,7 @@ function OrderPriceMasterData() {
     const errors = {};
     if (form.price === '' || form.price === undefined) errors.price = 'Price is required';
     else if (isNaN(Number(form.price)) || Number(form.price) < 0) errors.price = 'Enter a valid price';
-    if (form.crystalPackets === '' || form.crystalPackets === undefined) errors.crystalPackets = 'Crystal Packets is required';
+    if (form.crystalPackets === '' || form.crystalPackets === undefined || Number(form.crystalPackets) <= 0) errors.crystalPackets = 'Crystal Packets is required';
     else if (isNaN(Number(form.crystalPackets)) || Number(form.crystalPackets) < 0) errors.crystalPackets = 'Enter a valid Crystal Packets';
     if (!form.validFrom) errors.validFrom = 'Valid From date is required';
     if (!form.validTo) errors.validTo = 'Valid To date is required';
@@ -132,7 +132,8 @@ function OrderPriceMasterData() {
         price: parseFloat(addForm.price),
         validFrom: addForm.validFrom,
         validTo: addForm.validTo,
-        crystalPackets:addForm.crystalPackets
+        crystalPackets: addForm.crystalPackets,
+        grade: commonLogic.calculateGradeAndMaxCrystalPacket(addForm.price).grade
       });
       if (res.success) {
         success('Order price created');
@@ -164,7 +165,8 @@ function OrderPriceMasterData() {
         price: parseFloat(editForm.price),
         validFrom: editForm.validFrom,
         validTo: editForm.validTo,
-        crystalPackets:editForm.crystalPackets
+        crystalPackets: editForm.crystalPackets,
+        grade: commonLogic.calculateGradeAndMaxCrystalPacket(addForm.price).grade
       });
       if (res.success) {
         success('Order price updated');
@@ -242,7 +244,7 @@ function OrderPriceMasterData() {
         isOpen={addOpen}
         onClose={() => setAddOpen(false)}
         title="Add Order Price"
-        size="small"
+        size="large"
         loading={saving}
         closeOnOverlayClick={!saving}
         actions={[
@@ -299,6 +301,15 @@ function PriceForm({ form, setForm, errors, setErrors }) {
           placeholder="0.00"
           error={errors.price}
         />
+        <TextBox
+          label="Grade" required type="tel"
+          leftIcon={<FiPaperclip />}
+          value={commonLogic.calculateGradeAndMaxCrystalPacket(form.price).grade}
+          disabled={true}
+          onChange={e => set('price', e.target.value)}
+          placeholder="0.00"
+          error={errors.price}
+        />
       </div>
       <div className="form-group">
         <TextBox
@@ -308,8 +319,6 @@ function PriceForm({ form, setForm, errors, setErrors }) {
           onChange={e => set('validFrom', e.target.value)}
           error={errors.validFrom}
         />
-      </div>
-      <div className="form-group">
         <TextBox
           label="Valid To" required type="date"
           leftIcon={<FiCalendar />}
@@ -318,14 +327,17 @@ function PriceForm({ form, setForm, errors, setErrors }) {
           error={errors.validTo}
         />
       </div>
-        <div className="form-group">
+      <div className="form-group">
+
+      </div>
+      <div className="form-group">
         <TextBox
-          label="Crystal Packets" 
-          required 
+          label={`Crystal Packets (Max ${commonLogic.calculateGradeAndMaxCrystalPacket(form.price).maxCrystalPackets} Pkt for price ${form.price})`}
+          required
           type="number"
           leftIcon={<FaGem />}
-          value={form.crystalPackets}
-          onChange={e => set('crystalPackets', e.target.value)}
+          value={Math.min(form.crystalPackets, commonLogic.calculateGradeAndMaxCrystalPacket(form.price).maxCrystalPackets)}
+          onChange={e => set('crystalPackets', Math.min(Number(e.target.value),commonLogic.calculateGradeAndMaxCrystalPacket(form.price).maxCrystalPackets))}
           error={errors.crystalPackets}
         />
       </div>

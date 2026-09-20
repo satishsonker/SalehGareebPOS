@@ -1,0 +1,470 @@
+/* ================================
+   SUB ORDER LIST
+   ================================ */
+
+.copy-suborder-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 0;
+}
+
+.suborder-box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 105px;
+    min-width: 105px;
+    height: 72px;
+    padding: 8px;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #334155;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all .18s ease;
+}
+
+.suborder-box:hover {
+    transform: translateY(-2px);
+    border-color: #64748b;
+    box-shadow: 0 5px 12px rgba(15, 23, 42, .12);
+}
+
+.suborder-box.active {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .12), 0 5px 12px rgba(15, 23, 42, .12);
+}
+
+.suborder-number {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 20px;
+    color: #1e293b;
+}
+
+.suborder-status {
+    display: block;
+    margin-top: 3px;
+    font-size: 10px;
+    line-height: 15px;
+    color: #64748b;
+}
+
+/* ================================
+   DELETE CLICK STAGES
+   ================================ */
+
+.suborder-box.delete-level-1 {
+    /* background: #ffffff; */
+    border-color: #2563eb;
+}
+
+.suborder-box.delete-level-2 {
+    background: #f59e0b;
+    border-color: #d97706;
+    color: #ffffff;
+    box-shadow: 0 5px 12px rgba(245, 158, 11, .25);
+}
+
+.suborder-box.delete-level-2 .suborder-number,
+.suborder-box.delete-level-2 .suborder-status {
+    color: #ffffff;
+}
+
+.suborder-box.delete-level-3 {
+    background: #dc2626;
+    border-color: #b91c1c;
+    color: #ffffff;
+    box-shadow: 0 5px 12px rgba(220, 38, 38, .3);
+}
+
+.suborder-box.delete-level-3 .suborder-number,
+.suborder-box.delete-level-3 .suborder-status {
+    color: #ffffff;
+}
+
+/* ================================
+   CONFIGURATION STATUS
+   ================================ */
+
+.suborder-box.order-configured-step-0 {
+    border-color: #cbd5e1;
+}
+
+.suborder-box.order-configured-step-1 {
+    border-color: #f59e0b;
+}
+
+.suborder-box.order-configured-step-2 {
+    border-color: #eab308;
+}
+
+.suborder-box.order-configured-step-3 {
+    border-color: #22c55e;
+}
+
+.suborder-box.order-configured-step-4 {
+    border-color: #16a34a;
+}
+
+/* Keep delete state stronger than configuration state */
+
+.suborder-box.delete-level-2 {
+    border-color: #d97706 !important;
+}
+
+.suborder-box.delete-level-3 {
+    border-color: #b91c1c !important;
+}
+
+
+/* ================================
+   MODAL CONTAINER
+   ================================ */
+
+.suborder-action-modal {
+    width: 100%;
+    padding: 4px;
+    box-sizing: border-box;
+}
+
+
+/* ================================
+   MODAL HEADER
+   ================================ */
+
+.suborder-action-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.suborder-action-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.suborder-action-header .suborder-action-price {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+
+/* ================================
+   COPY INFORMATION
+   ================================ */
+
+.suborder-copy-info {
+    width: 100%;
+    margin: 12px 0;
+    padding: 11px 14px;
+    box-sizing: border-box;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 13px;
+    line-height: 20px;
+}
+
+.suborder-copy-info strong {
+    color: #1e293b;
+}
+
+
+/* ================================
+   SUB ORDER MODAL LIST
+   ================================ */
+
+.suborder-action-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+    max-height: 380px;
+    padding: 3px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+
+/* ================================
+   MODAL SUB ORDER ITEM
+   ================================ */
+
+.suborder-action-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+    min-height: 64px;
+    padding: 10px 11px;
+    box-sizing: border-box;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all .15s ease;
+}
+
+.suborder-action-item:hover {
+    border-color: #94a3b8;
+    box-shadow: 0 3px 8px rgba(15, 23, 42, .08);
+}
+
+
+/* ================================
+   SAME PRICE
+   ================================ */
+
+.suborder-action-item.same-price {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, .08);
+}
+
+.suborder-action-item.same-price:hover {
+    background: rgba(245, 158, 11, .14);
+}
+
+
+/* ================================
+   SELECTED SOURCE
+   ================================ */
+
+.suborder-action-item.selected {
+    border: 2px solid #16a34a;
+    background: rgba(22, 163, 74, .08);
+    cursor: default;
+}
+
+.suborder-action-item.selected:hover {
+    box-shadow: none;
+}
+
+
+/* ================================
+   COPY TARGET
+   ================================ */
+
+.suborder-action-item.copy-target {
+    border: 2px solid #2563eb;
+    background: rgba(37, 99, 235, .08);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .08);
+}
+
+.suborder-action-item.copy-target:hover {
+    background: rgba(37, 99, 235, .13);
+}
+
+
+/* ================================
+   MODAL ITEM CONTENT
+   ================================ */
+
+.suborder-action-item-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.suborder-action-number {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.suborder-action-item-left .suborder-action-price {
+    margin-top: 3px;
+    font-size: 11px;
+    color: #64748b;
+}
+
+
+/* ================================
+   TAGS
+   ================================ */
+
+.suborder-action-tags {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.suborder-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 20px;
+    padding: 3px 7px;
+    border-radius: 20px;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 12px;
+    white-space: nowrap;
+}
+
+.selected-tag {
+    background: #16a34a;
+    color: #ffffff;
+}
+
+.same-price-tag {
+    background: #f59e0b;
+    color: #ffffff;
+}
+
+.copy-tag {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+
+/* ================================
+   DELETE BUTTON
+   ================================ */
+
+.suborder-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: #fee2e2;
+    color: #dc2626;
+    cursor: pointer;
+    transition: all .15s ease;
+}
+
+.suborder-delete-btn:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.suborder-delete-btn:active {
+    transform: scale(.92);
+}
+
+
+/* ================================
+   DELETE INFORMATION
+   ================================ */
+
+.suborder-delete-section {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px 12px;
+    box-sizing: border-box;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    background: #fff7ed;
+    color: #9a3412;
+    font-size: 12px;
+    line-height: 18px;
+}
+
+
+/* ================================
+   MODAL BUTTONS
+   ================================ */
+
+.suborder-action-header .op-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 7px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+
+/* ================================
+   SCROLLBAR
+   ================================ */
+
+.suborder-action-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.suborder-action-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.suborder-action-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.suborder-action-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+
+/* ================================
+   RESPONSIVE
+   ================================ */
+
+@media (max-width: 1000px) {
+    .suborder-action-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .suborder-action-list {
+        grid-template-columns: 1fr;
+    }
+
+    .suborder-action-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .suborder-action-header .op-btn {
+        width: 100%;
+    }
+
+    .copy-suborder-list {
+        gap: 8px;
+    }
+
+    .suborder-box {
+        width: 90px;
+        min-width: 90px;
+        height: 65px;
+    }
+}

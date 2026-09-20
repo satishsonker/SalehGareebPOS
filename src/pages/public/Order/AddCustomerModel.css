@@ -1,0 +1,266 @@
+/* =========================================================
+   ADD CUSTOMER MODAL
+   ========================================================= */
+
+.customer-modal {
+    width: 100%;
+}
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.customer-error {
+    display: flex;
+    align-items: center;
+
+    margin-bottom: 14px;
+    padding: 9px 11px;
+
+    border: 1px solid #efc5c1;
+    border-radius: 7px;
+
+    background: #fff6f5;
+
+    color: #a52a22;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   SECTION
+   ========================================================= */
+
+.customer-section {
+    margin-bottom: 16px;
+
+    padding: 14px;
+
+    border: 1px solid var(--line);
+    border-radius: 10px;
+
+    background: #fbfaf7;
+}
+
+.customer-section:last-child {
+    margin-bottom: 0;
+}
+
+
+/* =========================================================
+   SECTION TITLE
+   ========================================================= */
+
+.customer-section-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 13px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+    color: var(--navy);
+    font-family: 'Zilla Slab', serif;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.customer-section-title svg {
+    color: var(--gold);
+}
+
+
+/* =========================================================
+   FORM GRID
+   ========================================================= */
+
+.customer-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+
+/* =========================================================
+   FIELD
+   ========================================================= */
+
+.customer-field {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.customer-field--full {
+    grid-column: 1 / -1;
+}
+
+.customer-field label {
+    font-size: 17px;
+    font-weight: 700;
+    color: black;
+}
+
+.customer-field label span {
+    margin-left: 3px;
+    color: #c0392b;
+}
+
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+
+.customer-field input,
+.customer-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    outline: none;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 14px;
+
+    transition:
+        border-color .15s ease,
+        box-shadow .15s ease;
+}
+
+.customer-field input {
+    height: 40px;
+
+    padding: 0 10px;
+}
+
+.customer-field textarea {
+    min-height: 70px;
+
+    padding: 9px 10px;
+
+    resize: vertical;
+}
+
+.customer-field input::placeholder,
+.customer-field textarea::placeholder {
+    color: #aaa;
+}
+
+.customer-field input:focus,
+.customer-field textarea:focus {
+    border-color: var(--navy-soft);
+
+    box-shadow:
+        0 0 0 2px rgba(31, 42, 68, .06);
+}
+
+
+/* =========================================================
+   INPUT WITH ICON
+   ========================================================= */
+
+.customer-input {
+    display: flex;
+    align-items: center;
+
+    height: 40px;
+
+    border: 1px solid var(--line);
+    border-radius: 7px;
+
+    background: var(--surface);
+
+    overflow: hidden;
+
+    transition:
+        border-color .15s ease,
+        box-shadow .15s ease;
+}
+
+.customer-input:focus-within {
+    border-color: var(--navy-soft);
+
+    box-shadow:
+        0 0 0 2px rgba(31, 42, 68, .06);
+}
+
+.customer-input > svg {
+    flex-shrink: 0;
+
+    margin-left: 10px;
+
+    color: var(--ink-soft);
+}
+
+.customer-input input {
+    flex: 1;
+
+    width: auto;
+
+    height: 100%;
+
+    border: 0 !important;
+
+    border-radius: 0;
+
+    box-shadow: none !important;
+
+    outline: none;
+
+    background: transparent;
+
+    padding: 0 10px;
+}
+
+
+/* =========================================================
+   COUNTRY CODE
+   ========================================================= */
+
+.customer-country-code {
+    display: flex;
+    align-items: center;
+
+    height: 100%;
+
+    padding: 0 8px;
+
+    border-right: 1px solid var(--line);
+
+    background: var(--gold-soft);
+
+    color: #7a5a1a;
+
+    font-size: 10px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.customer-modal + .op-footer {
+    width: 100%;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .customer-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .customer-field--full {
+        grid-column: auto;
+    }
+}

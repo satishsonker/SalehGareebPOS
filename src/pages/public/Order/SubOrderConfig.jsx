@@ -2,11 +2,8 @@ import React, { useState, useEffect } from 'react'
 import "./SubOrderConfig.css"
 import { getMasterDataByTypes } from '../../../services/api/masterDataApi';
 import StepHeading from './StepHeading';
-export default function SubOrderConfig({ order }) {
-    const [activeSubOrderIndex, setActiveSubOrderIndex] = useState(null);
-    const [activeLengthIndex, setActiveLengthIndex] = useState(0);
-    const [activeNecklineIndex, setActiveNecklineIndex] = useState(0);
-    const [activeSleeveIndex, setActiveSleeveIndex] = useState(0);
+import { FcEmptyTrash } from 'react-icons/fc';
+export default function SubOrderConfig({ order, setOrder }) {
     const [sleeveList, setSleeveList] = useState([]);
     const [necklineList, setNecklineList] = useState([]);
     const [lengthList, setLengthList] = useState([])
@@ -21,49 +18,62 @@ export default function SubOrderConfig({ order }) {
             });
     }, []);
 
+    const handleSelectConfigData = (type, displayValue) => {
+        var model = { ...order };
+        if (type === 'length') {
+            if (model.orderDetails[order.selectedSubOrderIndex]) {
+                model.orderDetails[order?.selectedSubOrderIndex].lengthInch = displayValue;
+            }
+        } else if (type === 'neckline') {
+            if (model.orderDetails[order?.selectedSubOrderIndex]) {
+                model.orderDetails[order?.selectedSubOrderIndex].neckline = displayValue;
+            }
+        }
+        else if (type === 'sleeve') {
+            if (model.orderDetails[order?.selectedSubOrderIndex]) {
+                model.orderDetails[order?.selectedSubOrderIndex].sleeve = displayValue;
+            }
+        }
+        setOrder({...model});
+    }
 
-    const handleItemClick = (index) => {
-        setActiveSubOrderIndex(index);
-    };
     if ((!order?.workTypes && order?.workTypes?.length <= 0) || order?.orderDetails?.length <= 0)
         return <div className="alert-banner">Please select work types to create sub-orders</div>
     return (
         <>
-            <div className="co-sub-order">
-                {order?.orderDetails?.map((item, index) => (
-                    <div key={index} className={`co-sub-order-item ${activeSubOrderIndex === index ? 'active' : ''}`} onClick={() => handleItemClick(index)}>
-                        <span className="co-sub-order-item__number">{item.orderNumber || `Sub Order - ${index + 1}`}</span>
-                        <span className="co-sub-order-item__price">{item?.price || 0} AED</span>
-                    </div>
-                ))}
-            </div>
-
-            <div className="co-sub-order">
+        <div className='config-group'>
+            <div className='g-label'>Neckline</div>
+            <div className="chip-row">
                 {necklineList?.map((item, index) => (
-                    <div key={index} className={`co-sub-order-item ${activeNecklineIndex === index ? 'active' : ''}`} onClick={() => setActiveNecklineIndex(index)}>
-                        <span className="co-sub-order-item__number">{item.displayValue}</span>
-                        <span className="co-sub-order-item__price">{item?.remark}</span>
+                    <div key={index} className={`opt-chip ${order?.orderDetails[order?.selectedSubOrderIndex]?.neckline === item.displayValue ? 'selected' : ''}`} onClick={() => handleSelectConfigData('neckline', item.displayValue)}>
+                       {item.displayValue}
+                        <span className="ar">{item?.remark}</span>
                     </div>
                 ))}
             </div>
-
-            <div className="co-sub-order">
+        </div>
+          <div className='config-group'>
+            <div className='g-label'>Length</div>
+            <div className="chip-row">
                 {lengthList?.map((item, index) => (
-                    <div key={index} className={`co-sub-order-item ${activeLengthIndex === index ? 'active' : ''}`} onClick={() => setActiveLengthIndex(index)}>
-                        <span className="co-sub-order-item__number">{item.displayValue}</span>
-                        <span className="co-sub-order-item__price">{item?.remark}</span>
+                    <div key={index} className={`opt-chip ${order?.orderDetails[order?.selectedSubOrderIndex]?.lengthInch === item.displayValue ? 'selected' : ''}`} onClick={() => handleSelectConfigData('length', item.displayValue)}>
+                       {item.displayValue}
+                        <span className="ar">{item?.remark}</span>
                     </div>
                 ))}
             </div>
-            <StepHeading showStep={false} step="Sleeve" title="Select Sleeve" />
-            <div className="co-sub-order">
+        </div>
+          <div className='config-group'>
+            <div className='g-label'>Sleeves</div>
+            <div className="chip-row">
                 {sleeveList?.map((item, index) => (
-                    <div key={index} className={`co-sub-order-item ${activeSleeveIndex === index ? 'active' : ''}`} onClick={() => setActiveSleeveIndex(index)}>
-                        <span className="co-sub-order-item__number">{item.displayValue}</span>
-                        <span className="co-sub-order-item__price">{item?.remark}</span>
+                    <div key={index} className={`opt-chip ${order?.orderDetails[order?.selectedSubOrderIndex]?.sleeve === item.displayValue ? 'selected' : ''}`} onClick={() => handleSelectConfigData('sleeve', item.displayValue)}>
+                       {item.displayValue}
+                        <span className="ar">{item?.remark}</span>
                     </div>
                 ))}
             </div>
+        </div>
         </>
     )
 }

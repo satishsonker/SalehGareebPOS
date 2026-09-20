@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { FiLogIn } from 'react-icons/fi';
+import { FiCheck, FiLogIn, FiMapPin, FiShoppingBag } from 'react-icons/fi';
 import { apiBasePath } from '../../services/api/commonApi';
 import { getShopAccessByUser } from '../../services/api/accessControlApi';
 import ShopAccessList from '../../components/Shop/ShopAccessList';
 import './ShopSelection.css';
 import { jwtDecode } from "jwt-decode";
-
+const shopColors = [
+    "#2563eb",
+    "#ea580c",
+    "#7c3aed",
+    "#0f766e",
+    "#0891b2",
+    "#c2410c"
+];
 function ShopSelection() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -61,42 +68,90 @@ function ShopSelection() {
         }
 
         localStorage.setItem('selectedShop', JSON.stringify(selectedShop));
-        const from = location.state?.from?.pathname || '/';
+        const from = location.state?.from?.pathname || '/dashboard';
         navigate(from, { replace: true });
     };
 
     return (
         <div className="shopselection-container">
-            <div className="shopselection-card">
+            <div className="shopselection-page">
                 <div className="shopselection-header">
-                    <div className="shopselection-icon">
-                        <img src={`${apiBasePath}${shopList[0]?.userImageThumbPath || "/assets/images/default-shop-image.jpg"}`} alt="Saleh Gareeb POS Icon" className="logo" />
+                    <div className="shopselection-brand">
+                        <div className="shopselection-brand-icon">
+                              <img
+                                            src={`${apiBasePath}${shopList[0]?.userImageThumbPath || "/assets/images/default-shop-image.jpg"}`}
+                                            alt={shopList[0]?.shopName || "Shop"}
+                                            className="shopselection-logo"
+                                        />
+                        </div>
+                        <div>
+                            <h1>Welcome Back, {userData?.firstName}</h1>
+                            <p>Select a shop to continue to your dashboard</p>
+                        </div>
                     </div>
-                    <h1>Welcome Back {userData?.firstName}</h1>
+                    <div className="shopselection-user">
+                        <span>Logged in as</span>
+                        <strong>{userData?.firstName}</strong>
+                    </div>
                 </div>
 
                 <form onSubmit={handleSubmit} className="shopselection-form">
-                    {error && (
-                        <div className="error-message">
-                            {error}
-                        </div>
-                    )}
-                    <ShopAccessList shops={shopList} selectedShop={selectedShop} setSelectedShop={setSelectedShop} />
-                    <button
-                        type="submit"
-                        className="shopselection-button"
-                        disabled={!selectedShop}
-                    >
-                        <>
-                            <FiLogIn />
-                            Continue
-                        </>
-                    </button>
-                </form>
+                    {error && <div className="error-message">{error}</div>}
 
-                <div className="shopselection-footer">
-                    <p>If shop is not listed, please contact your administrator</p>
-                </div>
+                    <div className="shopselection-grid">
+                        {shopList?.map((shop, index) => {
+                            const isSelected = selectedShop === shop.id;
+                            const color = shopColors[index % shopColors.length];
+
+                            return (
+                                <button
+                                    key={shop.id}
+                                    type="button"
+                                    className={`shopselection-shop-card ${isSelected ? "selected" : ""}`}
+                                    style={{ "--shop-color": color }}
+                                    onClick={() => setSelectedShop(shop.id)}
+                                >
+                                    <div className="shopselection-card-circles" />
+
+                                    {/* <div className="shopselection-shop-icon">
+                                        <img
+                                            src={`${apiBasePath}${shop.userImageThumbPath || "/assets/images/default-shop-image.jpg"}`}
+                                            alt={shop.shopName || "Shop"}
+                                            className="shopselection-logo"
+                                        />
+                                    </div> */}
+
+                                    <div className="shopselection-shop-content">
+                                        <h2>{shop.shopName || shop.name || "Shop"}</h2>
+                                        <p className="shopselection-shop-location">
+                                            <FiMapPin />
+                                            {shop.address || shop.location || "Shop location"}
+                                        </p>
+                                    </div>
+
+                                    <div className="shopselection-select-indicator">
+                                        {isSelected ? <FiCheck /> : <span>Select shop</span>}
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <div className="shopselection-bottom">
+                        <div className="shopselection-footer">
+                            <p>If shop is not listed, please contact your administrator.</p>
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="shopselection-button"
+                            disabled={!selectedShop}
+                        >
+                            <FiLogIn />
+                            Continue to Dashboard
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );

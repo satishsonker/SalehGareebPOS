@@ -54,19 +54,26 @@ function Login() {
       const result = await login(credentials);
 
       if (result.success) {
-        navigate('/otp/verify', {
-          replace: true,
-          state: {
-            from: location.state?.from,
-            sessionId: result.data?.sessionId,
-            email: result.data?.email,
-            mobile: result.data?.mobile,
-            username: result.data?.username,
-            firstname: result.data?.firstname,
-            lastname: result.data?.lastname,
-            otp: result.data?.otp // For testing purposes, remove in production
-          }
-        });
+        if (result.data?.accessToken) {
+          localStorage.setItem('token', result.data.accessToken);
+          const from = '/shop/selection';
+          navigate(from, { replace: true });
+        }
+        else {
+          navigate('/otp/verify', {
+            replace: true,
+            state: {
+              from: location.state?.from,
+              sessionId: result.data?.sessionId,
+              email: result.data?.email,
+              mobile: result.data?.mobile,
+              username: result.data?.username,
+              firstname: result.data?.firstname,
+              lastname: result.data?.lastname,
+              otp: result.data?.otp // For testing purposes, remove in production
+            }
+          });
+        }
       } else {
         setError(result.message || 'Invalid username or password');
       }
@@ -96,7 +103,7 @@ function Login() {
           )}
 
           <div className="form-group">
-            <label htmlFor="username">              
+            <label htmlFor="username">
               <FiUser className="input-icon" />
               Username
             </label>

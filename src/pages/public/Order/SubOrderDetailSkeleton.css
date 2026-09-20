@@ -1,0 +1,469 @@
+/* =========================================================
+   SUB ORDER SKELETON
+========================================================= */
+
+.subOrderSkeletonList {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    width: 100%;
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.subOrderSkeleton {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    width: 100%;
+    min-height: 112px;
+
+    padding: 12px 14px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #e3e6ea;
+
+    border-radius: 14px;
+
+    background: #fff;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   SKELETON BASE
+========================================================= */
+
+.skeleton {
+    position: relative;
+
+    overflow: hidden;
+
+    background: #e8ebef;
+
+    border-radius: 6px;
+}
+
+
+/*
+    Animated shimmer
+*/
+
+.skeleton::after {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: -150%;
+
+    width: 80%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.45) 45%,
+            rgba(201, 170, 91, 0.10) 50%,
+            rgba(255, 255, 255, 0.45) 55%,
+            transparent 100%
+        );
+
+    animation:
+        skeletonShimmer 1.6s ease-in-out infinite;
+}
+
+
+/* =========================================================
+   SHIMMER ANIMATION
+========================================================= */
+
+@keyframes skeletonShimmer {
+
+    0% {
+        left: -150%;
+    }
+
+    100% {
+        left: 150%;
+    }
+
+}
+
+
+/* =========================================================
+   LEFT INDEX
+========================================================= */
+
+.skeleton-index {
+    flex-shrink: 0;
+
+    width: 68px;
+    height: 68px;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #202c3d,
+            #263448
+        );
+
+    opacity: 0.9;
+}
+
+
+/* Add subtle gold ring */
+
+.skeleton-index::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 3px;
+
+    border: 1px solid rgba(201, 170, 91, 0.25);
+
+    border-radius: 11px;
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
+
+.skeleton-content {
+    display: flex;
+    flex-direction: column;
+
+    flex: 1;
+
+    min-width: 0;
+
+    gap: 8px;
+}
+
+
+/* =========================================================
+   TOP ROW
+========================================================= */
+
+.skeleton-top-row {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+
+.skeleton-order-info {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+.skeleton-order-label {
+    width: 45px;
+    height: 12px;
+
+    border-radius: 3px;
+
+    background: #c5ccd5;
+}
+
+
+.skeleton-order-number {
+    width: 105px;
+    height: 23px;
+
+    border-radius: 5px;
+
+    background: #d7dce2;
+}
+
+
+.skeleton-price {
+    flex-shrink: 0;
+
+    width: 92px;
+    height: 25px;
+
+    border-radius: 5px;
+
+    background: #cfd5dc;
+}
+
+
+/* =========================================================
+   WORK TYPES
+========================================================= */
+
+.skeleton-work-types {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    overflow: hidden;
+}
+
+
+.skeleton-chip {
+    flex-shrink: 0;
+
+    height: 31px;
+
+    border-radius: 8px;
+
+    background: #e4e7eb;
+}
+
+
+.chip-1 {
+    width: 70px;
+}
+
+.chip-2 {
+    width: 73px;
+}
+
+.chip-3 {
+    width: 65px;
+}
+
+.chip-4 {
+    width: 70px;
+}
+
+.chip-5 {
+    width: 73px;
+}
+
+.chip-6 {
+    width: 65px;
+}
+
+
+/* =========================================================
+   META
+========================================================= */
+
+.skeleton-meta {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.skeleton-meta-icon {
+    width: 21px;
+    height: 21px;
+
+    border-radius: 5px;
+
+    background: #d3d9df;
+}
+
+
+.skeleton-meta-text {
+    width: 90px;
+    height: 15px;
+
+    border-radius: 4px;
+
+    background: #d9dee4;
+}
+
+
+.skeleton-grade {
+    width: 45px;
+    height: 20px;
+
+    margin-left: 5px;
+
+    border-radius: 20px;
+
+    background: #c7ced7;
+}
+
+
+/* =========================================================
+   ACTION BUTTON
+========================================================= */
+
+.skeleton-action {
+    flex-shrink: 0;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 11px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f5c4c9,
+            #f79aa3
+        );
+
+    border: 1px solid #f08d98;
+}
+
+
+/* =========================================================
+   GOLD ACCENT
+========================================================= */
+
+.subOrderSkeleton::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 12px;
+    bottom: 12px;
+
+    width: 3px;
+
+    border-radius: 0 4px 4px 0;
+
+    background: #c9a95b;
+
+    opacity: 0.75;
+}
+
+
+/* =========================================================
+   CARD VARIATION
+========================================================= */
+
+.subOrderSkeleton:nth-child(2) .skeleton-index {
+    background:
+        linear-gradient(
+            135deg,
+            #263448,
+            #1d2939
+        );
+}
+
+.subOrderSkeleton:nth-child(3) .skeleton-index {
+    background:
+        linear-gradient(
+            135deg,
+            #2a3545,
+            #202c3d
+        );
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .subOrderSkeleton {
+        min-height: 100px;
+
+        padding: 10px;
+
+        gap: 9px;
+    }
+
+    .skeleton-index {
+        width: 52px;
+        height: 52px;
+
+        border-radius: 11px;
+    }
+
+    .skeleton-order-label {
+        width: 38px;
+        height: 10px;
+    }
+
+    .skeleton-order-number {
+        width: 80px;
+        height: 19px;
+    }
+
+    .skeleton-price {
+        width: 70px;
+        height: 20px;
+    }
+
+    .skeleton-chip {
+        height: 27px;
+    }
+
+    .skeleton-action {
+        width: 38px;
+        height: 38px;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .subOrderSkeleton {
+        min-height: 92px;
+
+        padding: 9px;
+    }
+
+    .skeleton-index {
+        width: 45px;
+        height: 45px;
+    }
+
+    .skeleton-action {
+        width: 34px;
+        height: 34px;
+    }
+
+    .skeleton-chip:nth-child(n + 5) {
+        display: none;
+    }
+
+    .skeleton-grade {
+        display: none;
+    }
+
+}
+
+
+/* =========================================================
+   REDUCE MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .skeleton::after {
+        animation: none;
+    }
+
+}

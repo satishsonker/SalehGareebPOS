@@ -1,47 +1,120 @@
+
 .co-sub-order {
-        display: flex;
+    display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 10px;
+
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 10px;
 }
 
-.co-sub-order-item {
-   display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border: 1px solid #ccc;
-    flex-direction: column;
-    border-radius: 15px;
-    flex-wrap: wrap;
-    align-content: space-between;
-    padding: 10px 10px;
+/* Each sub-order */
+.co-sub-order-item-container {
+    display: flex;
+    flex: 0 0 auto;
     align-items: center;
-    transition: background 0.3s ease;
+
+    transition: margin 0.35s ease;
+}
+
+/* Sub-order card */
+.co-sub-order-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+
+    min-width: 93px;
+    padding: 10px;
+
+    border: 1px solid #ccc;
+    border-radius: 15px;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.3s ease,
+        transform 0.3s ease;
 }
 
 .co-sub-order-item:hover {
     background-color: #f0f0f0;
-    cursor: pointer;
-    transition: background 0.4s ease-in-out;
 }
 
-.co-sub-order-item.active {
+.co-sub-order-item-container.active .co-sub-order-item {
     background-color: #5271fa;
-    cursor: pointer;
-    transition: background 0.4s ease-in-out;
     color: white;
 }
 
+/* Number */
 .co-sub-order-item__number {
     font-weight: bold;
-    margin-right: 10px;
+    line-height: 0.5rem;
 }
 
+/* Price */
 .co-sub-order-item__price {
+    margin-top: 0px;
+    line-height: 1.6rem;
+}
+
+/* Trash wrapper */
+.co-sub-order-item__delete {
+    width: 0;
+    height: 30px;
+
+    margin-left: 0;
+
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+
+    opacity: 0;
+    transform: translateX(-10px);
+
+    pointer-events: none;
+
+    transition:
+        width 0.35s ease,
+        margin-left 0.35s ease,
+        opacity 0.25s ease,
+        transform 0.35s ease;
+}
+
+/* Active item opens space for trash */
+.co-sub-order-item-container.active .co-sub-order-item__delete {
+    width: 30px;
+    margin-left: 8px;
+
+    opacity: 1;
+    transform: translateX(0);
+
+    pointer-events: auto;
+}
+
+.co-sub-order-item.active{
+    background: #5271fa;
+    color:white;
+}
+
+/* Trash circle */
+.co-sub-order-item__delete svg {
+    width: 30px;
+    height: 30px;
+    padding: 5px;
+
+    border-radius: 50%;
+    background-color: #ff4d4f;
+
+    cursor: pointer;
+}
+
+.co-sub-order-item__delete:hover svg {
+    background-color: #d9363e;
 }

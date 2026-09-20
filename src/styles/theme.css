@@ -1,0 +1,124 @@
+:root {
+  /* Core app palette */
+  --app-bg: #f6f3ec;
+  --surface: #ffffff;
+  --surface-alt: #fbfaf7;
+  --surface-soft: #f8f9fb;
+  --surface-muted: #f5f5f5;
+  --text-primary: #21242b;
+  --text-secondary: #8a8271;
+  --text-muted: #7b8492;
+  --text-inverse: #ffffff;
+  --border-soft: #e4dfd2;
+  --border-strong: #dfe3e8;
+  --border-subtle: #e0e4ea;
+  --brand-primary: #1f2a44;
+  --brand-primary-soft: #3b4a70;
+  --brand-primary-deep: #0f1f3d;
+  --brand-accent: #b98530;
+  --brand-accent-soft: #f0e2c8;
+  --brand-accent-deep: #7a5a1a;
+  --success: #3f7a5a;
+  --danger: #c1483b;
+  --danger-deep: #a1342d;
+  --warning: #c9a227;
+  --shadow-soft: rgba(31, 42, 68, 0.08);
+  --shadow-strong: rgba(31, 42, 68, 0.25);
+
+  /* Legacy aliases kept for compatibility */
+  --bg: var(--app-bg);
+  --bg-primary: #ffffff;
+  --bg-secondary: #81edff1c;
+  --bg-tertiary: #f8f9fa;
+  --header-bg: #ffffff;
+  --card-bg: #ffffff;
+  --sidebar-bg: #2c3e50;
+  --sidebar-hover: rgba(255, 255, 255, 0.1);
+  --sidebar-active: rgba(255, 255, 255, 0.15);
+  --text-primary-base: var(--text-primary);
+  --text-secondary-base: var(--text-secondary);
+  --text-tertiary: #7f8c8d;
+  --border-color: var(--border-soft);
+  --accent-color: var(--brand-primary);
+  --accent-hover: var(--brand-primary-soft);
+  --danger-color: var(--danger);
+  --danger-hover: var(--danger-deep);
+
+  /* Ordering / POS theme aliases */
+  --navy: var(--brand-primary);
+  --navy-soft: var(--brand-primary-soft);
+  --navy-deep: var(--brand-primary-deep);
+  --gold: var(--brand-accent);
+  --gold-soft: var(--brand-accent-soft);
+  --gold-deep: var(--brand-accent-deep);
+  --ink: var(--text-primary);
+  --ink-soft: var(--text-secondary);
+  --line: var(--border-soft);
+  --surface-card: var(--surface);
+  --surface-panel: var(--surface-alt);
+  --surface-subtle: var(--surface-soft);
+  --shadow: var(--shadow-soft);
+  --shadow-stronger: var(--shadow-strong);
+
+  /* Common UI tokens */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+}
+
+[data-theme="dark"] {
+  --app-bg: #121826;
+  --surface: #1b2434;
+  --surface-alt: #1f2b3d;
+  --surface-soft: #253248;
+  --surface-muted: #111827;
+  --text-primary: #edf2ff;
+  --text-secondary: #a9b6d0;
+  --text-muted: #8ea0bb;
+  --text-inverse: #ffffff;
+  --border-soft: #2b3a52;
+  --border-strong: #344867;
+  --border-subtle: #2d3b51;
+  --brand-primary: #4b6ea8;
+  --brand-primary-soft: #6483bd;
+  --brand-primary-deep: #1d3157;
+  --brand-accent: #d4af37;
+  --brand-accent-soft: #473d1c;
+  --brand-accent-deep: #b78a1d;
+  --success: #4c8d69;
+  --danger: #d76b5d;
+  --danger-deep: #b94c40;
+  --warning: #d4af37;
+  --shadow-soft: rgba(15, 23, 42, 0.44);
+  --shadow-strong: rgba(15, 23, 42, 0.6);
+
+  --bg-primary: #1b2434;
+  --bg-secondary: #111827;
+  --bg-tertiary: #182434;
+  --header-bg: #1b2434;
+  --card-bg: #1b2434;
+  --sidebar-bg: #111827;
+  --text-primary-base: var(--text-primary);
+  --text-secondary-base: var(--text-secondary);
+  --border-color: var(--border-soft);
+  --accent-color: var(--brand-primary);
+  --accent-hover: var(--brand-primary-soft);
+  --danger-color: var(--danger);
+  --danger-hover: var(--danger-deep);
+
+  --navy: var(--brand-primary);
+  --navy-soft: var(--brand-primary-soft);
+  --navy-deep: var(--brand-primary-deep);
+  --gold: var(--brand-accent);
+  --gold-soft: var(--brand-accent-soft);
+  --gold-deep: var(--brand-accent-deep);
+  --ink: var(--text-primary);
+  --ink-soft: var(--text-secondary);
+  --line: var(--border-soft);
+  --surface-card: var(--surface);
+  --surface-panel: var(--surface-alt);
+  --surface-subtle: var(--surface-soft);
+  --shadow: var(--shadow-soft);
+  --shadow-stronger: var(--shadow-strong);
+}

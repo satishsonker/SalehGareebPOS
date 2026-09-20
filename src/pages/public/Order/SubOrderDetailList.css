@@ -1,0 +1,231 @@
+.subOrderDetailList {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%
+}
+
+.subOrderDetailList-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 5px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    box-sizing: border-box
+}
+
+.subOrderDetailList-item:hover {
+    border-color: var(--brand-accent);
+    box-shadow: 0 4px 14px var(--shadow-soft);
+    transform: translateY(-1px)
+}
+
+.subOrderDetailList-item__number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    background: var(--brand-primary-deep);
+    color: var(--brand-accent);
+    font-size: .82rem;
+    font-weight: 800
+}
+
+.subOrderDetailList-item__content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0
+}
+
+.subOrderDetailList-item__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px
+}
+
+.subOrderDetailList-item__orderInfo {
+    display: flex;
+    align-items: center;
+    gap: 6px
+}
+
+.subOrderDetailList-item__orderLabel {
+    font-size: .63rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: .08em
+}
+
+.subOrderDetailList-item__orderNo {
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--brand-primary-deep)
+}
+
+.subOrderDetailList-item__price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    color: var(--brand-primary-deep);
+    font-size: 1rem;
+    font-weight: 800;
+    white-space: nowrap
+}
+
+.subOrderDetailList-item__price .currency {
+    color: #8a93a1;
+    font-size: .65rem;
+    font-weight: 600
+}
+
+.subOrderDetailList-item__workTypes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 4px 0
+}
+
+.subOrderDetailList-item__workTypeBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 12px;
+    border-radius: 5px;
+    background: #f8f9fb;
+    border: 1px solid #e0e4ea;
+    color: #394457;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: .03em;
+    transition: .15s ease;
+}
+
+.subOrderDetailList-item__workTypeBadge:hover {
+    border-color: #c9a227
+}
+
+.subOrderDetailList-item__workTypeBadge.active {
+    background: #fffaf0;
+    border-color: #c9a227;
+    color: #8a6a12
+}
+
+.subOrderDetailList-item__workTypeBadge.active.active_selected {
+    background: #172033;
+    border-color: #d4af37;
+    color: #d4af37
+}
+
+.subOrderDetailList-item__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 0
+}
+
+.metaItem {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #6b7280;
+    font-size: .74rem
+}
+
+.metaItem svg {
+    font-size: .85rem;
+    color: #b18b1c
+}
+
+.metaItem .metaLabel {
+    color: #8a93a1
+}
+
+.metaItem strong {
+    color: #394457;
+    font-weight: 600
+}
+
+.subOrderDetailList-item__editBtn,
+.subOrderDetailList-item__configBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 7px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all .2s ease
+}
+
+.subOrderDetailList-item__editBtn {
+    border: 1px solid #e0b93d;
+    background: #fffaf0;
+    color: #9a7610
+}
+
+.subOrderDetailList-item__configBtn {
+    border: 1px solid #d8dde4;
+    background: #172033;
+    color: #d4af37
+}
+
+.subOrderDetailList-item__editBtn:hover {
+    background: #d4af37;
+    border-color: #d4af37;
+    color: #172033
+}
+
+.subOrderDetailList-item__configBtn:hover {
+    background: #d4af37;
+    border-color: #d4af37;
+    color: #172033
+}
+
+.subconfig-panel {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: 72vh
+}
+
+@media(max-width:600px) {
+    .subOrderDetailList {
+        gap: 7px
+    }
+
+    .subOrderDetailList-item {
+        padding: 10px;
+        gap: 9px
+    }
+
+    .subOrderDetailList-item__number {
+        width: 30px;
+        height: 30px;
+        font-size: .75rem
+    }
+
+    .subOrderDetailList-item__price {
+        font-size: .9rem
+    }
+
+    .subOrderDetailList-item__meta {
+        gap: 9px
+    }
+
+    .subOrderDetailList-item__editBtn,
+    .subOrderDetailList-item__configBtn {
+        width: 32px;
+        height: 32px
+    }
+}

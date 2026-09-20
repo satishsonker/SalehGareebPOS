@@ -1,0 +1,1508 @@
+/* =========================================================
+   ORDER PRICE SELECTOR
+   POS STYLE
+   NAVY + GOLD
+========================================================= */
+
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+:root {
+    --ops-navy: var(--brand-primary-deep);
+    --ops-navy-dark: #09152b;
+    --ops-navy-light: var(--brand-primary-soft);
+
+    --ops-gold: var(--brand-accent);
+    --ops-gold-dark: var(--brand-accent-deep);
+    --ops-gold-soft: var(--brand-accent-soft);
+
+    --ops-white: var(--surface);
+    --ops-bg: var(--surface-soft);
+
+    --ops-text: var(--text-primary);
+    --ops-muted: var(--text-muted);
+
+    --ops-border: var(--border-soft);
+    --ops-border-dark: var(--border-subtle);
+
+    --ops-danger: var(--danger);
+    --ops-success: var(--success);
+
+    --ops-radius: 8px;
+    --ops-radius-sm: 6px;
+}
+
+
+/* =========================================================
+   BODY
+========================================================= */
+
+.op-body {
+    width: 100%;
+    min-width: 0;
+}
+
+
+/* =========================================================
+   MAIN TWO COLUMN LAYOUT
+========================================================= */
+
+.ops-layout {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.55fr) minmax(300px, 0.85fr);
+
+    gap: 12px;
+
+    width: 100%;
+    min-width: 0;
+
+    align-items: start;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   PANELS
+========================================================= */
+
+.ops-panel {
+    min-width: 0;
+    width: 100%;
+
+    padding: 14px;
+
+    box-sizing: border-box;
+
+    background: var(--ops-white);
+
+    border: 1px solid var(--ops-border);
+
+    border-radius: var(--ops-radius);
+}
+
+
+/* =========================================================
+   LEFT PANEL
+========================================================= */
+
+.ops-price-panel {
+    min-width: 0;
+}
+
+
+/* =========================================================
+   RIGHT PANEL
+========================================================= */
+
+.ops-config-panel {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+    justify-content: flex-start;
+
+    gap: 10px;
+
+    min-width: 0;
+
+    width: 100%;
+}
+
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.ops-topbar {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 14px;
+
+    min-height: 48px;
+
+    margin-bottom: 12px;
+
+    padding-bottom: 10px;
+
+    border-bottom: 1px solid var(--ops-border);
+
+    box-sizing: border-box;
+}
+
+
+.ops-topbar-title {
+    flex-shrink: 0;
+
+    color: var(--ops-navy);
+
+    font-size: 17px;
+
+    font-weight: 800;
+
+    line-height: 1;
+
+    white-space: nowrap;
+}
+
+
+.ops-topbar-right {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    min-width: 0;
+}
+
+
+/* =========================================================
+   INLINE SUMMARY
+========================================================= */
+
+.ops-summary-inline {
+    display: flex;
+
+    align-items: center;
+
+    min-width: 0;
+
+    overflow: hidden;
+
+    background: #fafbfc;
+
+    border: 1px solid var(--ops-border);
+
+    border-radius: 8px;
+}
+
+
+.ops-summary-inline-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    min-height: 38px;
+
+    padding: 0 10px;
+
+    border-right: 1px solid var(--ops-border);
+
+    box-sizing: border-box;
+}
+
+
+.ops-summary-inline-item:last-child {
+    border-right: none;
+}
+
+
+.ops-summary-inline-item span {
+    color: var(--ops-muted);
+
+    font-size: 7px;
+
+    font-weight: 800;
+
+    line-height: 1;
+
+    letter-spacing: 0.05em;
+
+    white-space: nowrap;
+}
+
+
+.ops-summary-inline-item strong {
+    color: var(--ops-navy);
+
+    font-size: 13px;
+
+    font-weight: 900;
+
+    line-height: 1;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   AVAILABLE
+========================================================= */
+
+.ops-available {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    min-width: 60px;
+
+    height: 40px;
+
+    padding: 0 8px;
+
+    box-sizing: border-box;
+
+    background: var(--ops-gold-soft);
+
+    border: 1px solid #d9c78f;
+
+    border-radius: 8px;
+}
+
+
+.ops-available span {
+    color: var(--ops-gold-dark);
+
+    font-size: 7px;
+
+    font-weight: 800;
+
+    line-height: 1;
+
+    letter-spacing: 0.05em;
+}
+
+
+.ops-available strong {
+    margin-top: 3px;
+
+    color: var(--ops-navy);
+
+    font-size: 15px;
+
+    font-weight: 900;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   PRICE GRID
+========================================================= */
+
+.ops-price-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 8px;
+
+    width: 100%;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   PRICE CARD
+========================================================= */
+
+.ops-price-card {
+    position: relative;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    min-width: 0;
+
+    min-height: 62px;
+
+    padding: 8px 10px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 1px solid var(--ops-border);
+
+    border-radius: 7px;
+
+    color: var(--ops-navy);
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.1s ease;
+}
+
+
+.ops-price-card:hover {
+    background: #fffdf6;
+
+    border-color: #cdbb72;
+
+    transform: translateY(-1px);
+}
+
+
+.ops-price-card:active {
+    transform: translateY(0);
+}
+
+
+.ops-price-card.active {
+    background: var(--ops-navy);
+
+    border-color: var(--ops-navy);
+
+    box-shadow:
+        0 3px 9px rgba(15, 31, 61, 0.14);
+}
+
+
+/* =========================================================
+   PRICE CARD TOP
+========================================================= */
+
+.ops-price-card-top {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    width: 100%;
+
+    min-width: 0;
+}
+
+
+.ops-price-value {
+    min-width: 0;
+
+    color: var(--ops-navy);
+
+    font-size: 18px;
+
+    font-weight: 900;
+
+    line-height: 1;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.ops-price-card.active .ops-price-value {
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   PRICE CHECK
+========================================================= */
+
+.ops-price-check {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 19px;
+
+    height: 19px;
+
+    margin-left: 5px;
+
+    background: var(--ops-gold);
+
+    border-radius: 50%;
+
+    color: var(--ops-navy);
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   PRICE DETAILS
+========================================================= */
+
+.ops-price-details {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    margin-top: 7px;
+}
+
+
+.ops-grade {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: fit-content;
+
+    padding: 2px 7px;
+
+    border-radius: 20px;
+
+    color: #ffffff;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    line-height: 1;
+}
+
+
+.grade-green {
+    background: #198754;
+}
+
+
+.grade-blue {
+    background: #2563eb;
+}
+
+
+.grade-purple {
+    background: #7c3aed;
+}
+
+
+.grade-gray {
+    background: #6b7280;
+}
+
+
+.ops-price-pkt {
+    color: var(--ops-muted);
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+
+.ops-price-card.active .ops-price-pkt {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+
+/* =========================================================
+   CUSTOM PRICE CARD
+========================================================= */
+
+.ops-price-card.custom {
+    border-style: dashed;
+
+    border-color: var(--ops-gold);
+
+    background: #fffdf7;
+}
+
+
+.ops-price-card.custom:hover {
+    background: var(--ops-gold-soft);
+}
+
+
+.ops-price-card.custom.active {
+    background: var(--ops-navy);
+
+    border-style: solid;
+
+    border-color: var(--ops-navy);
+}
+
+
+.ops-custom-label {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    margin-top: 7px;
+
+    color: var(--ops-gold-dark);
+
+    font-size: 9px;
+
+    font-weight: 800;
+}
+
+
+.ops-price-card.custom.active .ops-custom-label {
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   CUSTOM PRICE PANEL
+========================================================= */
+
+.ops-custom-panel {
+    margin-top: 9px;
+
+    padding: 11px;
+
+    box-sizing: border-box;
+
+    background: #fbf9ef;
+
+    border: 1px solid #e2d39b;
+
+    border-radius: 7px;
+}
+
+
+.ops-custom-panel-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 8px;
+
+    color: var(--ops-gold-dark);
+}
+
+
+.ops-custom-panel-header svg {
+    font-size: 15px;
+}
+
+
+.ops-custom-panel-title {
+    color: var(--ops-navy);
+
+    font-size: 11px;
+
+    font-weight: 800;
+}
+
+
+.ops-custom-panel-subtitle {
+    margin-top: 2px;
+
+    color: var(--ops-muted);
+
+    font-size: 9px;
+}
+
+
+.ops-custom-panel-row {
+    display: flex;
+
+    align-items: stretch;
+
+    gap: 7px;
+}
+
+
+.ops-custom-input {
+    display: flex;
+
+    align-items: center;
+
+    flex: 1;
+
+    min-width: 0;
+
+    min-height: 40px;
+
+    padding: 0 11px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 1px solid #d7c77f;
+
+    border-radius: 6px;
+
+    color: var(--ops-navy);
+
+    text-align: left;
+
+    cursor: pointer;
+}
+
+
+.ops-custom-input:hover,
+.ops-custom-input.focused {
+    border-color: var(--ops-gold);
+
+    box-shadow:
+        0 0 0 2px rgba(201, 162, 39, 0.08);
+}
+
+
+.ops-custom-input span {
+    margin-right: 7px;
+
+    color: var(--ops-muted);
+
+    font-size: 9px;
+
+    font-weight: 800;
+}
+
+
+.ops-custom-input strong {
+    color: var(--ops-navy);
+
+    font-size: 15px;
+
+    font-weight: 900;
+}
+
+
+.ops-custom-cancel {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 40px;
+
+    border: 1px solid #f0c5c8;
+
+    border-radius: 6px;
+
+    background: #fff5f5;
+
+    color: var(--ops-danger);
+
+    cursor: pointer;
+}
+
+
+.ops-custom-cancel:hover {
+    background: var(--ops-danger);
+
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.ops-error {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 7px;
+
+    margin-top: 8px;
+
+    padding: 8px 10px;
+
+    box-sizing: border-box;
+
+    background: #fff5f5;
+
+    border: 1px solid #f0c5c8;
+
+    border-radius: 6px;
+
+    color: var(--ops-danger);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    line-height: 1.35;
+}
+
+
+.ops-error svg {
+    flex-shrink: 0;
+
+    margin-top: 1px;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   RIGHT COLUMN
+   SELECTED PRICE
+========================================================= */
+
+.ops-config-panel .ops-selected {
+    order: 1;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    width: 100%;
+
+    min-width: 0;
+
+    min-height: 68px;
+
+    margin: 0;
+
+    padding: 10px 12px;
+
+    box-sizing: border-box;
+
+    background: #fafbfc;
+
+    border: 1px solid var(--ops-border);
+
+    border-radius: 7px;
+}
+
+
+.ops-config-panel .ops-selected.active {
+    background: var(--ops-gold-soft);
+
+    border-color: #d9c78f;
+}
+
+
+/* =========================================================
+   SELECTED PRICE LEFT
+========================================================= */
+
+.ops-selected-left {
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+
+    flex: 1;
+}
+
+
+.ops-selected-label {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    color: var(--ops-muted);
+
+    font-size: 7px;
+
+    font-weight: 900;
+
+    line-height: 1;
+
+    letter-spacing: 0.07em;
+}
+
+
+.ops-selected-label svg {
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   SELECTED PRICE VALUE
+========================================================= */
+
+.ops-selected-price {
+    margin-top: 5px;
+
+    color: var(--ops-navy);
+
+    font-size: 21px;
+
+    font-weight: 900;
+
+    line-height: 1;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.ops-selected-price.custom {
+    font-size: 18px;
+}
+
+
+/* =========================================================
+   SELECTED GRADE
+========================================================= */
+
+.ops-selected-right {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    min-width: 44px;
+
+    height: 30px;
+
+    margin-left: 8px;
+
+    padding: 0 8px;
+
+    box-sizing: border-box;
+
+    background: var(--ops-navy);
+
+    border-radius: 6px;
+
+    color: #ffffff;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   RIGHT COLUMN CONTROL
+========================================================= */
+
+.ops-config-panel .ops-control {
+    order: 2;
+
+    display: block;
+
+    width: 100%;
+
+    min-width: 0;
+
+    margin: 0;
+
+    padding: 10px 12px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 1px solid var(--ops-border);
+
+    border-radius: 7px;
+}
+
+
+/* =========================================================
+   CONTROL HEADER
+========================================================= */
+
+.ops-control-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    width: 100%;
+
+    margin-bottom: 8px;
+}
+
+
+.ops-control-label {
+    color: var(--ops-navy);
+
+    font-size: 10px;
+
+    font-weight: 850;
+
+    line-height: 1;
+}
+
+
+.ops-control-value {
+    color: var(--ops-muted);
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   COUNTER
+========================================================= */
+
+.ops-counter {
+    display: grid;
+
+    grid-template-columns:
+        40px minmax(60px, 1fr) 40px;
+
+    width: 100%;
+
+    height: 42px;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+
+    background: #fafbfc;
+
+    border: 1px solid var(--ops-border);
+
+    border-radius: 7px;
+}
+
+
+/* =========================================================
+   COUNTER BUTTON
+========================================================= */
+
+.ops-counter-btn {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 40px;
+
+    height: 42px;
+
+    margin: 0;
+
+    padding: 0;
+
+    border: none;
+
+    background: #ffffff;
+
+    color: var(--ops-navy);
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+    box-sizing: border-box;
+}
+
+
+.ops-counter-btn:hover:not(:disabled) {
+    background: var(--ops-gold-soft);
+
+    color: var(--ops-gold-dark);
+}
+
+
+.ops-counter-btn:active:not(:disabled) {
+    background: #f1ead1;
+}
+
+
+.ops-counter-btn:disabled {
+    opacity: 0.35;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   COUNTER VALUE
+========================================================= */
+
+.ops-counter-value {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 100%;
+
+    height: 42px;
+
+    box-sizing: border-box;
+
+    border-left: 1px solid var(--ops-border);
+
+    border-right: 1px solid var(--ops-border);
+
+    color: var(--ops-navy);
+
+    font-size: 16px;
+
+    font-weight: 900;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   QUICK QUANTITY
+========================================================= */
+
+.ops-quick-actions {
+    display: grid;
+
+    grid-template-columns:
+        repeat(6, minmax(0, 1fr));
+
+    gap: 5px;
+
+    width: 100%;
+
+    margin-top: 6px;
+
+    box-sizing: border-box;
+}
+
+
+.ops-quick-btn {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 100%;
+
+    min-width: 0;
+
+    height: 30px;
+
+    padding: 0 3px;
+
+    box-sizing: border-box;
+
+    background: #ffffff;
+
+    border: 1px solid var(--ops-border);
+
+    border-radius: 5px;
+
+    color: var(--ops-navy);
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+
+.ops-quick-btn:hover:not(:disabled) {
+    background: var(--ops-gold-soft);
+
+    border-color: var(--ops-gold);
+
+    color: var(--ops-gold-dark);
+}
+
+
+.ops-quick-btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+
+.ops-quick-btn:disabled {
+    opacity: 0.35;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.op-footer {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    width: 100%;
+
+    box-sizing: border-box;
+}
+
+
+.op-footer__right {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+/* =========================================================
+   FOOTER BUTTONS
+========================================================= */
+
+.op-btn {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    min-width: 95px;
+
+    height: 36px;
+
+    padding: 0 13px;
+
+    box-sizing: border-box;
+
+    border-radius: 6px;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        background 0.12s ease,
+        border-color 0.12s ease,
+        color 0.12s ease;
+}
+
+
+.op-btn:disabled {
+    opacity: 0.45;
+
+    cursor: not-allowed;
+}
+
+
+.op-btn--danger {
+    background: #ffffff;
+
+    border: 1px solid #d8a9ae;
+
+    color: var(--ops-danger);
+}
+
+
+.op-btn--danger:hover:not(:disabled) {
+    background: #fff5f5;
+
+    border-color: var(--ops-danger);
+}
+
+
+.op-btn--save {
+    background: var(--ops-navy);
+
+    border: 1px solid var(--ops-navy);
+
+    color: #ffffff;
+}
+
+
+.op-btn--save:hover:not(:disabled) {
+    background: var(--ops-navy-dark);
+
+    border-color: var(--ops-navy-dark);
+}
+
+
+/* =========================================================
+   REMOVE OLD SUMMARY
+========================================================= */
+
+.order-summary-grid {
+    display: none !important;
+}
+
+
+/* =========================================================
+   REMOVE OLD FINAL SELECTION
+========================================================= */
+
+.selection-footer {
+    display: none !important;
+}
+
+
+/* =========================================================
+   REMOVE OLD CONTROL STYLING
+   The new .ops-control is used instead.
+========================================================= */
+
+.control-section {
+    display: none !important;
+}
+
+
+/* =========================================================
+   OLD HEADER COMPATIBILITY
+========================================================= */
+
+.price-selector-header {
+    display: none !important;
+}
+
+
+.available-orders {
+    display: none !important;
+}
+
+
+/* =========================================================
+   OLD RATE GRID COMPATIBILITY
+========================================================= */
+
+.rate-grid {
+    display: none !important;
+}
+
+
+/* =========================================================
+   OLD CUSTOM PANEL COMPATIBILITY
+========================================================= */
+
+.custom-price-panel {
+    display: none !important;
+}
+
+
+/* =========================================================
+   OLD ERROR COMPATIBILITY
+========================================================= */
+
+.price-form-error {
+    display: none !important;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 950px) {
+
+    .ops-layout {
+        grid-template-columns:
+            minmax(0, 1.25fr) minmax(280px, 0.9fr);
+    }
+
+    .ops-summary-inline-item {
+        padding: 0 7px;
+    }
+
+    .ops-summary-inline-item span {
+        font-size: 6px;
+    }
+
+    .ops-summary-inline-item strong {
+        font-size: 12px;
+    }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 800px) {
+
+    .ops-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .ops-config-panel {
+        width: 100%;
+    }
+
+    .ops-price-grid {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .ops-topbar {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 9px;
+    }
+
+
+    .ops-topbar-right {
+        width: 100%;
+
+        justify-content: space-between;
+    }
+
+
+    .ops-summary-inline {
+        flex: 1;
+
+        width: auto;
+    }
+
+
+    .ops-summary-inline-item {
+        flex: 1;
+
+        justify-content: center;
+
+        padding: 0 6px;
+    }
+
+
+    .ops-price-grid {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 450px) {
+
+    .ops-panel {
+        padding: 10px;
+    }
+
+
+    .ops-price-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    .ops-topbar-right {
+        align-items: stretch;
+    }
+
+
+    .ops-summary-inline-item {
+        flex-direction: column;
+
+        gap: 3px;
+
+        padding: 5px;
+    }
+
+
+    .ops-summary-inline-item span {
+        font-size: 6px;
+    }
+
+
+    .ops-summary-inline-item strong {
+        font-size: 11px;
+    }
+
+
+    .ops-available {
+        min-width: 55px;
+    }
+
+
+    .ops-quick-actions {
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+
+    .op-footer {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .op-footer__right {
+        width: 100%;
+    }
+
+
+    .op-btn {
+        flex: 1;
+    }
+
+}
+
+
+/* =========================================================
+   REDUCE MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .ops-price-card,
+    .ops-custom-input,
+    .ops-counter-btn,
+    .ops-quick-btn,
+    .op-btn {
+        transition: none;
+    }
+
+}

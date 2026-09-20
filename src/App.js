@@ -10,7 +10,7 @@ import Login from './pages/auth/Login';
 import OtpVerification from './pages/auth/OtpVerification';
 import Home from './pages/public/Home';
 import About from './pages/public/About';
-import CreateOrder from './pages/public/Order/CreateOrder';
+import NewOrderPage from './pages/public/Order/NewOrderPage';
 import SearchOrders from './pages/public/SearchOrders';
 import Customers from './pages/public/Customer/Customers';
 import CustomersMasterData from './pages/admin/masterData/CustomersMasterData';
@@ -61,7 +61,7 @@ function App() {
                 >
                   <Route index element={<Home />} />
                   <Route path="about" element={<About />} />
-                  <Route path="orders/create" element={<CreateOrder />} />
+                  <Route path="orders/create" element={<NewOrderPage/>} />
                   <Route path="orders/search" element={<SearchOrders />} />
                   <Route path="customers" element={<Customers />} />
                 </Route>
