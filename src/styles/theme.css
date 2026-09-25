@@ -1,50 +1,70 @@
-:root {
-  /* Core app palette */
-  --app-bg: #f6f3ec;
-  --surface: #ffffff;
-  --surface-alt: #fbfaf7;
-  --surface-soft: #f8f9fb;
-  --surface-muted: #f5f5f5;
-  --text-primary: #21242b;
-  --text-secondary: #8a8271;
-  --text-muted: #7b8492;
-  --text-inverse: #ffffff;
-  --border-soft: #e4dfd2;
-  --border-strong: #dfe3e8;
-  --border-subtle: #e0e4ea;
-  --brand-primary: #1f2a44;
-  --brand-primary-soft: #3b4a70;
-  --brand-primary-deep: #0f1f3d;
-  --brand-accent: #b98530;
-  --brand-accent-soft: #f0e2c8;
-  --brand-accent-deep: #7a5a1a;
-  --success: #3f7a5a;
-  --danger: #c1483b;
-  --danger-deep: #a1342d;
-  --warning: #c9a227;
-  --shadow-soft: rgba(31, 42, 68, 0.08);
-  --shadow-strong: rgba(31, 42, 68, 0.25);
-
-  /* Legacy aliases kept for compatibility */
-  --bg: var(--app-bg);
+:root,
+[data-theme="light"] {
+  /* App surfaces */
+  --app-bg: #f4f7fb;
   --bg-primary: #ffffff;
-  --bg-secondary: #81edff1c;
-  --bg-tertiary: #f8f9fa;
+  --bg-secondary: #f3f6fb;
+  --bg-tertiary: #edf2f8;
+  --surface: #ffffff;
+  --surface-alt: #f8fafc;
+  --surface-soft: #eef3f8;
+  --surface-muted: #f5f7fb;
   --header-bg: #ffffff;
   --card-bg: #ffffff;
-  --sidebar-bg: #2c3e50;
-  --sidebar-hover: rgba(255, 255, 255, 0.1);
-  --sidebar-active: rgba(255, 255, 255, 0.15);
+  --sidebar-bg: #1f2f46;
+  --sidebar-hover: rgba(255, 255, 255, 0.08);
+  --sidebar-active: rgba(255, 255, 255, 0.14);
+
+  /* Text */
+  --text-primary: #1f2937;
+  --text-secondary: #5a6473;
+  --text-muted: #7a8699;
+  --text-tertiary: #8b96a8;
+  --text-inverse: #ffffff; 
+  --text-skyBlue: #5ea4ff;
+
+  /* Borders / dividers */
+  --border-color: #e2e8f0;
+  --border-soft: #e7edf5;
+  --border-strong: #d9e1ec;
+  --border-subtle: #ecf1f6;
+
+  /* Core brand palette */
+  --brand-primary: #1f3a5f;
+  --brand-primary-soft: #dfeaf8;
+  --brand-primary-deep: #102847;
+  --brand-primary-hover: #17314f;
+  --brand-accent: #c89b3c;
+  --brand-accent-soft: #f8f1df;
+  --brand-accent-deep: #9c7427;
+  --brand-accent-hover: #b8862f;
+
+  /* Status colors */
+  --success: #228a67;
+  --success-soft: #ebfaf4;
+  --success-hover: #1a765a;
+  --warning: #d97706;
+  --warning-soft: #fff7ed;
+  --warning-hover: #ba6604;
+  --danger: #d64545;
+  --danger-soft: #fff1f2;
+  --danger-hover: #b93737;
+  --danger-deep: #8e2a2a;
+  --info: #2563eb;
+  --info-soft: #eff6ff;
+  --info-hover: #1d4ed8;
+  --info-light: #50b0ff;
+  --black:#000000;
+  --white:#ffffff;
+
+  /* Shared aliases */
+  --bg: var(--app-bg);
   --text-primary-base: var(--text-primary);
   --text-secondary-base: var(--text-secondary);
-  --text-tertiary: #7f8c8d;
-  --border-color: var(--border-soft);
   --accent-color: var(--brand-primary);
-  --accent-hover: var(--brand-primary-soft);
+  --accent-hover: var(--brand-primary-hover);
   --danger-color: var(--danger);
-  --danger-hover: var(--danger-deep);
-
-  /* Ordering / POS theme aliases */
+  --danger-hover: var(--danger-hover);
   --navy: var(--brand-primary);
   --navy-soft: var(--brand-primary-soft);
   --navy-deep: var(--brand-primary-deep);
@@ -57,8 +77,65 @@
   --surface-card: var(--surface);
   --surface-panel: var(--surface-alt);
   --surface-subtle: var(--surface-soft);
-  --shadow: var(--shadow-soft);
-  --shadow-stronger: var(--shadow-strong);
+  --shadow: rgba(15, 23, 42, 0.08);
+  --shadow-strong: rgba(15, 23, 42, 0.16);
+  --shadow-soft: rgba(31, 42, 68, 0.08);
+  --shadow-stronger: rgba(31, 42, 68, 0.18);
+
+  /* Common button tokens */
+  --btn-primary-bg: var(--brand-primary);
+  --btn-primary-hover: var(--brand-primary-hover);
+  --btn-primary-text: var(--text-inverse);
+  --btn-secondary-bg: var(--bg-primary);
+  --btn-secondary-hover: var(--bg-tertiary);
+  --btn-secondary-text: var(--text-primary);
+  --btn-success-bg: var(--success);
+  --btn-success-hover: var(--success-hover);
+  --btn-success-text: var(--text-inverse);
+  --btn-danger-bg: var(--danger);
+  --btn-danger-hover: var(--danger-hover);
+  --btn-danger-text: var(--text-inverse);
+  --btn-warning-bg: var(--warning);
+  --btn-warning-hover: var(--warning-hover);
+  --btn-warning-text: var(--text-inverse);
+  --btn-info-bg: var(--info);
+  --btn-info-hover: var(--info-hover);
+  --btn-info-text: var(--text-inverse);
+  --btn-ghost-bg: transparent;
+  --btn-ghost-hover: var(--bg-tertiary);
+  --btn-ghost-text: var(--text-primary);
+
+  /* Order / POS palette */
+  --ops-navy: var(--brand-primary-deep);
+  --ops-navy-dark: #0d1d31;
+  --ops-navy-light: var(--brand-primary-soft);
+  --ops-gold: var(--brand-accent);
+  --ops-gold-dark: var(--brand-accent-deep);
+  --ops-gold-soft: var(--brand-accent-soft);
+  --ops-white: var(--surface);
+  --ops-bg: var(--surface-soft);
+  --ops-text: var(--text-primary);
+  --ops-muted: var(--text-muted);
+  --ops-border: var(--border-soft);
+  --ops-border-dark: var(--border-strong);
+  --ops-danger: var(--danger);
+  --ops-success: var(--success);
+
+  /* Virtual keyboard palette */
+  --vk-bg: var(--surface);
+  --vk-text: var(--text-primary);
+  --vk-border: var(--border-color);
+  --vk-overlay: rgba(15, 23, 42, 0.5);
+  --vk-primary: var(--brand-primary);
+  --vk-success: var(--success);
+  --vk-warning: var(--warning);
+  --vk-danger: var(--danger);
+  --vk-key-bg: var(--surface);
+  --vk-key-hover: var(--bg-tertiary);
+  --vk-key-active: var(--surface-soft);
+  --vk-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
+  --vk-radius: 12px;
+  --vk-transition: 0.18s ease;
 
   /* Common UI tokens */
   --radius-sm: 6px;
@@ -68,45 +145,61 @@
 }
 
 [data-theme="dark"] {
-  --app-bg: #121826;
-  --surface: #1b2434;
-  --surface-alt: #1f2b3d;
-  --surface-soft: #253248;
-  --surface-muted: #111827;
-  --text-primary: #edf2ff;
-  --text-secondary: #a9b6d0;
-  --text-muted: #8ea0bb;
-  --text-inverse: #ffffff;
-  --border-soft: #2b3a52;
-  --border-strong: #344867;
-  --border-subtle: #2d3b51;
-  --brand-primary: #4b6ea8;
-  --brand-primary-soft: #6483bd;
-  --brand-primary-deep: #1d3157;
-  --brand-accent: #d4af37;
-  --brand-accent-soft: #473d1c;
-  --brand-accent-deep: #b78a1d;
-  --success: #4c8d69;
-  --danger: #d76b5d;
-  --danger-deep: #b94c40;
-  --warning: #d4af37;
-  --shadow-soft: rgba(15, 23, 42, 0.44);
-  --shadow-strong: rgba(15, 23, 42, 0.6);
+  --app-bg: #0f172a;
+  --bg-primary: #111827;
+  --bg-secondary: #172033;
+  --bg-tertiary: #1d2a3d;
+  --surface: #182235;
+  --surface-alt: #1f2d43;
+  --surface-soft: #23314a;
+  --surface-muted: #141d2c;
+  --header-bg: #111827;
+  --card-bg: #182235;
+  --sidebar-bg: #0b1220;
+  --sidebar-hover: rgba(255, 255, 255, 0.05);
+  --sidebar-active: rgba(255, 255, 255, 0.1);
 
-  --bg-primary: #1b2434;
-  --bg-secondary: #111827;
-  --bg-tertiary: #182434;
-  --header-bg: #1b2434;
-  --card-bg: #1b2434;
-  --sidebar-bg: #111827;
+  --text-primary: #edf3ff;
+  --text-secondary: #b5c1d4;
+  --text-muted: #8ea0bb;
+  --text-tertiary: #93a1b5;
+  --text-inverse: #ffffff;
+
+  --border-color: #2c3e56;
+  --border-soft: #24364d;
+  --border-strong: #334968;
+  --border-subtle: #1b2a3b;
+
+  --brand-primary: #8bb0dc;
+  --brand-primary-soft: #1e2f4d;
+  --brand-primary-deep: #6e9bd0;
+  --brand-primary-hover: #a1c0eb;
+  --brand-accent: #d8af53;
+  --brand-accent-soft: #352b14;
+  --brand-accent-deep: #c9962a;
+  --brand-accent-hover: #e0b95f;
+
+  --success: #53b48e;
+  --success-soft: #132d25;
+  --success-hover: #68c49c;
+  --warning: #f4b451;
+  --warning-soft: #2f2209;
+  --warning-hover: #f7c66f;
+  --danger: #e06d6d;
+  --danger-soft: #341d22;
+  --danger-hover: #f07d7d;
+  --danger-deep: #b94d4d;
+  --info: #6aa7ff;
+  --info-soft: #122745;
+  --info-hover: #7ab2ff;
+
+  --bg: var(--app-bg);
   --text-primary-base: var(--text-primary);
   --text-secondary-base: var(--text-secondary);
-  --border-color: var(--border-soft);
   --accent-color: var(--brand-primary);
-  --accent-hover: var(--brand-primary-soft);
+  --accent-hover: var(--brand-primary-hover);
   --danger-color: var(--danger);
-  --danger-hover: var(--danger-deep);
-
+  --danger-hover: var(--danger-hover);
   --navy: var(--brand-primary);
   --navy-soft: var(--brand-primary-soft);
   --navy-deep: var(--brand-primary-deep);
@@ -119,6 +212,60 @@
   --surface-card: var(--surface);
   --surface-panel: var(--surface-alt);
   --surface-subtle: var(--surface-soft);
-  --shadow: var(--shadow-soft);
-  --shadow-stronger: var(--shadow-strong);
+  --shadow: rgba(2, 6, 23, 0.5);
+  --shadow-strong: rgba(2, 6, 23, 0.7);
+  --shadow-soft: rgba(2, 6, 23, 0.38);
+  --shadow-stronger: rgba(2, 6, 23, 0.58);
+
+  --btn-primary-bg: var(--brand-primary);
+  --btn-primary-hover: var(--brand-primary-hover);
+  --btn-primary-text: var(--text-inverse);
+  --btn-secondary-bg: var(--bg-primary);
+  --btn-secondary-hover: var(--bg-tertiary);
+  --btn-secondary-text: var(--text-primary);
+  --btn-success-bg: var(--success);
+  --btn-success-hover: var(--success-hover);
+  --btn-success-text: var(--text-inverse);
+  --btn-danger-bg: var(--danger);
+  --btn-danger-hover: var(--danger-hover);
+  --btn-danger-text: var(--text-inverse);
+  --btn-warning-bg: var(--warning);
+  --btn-warning-hover: var(--warning-hover);
+  --btn-warning-text: var(--text-inverse);
+  --btn-info-bg: var(--info);
+  --btn-info-hover: var(--info-hover);
+  --btn-info-text: var(--text-inverse);
+  --btn-ghost-bg: transparent;
+  --btn-ghost-hover: var(--bg-tertiary);
+  --btn-ghost-text: var(--text-primary);
+
+  --ops-navy: var(--brand-primary-deep);
+  --ops-navy-dark: #0b1830;
+  --ops-navy-light: var(--brand-primary-soft);
+  --ops-gold: var(--brand-accent);
+  --ops-gold-dark: var(--brand-accent-deep);
+  --ops-gold-soft: var(--brand-accent-soft);
+  --ops-white: var(--surface);
+  --ops-bg: var(--surface-soft);
+  --ops-text: var(--text-primary);
+  --ops-muted: var(--text-muted);
+  --ops-border: var(--border-soft);
+  --ops-border-dark: var(--border-strong);
+  --ops-danger: var(--danger);
+  --ops-success: var(--success);
+
+  --vk-bg: var(--surface);
+  --vk-text: var(--text-primary);
+  --vk-border: var(--border-color);
+  --vk-overlay: rgba(2, 6, 23, 0.62);
+  --vk-primary: var(--brand-primary);
+  --vk-success: var(--success);
+  --vk-warning: var(--warning);
+  --vk-danger: var(--danger);
+  --vk-key-bg: var(--surface);
+  --vk-key-hover: var(--bg-tertiary);
+  --vk-key-active: var(--surface-soft);
+  --vk-shadow: 0 12px 40px rgba(2, 6, 23, 0.28);
+  --vk-radius: 12px;
+  --vk-transition: 0.18s ease;
 }

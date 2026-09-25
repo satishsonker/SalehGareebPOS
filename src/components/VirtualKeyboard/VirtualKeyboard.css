@@ -2,32 +2,6 @@
    Virtual Keyboard
    ========================================================== */
 
-:root {
-
-    --vk-bg: #ffffff;
-    --vk-text: #1f2937;
-    --vk-border: #d1d5db;
-
-    --vk-overlay: rgba(0,0,0,.45);
-
-    --vk-primary: #2563eb;
-    --vk-success: #16a34a;
-    --vk-warning: #d97706;
-    --vk-danger: #dc2626;
-
-    --vk-key-bg: #ffffff;
-    --vk-key-hover: #f3f4f6;
-    --vk-key-active: #e5e7eb;
-
-    --vk-shadow:
-        0 12px 40px rgba(0,0,0,.18);
-
-    --vk-radius: 12px;
-
-    --vk-transition: .18s ease;
-
-}
-
 /* ==========================================================
    Overlay
    ========================================================== */

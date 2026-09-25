@@ -202,12 +202,12 @@ export default function WorkTypeSelector({ options }) {
                     </section>
 
                     <section className="wt-panel wt-options-panel">
-                        <div className="wt-current-type">
+                        {/* <div className="wt-current-type">
                             <span>CURRENT WORK TYPE</span>
                             <strong>
                                 {commonLogic.workTypeCodesAbbr(currentClickedWorkType) || "Select"}
                             </strong>
-                        </div>
+                        </div> */}
 
                         <div className="wt-option-section">
                             <div className="wt-option-title">NeckLine</div>

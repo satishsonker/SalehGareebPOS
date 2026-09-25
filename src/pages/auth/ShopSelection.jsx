@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { FiCheck, FiLogIn, FiMapPin, FiShoppingBag } from 'react-icons/fi';
+import { FiCheck, FiLogIn, FiMapPin } from 'react-icons/fi';
 import { apiBasePath } from '../../services/api/commonApi';
 import { getShopAccessByUser } from '../../services/api/accessControlApi';
 import ShopAccessList from '../../components/Shop/ShopAccessList';
@@ -62,14 +62,17 @@ function ShopSelection() {
         e.preventDefault();
         setError('');
 
-        if (!selectedShop) {
+        console.log('ShopSelection handleSubmit called, selectedShop:', selectedShop);
+
+        if (selectedShop == null) {
             setError('Please select a shop to continue.');
             return;
         }
-
-        localStorage.setItem('selectedShop', JSON.stringify(selectedShop));
-        const from = location.state?.from?.pathname || '/dashboard';
-        navigate(from, { replace: true });
+            localStorage.setItem('selectedShop', JSON.stringify(selectedShop));
+            const from = location.state?.from || '/'; 
+            console.log('ShopSelection redirecting (TEMP full reload) to:', from);
+            // TEMP: force full page redirect for debugging navigation issues
+            window.location.replace(from);
     };
 
     return (
@@ -100,7 +103,7 @@ function ShopSelection() {
 
                     <div className="shopselection-grid">
                         {shopList?.map((shop, index) => {
-                            const isSelected = selectedShop === shop.id;
+                            const isSelected = selectedShop == shop.id;
                             const color = shopColors[index % shopColors.length];
 
                             return (
@@ -145,7 +148,7 @@ function ShopSelection() {
                         <button
                             type="submit"
                             className="shopselection-button"
-                            disabled={!selectedShop}
+                            disabled={selectedShop == null}
                         >
                             <FiLogIn />
                             Continue to Dashboard

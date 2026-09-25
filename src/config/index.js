@@ -13,8 +13,9 @@ const getApiUrl = () => {
   if (process.env.REACT_APP_API_URL) {
     return process.env.REACT_APP_API_URL;
   }
+  //'http://93.127.137.173/SalehSites/SalehCentralApi'
   // Default to https://localhost:7194 as base API path
-  return 'https://localhost:7194';
+  return 'http://93.127.137.173/SalehSites/SalehCentralApi';
 };
 
 const config = {

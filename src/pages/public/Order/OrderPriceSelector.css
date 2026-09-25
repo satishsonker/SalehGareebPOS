@@ -10,30 +10,9 @@
 ========================================================= */
 
 :root {
-    --ops-navy: var(--brand-primary-deep);
-    --ops-navy-dark: #09152b;
-    --ops-navy-light: var(--brand-primary-soft);
-
-    --ops-gold: var(--brand-accent);
-    --ops-gold-dark: var(--brand-accent-deep);
-    --ops-gold-soft: var(--brand-accent-soft);
-
-    --ops-white: var(--surface);
-    --ops-bg: var(--surface-soft);
-
-    --ops-text: var(--text-primary);
-    --ops-muted: var(--text-muted);
-
-    --ops-border: var(--border-soft);
-    --ops-border-dark: var(--border-subtle);
-
-    --ops-danger: var(--danger);
-    --ops-success: var(--success);
-
     --ops-radius: 8px;
     --ops-radius-sm: 6px;
 }
-
 
 /* =========================================================
    BODY
@@ -213,16 +192,11 @@
 
 
 .ops-summary-inline-item span {
-    color: var(--ops-muted);
-
-    font-size: 7px;
-
+    color: var(--info);
+    font-size: 13px;
     font-weight: 800;
-
     line-height: 1;
-
     letter-spacing: 0.05em;
-
     white-space: nowrap;
 }
 
@@ -273,26 +247,18 @@
 
 .ops-available span {
     color: var(--ops-gold-dark);
-
-    font-size: 7px;
-
+    font-size: 11px;
     font-weight: 800;
-
     line-height: 1;
-
     letter-spacing: 0.05em;
 }
 
 
 .ops-available strong {
     margin-top: 3px;
-
     color: var(--ops-navy);
-
-    font-size: 15px;
-
+    font-size: 25px;
     font-weight: 900;
-
     line-height: 1;
 }
 
@@ -400,7 +366,7 @@
 .ops-price-value {
     min-width: 0;
 
-    color: var(--ops-navy);
+    color: var(--text-skyBlue);
 
     font-size: 18px;
 
@@ -820,19 +786,12 @@
 
 .ops-selected-label {
     display: flex;
-
     align-items: center;
-
     gap: 5px;
-
-    color: var(--ops-muted);
-
-    font-size: 7px;
-
+    color: var(--success);
+    font-size: 13px;
     font-weight: 900;
-
     line-height: 1;
-
     letter-spacing: 0.07em;
 }
 
@@ -953,22 +912,16 @@
 
 .ops-control-label {
     color: var(--ops-navy);
-
-    font-size: 10px;
-
+    font-size: 13px;
     font-weight: 850;
-
     line-height: 1;
 }
 
 
 .ops-control-value {
-    color: var(--ops-muted);
-
-    font-size: 9px;
-
+    color: var(--ops-danger);
+    font-size: 12px;
     font-weight: 700;
-
     white-space: nowrap;
 }
 
@@ -1031,6 +984,27 @@
     box-sizing: border-box;
 }
 
+.ops-counter-btn-green {
+    background: var(--success) !important;
+    color: var(--success-soft) !important;
+}
+
+.ops-counter-btn-green:hover {
+    background: var(--success-soft) !important;
+    color: var(--ops-navy-dark) !important;
+}
+
+.ops-counter-btn-red {
+    background: var(--danger) !important;
+    color: var(--success-soft) !important;
+}
+
+.ops-counter-btn-red:hover {
+    background: var(--danger-soft) !important;
+    color: var(--ops-navy-dark) !important;
+}
+
+
 
 .ops-counter-btn:hover:not(:disabled) {
     background: var(--ops-gold-soft);
@@ -1088,49 +1062,30 @@
 
 .ops-quick-actions {
     display: grid;
-
     grid-template-columns:
-        repeat(6, minmax(0, 1fr));
-
+        repeat(4, minmax(0, 1fr));
     gap: 5px;
-
     width: 100%;
-
     margin-top: 6px;
-
     box-sizing: border-box;
 }
 
 
 .ops-quick-btn {
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     width: 100%;
-
     min-width: 0;
-
-    height: 30px;
-
+    height: 40px;
     padding: 0 3px;
-
     box-sizing: border-box;
-
     background: #ffffff;
-
     border: 1px solid var(--ops-border);
-
     border-radius: 5px;
-
     color: var(--ops-navy);
-
-    font-size: 9px;
-
+    font-size: 14px;
     font-weight: 800;
-
     cursor: pointer;
 }
 
@@ -1188,39 +1143,23 @@
 
 .op-btn {
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     gap: 6px;
-
     min-width: 95px;
-
-    height: 36px;
-
+    height: 52px;
     padding: 0 13px;
-
     box-sizing: border-box;
-
     border-radius: 6px;
-
-    font-size: 11px;
-
+    font-size: 17px;
     font-weight: 800;
-
     cursor: pointer;
-
-    transition:
-        background 0.12s ease,
-        border-color 0.12s ease,
-        color 0.12s ease;
+    transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
 }
 
 
 .op-btn:disabled {
     opacity: 0.45;
-
     cursor: not-allowed;
 }
 

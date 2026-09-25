@@ -81,10 +81,22 @@ export default function NewOrderPage() {
     }
     createOrder(order)
       .then(response => {
-        console.log('Order created successfully', response);
+        var statusData = {
+          isOpen: response.success,
+          title: response.message,
+          type: response.success ? 'success' : 'warn',
+          buttonText: response.success ? 'Print' : "Ok",
+          showCloseButton: response.success
+        };
+        if (response.success) {
+          statusData.message = ` Order No: ${response.data}`;
+          setOrder({...EMPTY_CREATE_ORDER})
+        }
+        setStatusModelData({ ...statusData });
       })
       .catch(error => {
-        console.error('Error creating order', error);
+        var statusData = { isOpen: false, title: 'Something went wrong', type: 'error' };
+        setStatusModelData({ ...statusData });
       });
   };
 
@@ -107,15 +119,12 @@ export default function NewOrderPage() {
     var errorObject = null;
     if (order.deliveryDate === '') {
       errorObject = { isOpen: true, title: 'Invalid Delivery Date', message: 'Select delivery date', type: 'error' };
-      return false;
     }
     if (order?.customerId <= 0) {
       errorObject = { isOpen: true, title: 'Invalid Customer', message: 'Select Customer.', type: 'error' };
-      return false;
     }
     if (order?.orderDetails.length === 0) {
       errorObject = { isOpen: true, title: 'No Sub orders', message: 'Add at least one sub order.', type: 'error' };
-      return false;
     }
     order?.orderDetails?.map(ele => {
       if (!ele.workTypes || ele.workTypes.length === 0) {
@@ -124,10 +133,13 @@ export default function NewOrderPage() {
       // if (ele.workDescriptions?.length === 0)
       //   errorObject={ isOpen: true, title: 'Invalid work description', message: `No work description selected for ${ele?.orderNo}`, type: 'error' });
     })
-    if (errorObject)
+    if (errorObject) {
+      setStatusModelData({ ...errorObject })
       return false;
+    }
     return true;
   }
+
   useEffect(() => {
     multipleGet([getCustomers(1, 100), getEmirates(), getMasterDataByTypes([enums.masterDataCode.paymentMode, enums.masterDataCode.bookingType, enums.masterDataCode.urgency, enums.masterDataCode.length, enums.masterDataCode.neckline, enums.masterDataCode.sleeve]), getWorkTypes()])
       .then(([customersRes, emiratesRes, masterDataRes, workTypesRes]) => {
@@ -247,11 +259,11 @@ export default function NewOrderPage() {
           <div>
             <div className="panel order-summary-panel">
               <div className="payment-column actionButtons-container">
-                <button type="button" className="btn btn-secondary actionButtons" onClick={() => setReviewOrderModalOpen(true)}>
+                <button type="button" className="btn btn-danger actionButtons" onClick={() => setReviewOrderModalOpen(true)}>
                   <FiRefreshCw />
                   Reset
                 </button>
-                <button type="button" className="btn btn-primary actionButtons" onClick={handleSave}>
+                <button type="button" className="btn btn-success actionButtons" onClick={handleSave}>
                   <FiSave />
                   Save Order
                 </button>

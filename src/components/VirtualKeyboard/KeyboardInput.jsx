@@ -40,9 +40,6 @@ const KeyboardInput = forwardRef(({
 
     useImperativeHandle(ref, () => inputRef.current);
 
-    /**
-     * Open virtual keyboard
-     */
     const openKeyboard = useCallback(() => {
 
         if (disabled)
@@ -55,22 +52,29 @@ const KeyboardInput = forwardRef(({
         keyboardApi.openKeyboard({
 
             inputRef: input,
+
             keyboard,
+
             layout,
+
             name:name,
+
             label,
+
             maxLength,
+
             value,
+
             selectionStart: selection.start,
+
             selectionEnd: selection.end,
+
             onChange,
+
             onConfirm
         });
     }, [ disabled, keyboard, layout, label, maxLength, value, onChange, onConfirm, keyboardApi]);
 
-    /**
-     * Keep cursor position
-     */
     const handleSelect = useCallback(() => {
 
         const input = inputRef.current;
@@ -88,9 +92,6 @@ const KeyboardInput = forwardRef(({
 
     }, [keyboardApi]);
 
-    /**
-     * Prevent native keyboard on touch devices
-     */
     const handlePointerDown = useCallback((e) => {
 
         e.preventDefault();
@@ -107,9 +108,6 @@ const KeyboardInput = forwardRef(({
 
     ]);
 
-    /**
-     * Optional autofocus
-     */
     useEffect(() => {
 
         if (autoFocus) {
@@ -129,7 +127,6 @@ const KeyboardInput = forwardRef(({
     const Component = as === "textarea"
         ? "textarea"
         : "input";
-        
 
     return (
 

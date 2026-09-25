@@ -24,7 +24,7 @@
 
 .field label {
     display: block;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .8px;
@@ -38,7 +38,7 @@
     border-radius: 9px;
     padding: 10px 12px;
     font-family: 'Inter';
-    font-size: 14px;
+    font-size: 16px;
     color: var(--ink);
     background: var(--surface-alt);
     outline: none;
@@ -159,7 +159,7 @@
     cursor: not-allowed;
 }
 .btn-primary {
-    background: var(--navy);
+    background: var(--success);
     color: #fff;
 }
 

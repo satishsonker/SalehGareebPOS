@@ -114,15 +114,15 @@
 }
 
 .subOrderDetailList-item__workTypeBadge.active {
-    background: #fffaf0;
-    border-color: #c9a227;
-    color: #8a6a12
+    background: var(--danger-hover);
+    border-color:  var(--danger-hover);
+    color:  var(--black);
 }
 
 .subOrderDetailList-item__workTypeBadge.active.active_selected {
-    background: #172033;
-    border-color: #d4af37;
-    color: #d4af37
+    background: var(--success);
+    border-color:  var(--success);
+    color: var(--black)
 }
 
 .subOrderDetailList-item__meta {

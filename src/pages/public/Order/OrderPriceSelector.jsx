@@ -414,13 +414,13 @@ export default function OrderPriceSelector({
                                 <div className="ops-topbar-right">
                                     <div className="ops-summary-inline">
                                         <div className="ops-summary-inline-item">
-                                            <span>SUB ORDERS</span>
+                                            <span>SUB ORDERS : </span>
                                             <strong>
                                                 {newSubOrderQty}
                                             </strong>
                                         </div>
                                         <div className="ops-summary-inline-item">
-                                            <span>PRICE</span>
+                                            <span>PRICE : </span>
                                             <strong>
                                                 AED{" "}
                                                 {Number(
@@ -429,7 +429,7 @@ export default function OrderPriceSelector({
                                             </strong>
                                         </div>
                                         <div className="ops-summary-inline-item">
-                                            <span>CRYSTAL</span>
+                                            <span>CRYSTAL : </span>
                                             <strong>
                                                 {Number(
                                                     selectedPrice.crystalPackets ||
@@ -439,9 +439,9 @@ export default function OrderPriceSelector({
                                         </div>
                                     </div>
                                     <div className="ops-available">
-                                        <span>AVAILABLE</span>
+                                        <span>Max Qty/Order</span>
                                         <strong>
-                                            {maxAvailableQty}
+                                            {maxAvailableQty-newSubOrderQty}
                                         </strong>
                                     </div>
                                 </div>
@@ -626,7 +626,7 @@ export default function OrderPriceSelector({
                                 <div className="ops-counter">
                                     <button
                                         type="button"
-                                        className="ops-counter-btn"
+                                        className="ops-counter-btn ops-counter-btn-red"
                                         onClick={handleRemoveQty}
                                         disabled={newSubOrderQty <= 1}
                                     >
@@ -639,7 +639,7 @@ export default function OrderPriceSelector({
 
                                     <button
                                         type="button"
-                                        className="ops-counter-btn"
+                                        className="ops-counter-btn ops-counter-btn-green"
                                         onClick={handleAddQty}
                                         disabled={
                                             newSubOrderQty >=
@@ -657,7 +657,7 @@ export default function OrderPriceSelector({
                                             <button
                                                 key={index}
                                                 type="button"
-                                                className="ops-quick-btn"
+                                                className={`ops-quick-btn ops-counter-btn-${qty > 0 ? "green" : "red"}`}
                                                 onClick={() =>
                                                     subOrderQtyClickHandle(
                                                         qty
@@ -687,7 +687,7 @@ export default function OrderPriceSelector({
                                 <div className="ops-counter">
                                     <button
                                         type="button"
-                                        className="ops-counter-btn"
+                                        className="ops-counter-btn ops-counter-btn-red"
                                         onClick={
                                             handleRemoveCrystalQty
                                         }
@@ -705,7 +705,7 @@ export default function OrderPriceSelector({
 
                                     <button
                                         type="button"
-                                        className="ops-counter-btn"
+                                        className="ops-counter-btn ops-counter-btn-green"
                                         onClick={handleAddCrystalQty}
                                         disabled={
                                             isCrystalAtMax ||
