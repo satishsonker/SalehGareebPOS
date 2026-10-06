@@ -21,7 +21,7 @@
     min-width: 105px;
     height: 72px;
     padding: 8px;
-    border: 2px solid #cbd5e1;
+    border: 2px solid var(--border-color);
     border-radius: 10px;
     background: #ffffff;
     color: #334155;
@@ -32,13 +32,13 @@
 
 .suborder-box:hover {
     transform: translateY(-2px);
-    border-color: #64748b;
+    border-color: var(--text-secondary);
     box-shadow: 0 5px 12px rgba(15, 23, 42, .12);
 }
 
 .suborder-box.active {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, .12), 0 5px 12px rgba(15, 23, 42, .12);
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-primary) 12%, transparent), 0 5px 12px var(--shadow-soft);
 }
 
 .suborder-number {
@@ -62,15 +62,15 @@
    ================================ */
 
 .suborder-box.delete-level-1 {
-    /* background: #ffffff; */
-    border-color: #2563eb;
+    /* background: var(--bg-primary); */
+    border-color: var(--brand-primary);
 }
 
 .suborder-box.delete-level-2 {
-    background: #f59e0b;
-    border-color: #d97706;
-    color: #ffffff;
-    box-shadow: 0 5px 12px rgba(245, 158, 11, .25);
+    background: var(--warning);
+    border-color: var(--warning-hover);
+    color: var(--text-inverse);
+    box-shadow: 0 5px 12px color-mix(in srgb, var(--warning) 22%, transparent);
 }
 
 .suborder-box.delete-level-2 .suborder-number,
@@ -79,15 +79,15 @@
 }
 
 .suborder-box.delete-level-3 {
-    background: #dc2626;
-    border-color: #b91c1c;
-    color: #ffffff;
-    box-shadow: 0 5px 12px rgba(220, 38, 38, .3);
+    background: var(--danger);
+    border-color: var(--danger-hover);
+    color: var(--text-inverse);
+    box-shadow: 0 5px 12px color-mix(in srgb, var(--danger) 28%, transparent);
 }
 
 .suborder-box.delete-level-3 .suborder-number,
 .suborder-box.delete-level-3 .suborder-status {
-    color: #ffffff;
+    color: var(--text-inverse);
 }
 
 /* ================================
@@ -95,23 +95,23 @@
    ================================ */
 
 .suborder-box.order-configured-step-0 {
-    border-color: #cbd5e1;
+    border-color: var(--border-color-light);
 }
 
 .suborder-box.order-configured-step-1 {
-    border-color: #f59e0b;
+    border-color: var(--warning);
 }
 
 .suborder-box.order-configured-step-2 {
-    border-color: #eab308;
+    border-color: var(--warning-hover);
 }
 
 .suborder-box.order-configured-step-3 {
-    border-color: #22c55e;
+    border-color: var(--success);
 }
 
 .suborder-box.order-configured-step-4 {
-    border-color: #16a34a;
+    border-color: var(--success);
 }
 
 /* Keep delete state stronger than configuration state */
@@ -235,12 +235,12 @@
    ================================ */
 
 .suborder-action-item.same-price {
-    border-color: #f59e0b;
-    background: rgba(245, 158, 11, .08);
+    border-color: var(--warning);
+    background: color-mix(in srgb, var(--warning) 8%, transparent);
 }
 
 .suborder-action-item.same-price:hover {
-    background: rgba(245, 158, 11, .14);
+    background: color-mix(in srgb, var(--warning) 14%, transparent);
 }
 
 
@@ -329,20 +329,9 @@
     white-space: nowrap;
 }
 
-.selected-tag {
-    background: #16a34a;
-    color: #ffffff;
-}
-
-.same-price-tag {
-    background: #f59e0b;
-    color: #ffffff;
-}
-
-.copy-tag {
-    background: #2563eb;
-    color: #ffffff;
-}
+.selected-tag { background: var(--success); color: var(--text-inverse); }
+.same-price-tag { background: var(--warning); color: var(--text-inverse); }
+.copy-tag { background: var(--brand-primary); color: var(--text-inverse); }
 
 
 /* ================================
@@ -359,15 +348,15 @@
     padding: 0;
     border: 0;
     border-radius: 6px;
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--danger-soft);
+    color: var(--danger);
     cursor: pointer;
     transition: all .15s ease;
 }
 
 .suborder-delete-btn:hover {
-    background: #dc2626;
-    color: #ffffff;
+    background: var(--danger);
+    color: var(--text-inverse);
 }
 
 .suborder-delete-btn:active {
@@ -386,10 +375,10 @@
     margin-top: 12px;
     padding: 10px 12px;
     box-sizing: border-box;
-    border: 1px solid #fed7aa;
+    border: 1px solid color-mix(in srgb, var(--warning) 30%, transparent);
     border-radius: 8px;
-    background: #fff7ed;
-    color: #9a3412;
+    background: color-mix(in srgb, var(--warning) 10%, transparent);
+    color: color-mix(in srgb, var(--warning) 60%, var(--text-primary));
     font-size: 12px;
     line-height: 18px;
 }

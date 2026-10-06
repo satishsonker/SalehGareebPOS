@@ -54,12 +54,12 @@
 
 /* Toast Types */
 .toast-success {
-  color: #27ae60;
-  border-left-color: #27ae60;
+  color: var(--success);
+  border-left-color: var(--success);
 }
 
 .toast-success::before {
-  background: #27ae60;
+  background: var(--success);
 }
 
 .toast-error {
@@ -72,12 +72,12 @@
 }
 
 .toast-warning {
-  color: #f39c12;
-  border-left-color: #f39c12;
+  color: var(--warning);
+  border-left-color: var(--warning);
 }
 
 .toast-warning::before {
-  background: #f39c12;
+  background: var(--warning);
 }
 
 .toast-info {
@@ -96,27 +96,27 @@
   justify-content: center;
   font-size: 1.5rem;
   flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.05);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  background: rgba(6,32,58,0.04);
   animation: iconPulse 0.5s ease-out;
 }
 
 .toast-success .toast-icon {
-  background: rgba(39, 174, 96, 0.1);
+  background: color-mix(in srgb, var(--success) 14%, transparent);
 }
 
 .toast-error .toast-icon {
-  background: rgba(231, 76, 60, 0.1);
+  background: color-mix(in srgb, var(--danger-color) 14%, transparent);
 }
 
 .toast-warning .toast-icon {
-  background: rgba(243, 156, 18, 0.1);
+  background: color-mix(in srgb, var(--warning) 14%, transparent);
 }
 
 .toast-info .toast-icon {
-  background: rgba(52, 152, 219, 0.1);
+  background: color-mix(in srgb, var(--accent-color) 14%, transparent);
 }
 
 @keyframes iconPulse {

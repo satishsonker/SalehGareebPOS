@@ -52,7 +52,7 @@ export default function OrderSummary({ order, paymentModalOpen, setPaymentModalO
                         </strong>
                     </div>
                     <div className="order-summary-row order-summary-advance">
-                        <strong><span>Advance (Rounded to nearest 50)</span></strong>
+                        <strong><span>Advance (Rounded to 100)</span></strong>
                         <strong> {order?.advanceAmount?.toLocaleString()} AED </strong>
                     </div>
                     <div className="order-summary-balance">

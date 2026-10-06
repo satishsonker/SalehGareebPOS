@@ -16,13 +16,13 @@
 }
 
 .cc-modal {
-  background: #0f172a;
+  background: var(--bg);
   border-radius: 20px;
   overflow: hidden;
   width: min(640px, 96vw);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  box-shadow: 0 24px 64px rgba(6,32,58,0.6);
   animation: cc-slide-up 0.2s ease;
 }
 
@@ -37,8 +37,8 @@
   align-items: center;
   gap: 10px;
   padding: 14px 18px;
-  background: #1e293b;
-  color: #cbd5e1;
+  background: var(--brand-primary-deep);
+  color: var(--text-inverse);
   font-size: 0.9375rem;
   font-weight: 600;
 }
@@ -53,7 +53,7 @@
 .cc-close {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: var(--text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -61,7 +61,7 @@
   border-radius: 6px;
   transition: color 0.15s, background 0.15s;
 }
-.cc-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.cc-close:hover { color: var(--text-inverse); background: rgba(255,255,255,0.06); }
 
 /* ── Viewfinder ──────────────────────────────────────────────── */
 .cc-viewfinder {
@@ -101,7 +101,7 @@
   align-items: center;
   justify-content: center;
   gap: 14px;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 0.875rem;
   background: rgba(0,0,0,0.5);
 }
@@ -181,10 +181,10 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--bg-primary);
   transition: background 0.1s;
 }
-.cc-shutter:hover .cc-shutter__dot { background: #e2e8f0; }
+.cc-shutter:hover .cc-shutter__dot { background: var(--border-color); }
 
 /* Confirm / retake buttons */
 .cc-btn {
@@ -207,8 +207,8 @@
 .cc-btn--primary:hover { background: #14b8a6; }
 
 .cc-btn--ghost {
-  background: rgba(255,255,255,0.08);
-  color: #cbd5e1;
-  border: 1.5px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: var(--text-muted);
+  border: 1.5px solid rgba(255,255,255,0.12);
 }
-.cc-btn--ghost:hover { background: rgba(255,255,255,0.14); }
+.cc-btn--ghost:hover { background: rgba(255,255,255,0.12); }

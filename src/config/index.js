@@ -15,7 +15,7 @@ const getApiUrl = () => {
   }
   //'http://93.127.137.173/SalehSites/SalehCentralApi'
   // Default to https://localhost:7194 as base API path
-  return 'http://93.127.137.173/SalehSites/SalehCentralApi';
+  return 'https://localhost:7194';
 };
 
 const config = {

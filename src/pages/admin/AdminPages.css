@@ -219,6 +219,25 @@
   background-color: var(--accent-hover);
 }
 
+@media (min-aspect-ratio: 1 / 1) and (max-aspect-ratio: 1.25 / 1) {
+  .admin-page {
+    padding: 1.5rem;
+  }
+
+  .page-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .page-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .stats-grid,
+  .dashboard-content {
+    gap: 1rem;
+  }
+}
+
 .settings-container {
   max-width: 800px;
 }

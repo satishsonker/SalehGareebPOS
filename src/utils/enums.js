@@ -6,5 +6,6 @@ export const enums = {
         length: 'length_inch',
         neckline: 'neckline',
         sleeve: 'sleeve',
+        advancePercentage:'advance_percentage'
     }
 }

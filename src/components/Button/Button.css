@@ -29,26 +29,27 @@
   min-height: 32px;
 }
 
-.custom-button-medium {
-  padding: 0.625rem 1.25rem;
-  font-size: 1rem;
-  min-height: 40px;
-}
-
-.custom-button-large {
-  padding: 0.75rem 1.5rem;
-  font-size: 1.125rem;
-  min-height: 48px;
-}
-
-/* Icon Styles */
-.custom-button-icon {
-  display: flex;
+.custom-button {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  font-size: 1rem;
-  line-height: 1;
+  gap: 0.5rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  position: relative;
+  overflow: hidden;
+  font-family: inherit;
+  text-decoration: none;
+  outline: none;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+.custom-button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent-color) 40%, #ffffff);
+  outline-offset: 2px;
 }
 
 .custom-button-small .custom-button-icon {
@@ -71,23 +72,23 @@
   margin-left: -0.25rem;
 }
 
-.custom-button-text {
-  white-space: nowrap;
+.custom-button-small {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.95rem;
+  min-height: 40px;
 }
 
-/* Full Width */
-.custom-button-full-width {
-  width: 100%;
+.custom-button-medium {
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  min-height: 48px;
 }
 
-/* Loading Spinner */
-.custom-button-spinner {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  animation: spin 0.8s linear infinite;
+.custom-button-large {
+  padding: 0.875rem 1.5rem;
+  font-size: 1.125rem;
+  min-height: 56px;
 }
-
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -101,19 +102,20 @@
 .custom-button-primary {
   background-color: var(--btn-primary-bg);
   color: var(--btn-primary-text);
-  border: 1px solid var(--btn-primary-bg);
+  border: 1px solid transparent;
+  box-shadow: 0 6px 18px var(--shadow-soft);
 }
 
 .custom-button-primary:hover:not(:disabled) {
   background-color: var(--btn-primary-hover);
   border-color: var(--btn-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(31, 58, 95, 0.22);
+  box-shadow: 0 8px 20px var(--shadow-strong);
 }
 
 .custom-button-primary:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(31, 58, 95, 0.18);
+  box-shadow: 0 3px 8px var(--shadow);
 }
 
 /* Secondary Button */
@@ -265,20 +267,20 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .custom-button-small {
-    padding: 0.5rem 0.875rem;
-    font-size: 0.8125rem;
-    min-height: 30px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+    min-height: 44px;
   }
 
   .custom-button-medium {
-    padding: 0.625rem 1rem;
-    font-size: 0.9375rem;
-    min-height: 36px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    min-height: 52px;
   }
 
   .custom-button-large {
-    padding: 0.75rem 1.25rem;
-    font-size: 1rem;
-    min-height: 44px;
+    padding: 0.875rem 1.25rem;
+    font-size: 1.125rem;
+    min-height: 60px;
   }
 }

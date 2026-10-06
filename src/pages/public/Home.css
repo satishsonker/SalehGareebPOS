@@ -21,13 +21,13 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--color-text-primary, #1e293b);
+  color: var(--text-primary);
 }
 
 .home-greeting__date {
   margin: 4px 0 0;
   font-size: 0.875rem;
-  color: var(--color-text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 .home-greeting__shop {
@@ -57,8 +57,8 @@
 }
 
 .home-stat-card {
-  background: var(--color-surface, #fff);
-  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--surface);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 20px 24px;
   display: flex;
@@ -75,7 +75,7 @@
 .home-stat-card__value {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--color-text-primary, #1e293b);
+  color: var(--text-primary);
   line-height: 1;
 }
 
@@ -85,7 +85,7 @@
 
 .home-stat-card__label {
   font-size: 0.8125rem;
-  color: var(--color-text-secondary, #64748b);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -114,15 +114,15 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-end;
-  background: var(--tile-color, #2563eb);
-  color: #fff;
+  background: var(--brand-primary);
+  color: var(--text-inverse);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
-  box-shadow: 0 4px 14px color-mix(in srgb, var(--tile-color, #2563eb) 40%, transparent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--brand-primary) 40%, transparent);
 }
 
 .home-tile:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--tile-color, #2563eb) 50%, transparent);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--brand-primary) 50%, transparent);
 }
 
 .home-tile:active {

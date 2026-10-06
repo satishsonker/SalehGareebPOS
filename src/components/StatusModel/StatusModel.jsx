@@ -9,21 +9,11 @@ import {
     FiXCircle
 } from "react-icons/fi";
 
-export default function StatusModal({
-    isOpen,
-    onClose,
-    type = "info",
-    title,
-    message,
-    buttonText = "OK",
-    onConfirm,
-    autoClose = false,
-    autoCloseDelay = 2500,
-    showCloseButton = true
+export default function StatusModal({isOpen, onClose, type, title, message, buttonText, onConfirm, autoClose = false, autoCloseDelay = 2500,
+    showCloseButton, buttons
 }) {
 
     useEffect(() => {
-
         if (!isOpen || !autoClose) return;
         const timer = setTimeout(() => {
             if (onConfirm) {
@@ -136,6 +126,19 @@ export default function StatusModal({
                 >
                     {buttonText}
                 </button>
+                {
+                    buttons?.map((button, index) => {
+                      const action = button?.handler ?? button?.handle ?? button?.onClick;
+                      return  <button key={index} type="button" className="status-modal__btn" onClick={() => {
+                            if (typeof action === 'function') action();
+                            if (!button?.keepOpen) {
+                              onClose?.();
+                            }
+                        }} >
+                            {button?.icon} {button?.buttonText || `Button ${index+1}`}
+                        </button>
+                    })
+                }
             </div>
         </div>
     );

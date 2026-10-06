@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './AddCustomerModel.css';
 import { createCustomerBasic } from '../../../services/api/customersApi';
 import {
@@ -10,20 +10,34 @@ import {
     FiFlag
 } from 'react-icons/fi';
 import Modal from '../../../components/Modal/Modal';
+import { commonLogic } from '../../../utils/commonLogic';
 export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen, setAddCustomerModalOpen, emirateList }) {
-    const emptyCustomer = {
+    const EMPTY_CUSTOMER = {
         firstName: '',
-        mobile: ''
+        mobile: order?.mobile,
+        emirateId: '',
+        lastName: '',
+        isdCode: '+971'
     };
 
+    useEffect(() => {
+        setCustomerModel(pre => ({ ...pre, ["mobile"]: order?.mobile }))
+    }, [order?.mobile]);
+
+    const [customerModel, setCustomerModel] = useState(EMPTY_CUSTOMER);
     const [customerError, setCustomerError] = useState({
         message: ''
     });
+
     const handleCustomerChange = (e) => {
         const { name, value } = e.target;
-        setOrder(prev => ({
+        var data = value;
+        if (name?.toLowerCase() === "firstname" || name?.toLowerCase() === "lastname") {
+            data = commonLogic.capitalizeFirstLetter(data);
+        }
+        setCustomerModel(prev => ({
             ...prev,
-            [name]: value
+            [name]: data
         }));
     };
 
@@ -32,14 +46,26 @@ export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen
             message: ''
         });
 
-        if (!order?.firstName?.trim()) {
+        if (!customerModel?.firstName?.trim()) {
             setCustomerError({
                 message: 'First name is required.'
             });
             return;
         }
 
-        if (!order?.mobile?.trim()) {
+        if (!customerModel?.mobile?.trim()) {
+            setCustomerError({
+                message: 'Mobile number is required.'
+            });
+            return;
+        }
+        if (customerModel?.mobile?.length < 7) {
+            setCustomerError({
+                message: 'Mobile number is invalid.'
+            });
+            return;
+        }
+        if (!customerModel?.emirateId?.trim()) {
             setCustomerError({
                 message: 'Mobile number is required.'
             });
@@ -50,23 +76,27 @@ export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen
 
             // Replace with your API
             const response = await createCustomerBasic({
-                firstName: order?.firstName,
-                mobile: order?.mobile,
-                isd: order?.isd,
-                emirateId: order?.emirateId
+                firstName: customerModel?.firstName,
+                mobile: customerModel?.mobile,
+                isdCode: customerModel?.isdCode,
+                emirateId: customerModel?.emirateId,
+                lastName: customerModel.lastName
             });
             if (response?.success) {
                 setAddCustomerModalOpen(false);
                 setOrder(prev => ({
                     ...prev,
-                    ["customerId"]: response.id
+                    ["customerId"]: response.id,
+                    firstName: customerModel.firstName,
+                    lastName: customerModel.lastName,
+                    emirateId: customerModel.emirateId
                 }));
             }
 
         } catch (error) {
             setCustomerError({
                 message:
-                    error?.response?.data?.message ||
+                    error?.message ||
                     'Unable to create customer.'
             });
         }
@@ -129,7 +159,7 @@ export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen
                                     <input
                                         type="text"
                                         name="firstName"
-                                        value={order?.customerName}
+                                        value={customerModel?.customerName}
                                         onChange={handleCustomerChange}
                                         placeholder="Enter first name"
                                     />
@@ -144,7 +174,7 @@ export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen
                                     <input
                                         type="text"
                                         name="lastName"
-                                        value={order?.lastName}
+                                        value={customerModel?.lastName}
                                         onChange={handleCustomerChange}
                                         placeholder="Enter last name"
                                     />
@@ -160,7 +190,7 @@ export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen
                                     <input
                                         type="tel"
                                         name="mobile"
-                                        value={order?.mobile}
+                                        value={customerModel?.mobile}
                                         onChange={handleCustomerChange}
                                         placeholder="Enter mobile number"
                                     />
@@ -173,9 +203,8 @@ export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen
                                 <vic className="customer-input">
                                     <div className="customer-select">
                                         <select name='emirateId'
-                                           
                                             onChange={handleCustomerChange}
-                                            value={order?.emirateId}>
+                                            value={customerModel?.emirateId}>
                                             <option>Select a Emirate</option>
                                             {emirateList?.map((ele, index) => {
                                                 return <option key={index} value={ele?.id}>{ele?.displayValue}</option>

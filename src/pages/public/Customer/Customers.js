@@ -344,7 +344,7 @@ function Customers() {
       {/* Header */}
       <div className="pub-cust-header">
         <button className="pub-cust-back" onClick={() => navigate(-1)}><FiArrowLeft size={18} /></button>
-        <div className="pub-cust-header__icon" style={{ background: '#1e293b' }}><FiUser size={20} /></div>
+        <div className="pub-cust-header__icon" style={{ background: 'var(--brand-primary-deep)' }}><FiUser size={20} /></div>
         <h1 className="pub-cust-header__title">Customers</h1>
         <button className="pub-cust-add-btn" onClick={() => { setAddForm({ ...EMPTY_CUSTOMER }); setAddErrors({}); setAddOpen(true); }}>
           <FiPlus size={16} /> New Customer

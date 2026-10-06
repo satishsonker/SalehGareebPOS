@@ -83,7 +83,7 @@
 }
 
 .subOrderDetailList-item__price .currency {
-    color: #8a93a1;
+    color: var(--text-muted);
     font-size: .65rem;
     font-weight: 600
 }
@@ -100,9 +100,9 @@
     align-items: center;
     padding: 9px 12px;
     border-radius: 5px;
-    background: #f8f9fb;
-    border: 1px solid #e0e4ea;
-    color: #394457;
+    background: var(--surface-soft);
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
     font-size: 0.9rem;
     font-weight: 700;
     letter-spacing: .03em;
@@ -110,7 +110,7 @@
 }
 
 .subOrderDetailList-item__workTypeBadge:hover {
-    border-color: #c9a227
+    border-color: var(--accent-color)
 }
 
 .subOrderDetailList-item__workTypeBadge.active {
@@ -137,21 +137,21 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: .74rem
 }
 
 .metaItem svg {
     font-size: .85rem;
-    color: #b18b1c
+    color: var(--accent-color)
 }
 
 .metaItem .metaLabel {
-    color: #8a93a1
+    color: var(--text-muted)
 }
 
 .metaItem strong {
-    color: #394457;
+    color: var(--text-primary);
     font-weight: 600
 }
 
@@ -170,27 +170,27 @@
 }
 
 .subOrderDetailList-item__editBtn {
-    border: 1px solid #e0b93d;
-    background: #fffaf0;
-    color: #9a7610
+    border: 1px solid var(--gold);
+    background: color-mix(in srgb, var(--gold) 8%, transparent);
+    color: var(--gold)
 }
 
 .subOrderDetailList-item__configBtn {
-    border: 1px solid #d8dde4;
-    background: #172033;
-    color: #d4af37
+    border: 1px solid var(--border-strong);
+    background: var(--brand-primary-deep);
+    color: var(--gold);
 }
 
 .subOrderDetailList-item__editBtn:hover {
-    background: #d4af37;
-    border-color: #d4af37;
-    color: #172033
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--text-inverse)
 }
 
 .subOrderDetailList-item__configBtn:hover {
-    background: #d4af37;
-    border-color: #d4af37;
-    color: #172033
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--text-inverse)
 }
 
 .subconfig-panel {

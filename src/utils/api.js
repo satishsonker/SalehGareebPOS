@@ -1,4 +1,5 @@
 import config from '../config';
+import { notifyApiRequestEnd, notifyApiRequestStart } from '../contexts/ApiLoaderContext';
 import { formatApiErrorMessage, parseApiValidationErrors } from './apiError';
 
 const readResponseBody = async (response) => {
@@ -67,12 +68,14 @@ export const apiRequest = async (endpoint, options = {}) => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), config.api.timeout);
 
+  notifyApiRequestStart();
+
   try {
     const response = await fetch(url, {
       ...mergedOptions,
       signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
 
     const responseData = await readResponseBody(response);
@@ -97,17 +100,19 @@ export const apiRequest = async (endpoint, options = {}) => {
     return responseData;
   } catch (error) {
     clearTimeout(timeoutId);
-    
+
     if (error.name === 'AbortError') {
       throw new Error('Request timeout');
     }
-    
+
     // If error already has a message, re-throw it
     if (error.message && error.message !== 'Failed to fetch') {
       throw error;
     }
-    
+
     throw error;
+  } finally {
+    notifyApiRequestEnd();
   }
 };
 

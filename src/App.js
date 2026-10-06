@@ -2,9 +2,12 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { ApiLoaderProvider } from './contexts/ApiLoaderContext';
 import { NotificationProvider } from './components/Notification';
+import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicLayout from './layouts/PublicLayout';
+import GlobalLoader from './components/Loader/GlobalLoader';
 import AdminLayout from './layouts/AdminLayout';
 import Login from './pages/auth/Login';
 import OtpVerification from './pages/auth/OtpVerification';
@@ -61,63 +64,69 @@ function App() {
     }
   }, []);
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <KeyboardProvider>
-          <NotificationProvider>
-            <BrowserRouter>
-              <Routes>
-                {/* Login Route - Public */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/otp/verify" element={<OtpVerification />} />
-                <Route path="/shop/selection" element={<ShopSelection />} />
-                {/* Public Routes - Protected */}
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <PublicLayout />
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<Home />} />
-                  <Route path="about" element={<About />} />
-                  <Route path="orders/create" element={<NewOrderPage/>} />
-                  <Route path="orders/search" element={<SearchOrders />} />
-                  <Route path="customers" element={<Customers />} />
-                </Route>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <ApiLoaderProvider>
+            <KeyboardProvider>
+              <NotificationProvider>
+                <BrowserRouter>
+                  <Routes>
+                    {/* Login Route - Public */}
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/otp/verify" element={<OtpVerification />} />
+                    <Route path="/shop/selection" element={<ShopSelection />} />
 
-                {/* Admin Routes - Protected with Admin Check */}
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute requireAdmin={true}>
-                      <AdminLayout />
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<Dashboard />} />
-                  <Route path="system-data" element={<SystemData />} />
-                  <Route path="products" element={<Products />} />
-                  <Route path="orders" element={<Orders />} />
-                  <Route path="settings" element={<AdminSettings />} />
-                  <Route path="components-example" element={<ComponentsExample />} />
-                  <Route path="customers" element={<CustomersMasterData />} />
-                  <Route path="order-prices" element={<OrderPriceMasterData />} />
-                  <Route path="notifications" element={<SystemNotifications />} />
-                  <Route path="cache" element={<CacheManagement />} />
-                  <Route path="design-models" element={<DesignModels />} />
-                </Route>
+                    {/* Public Routes - Protected */}
+                    <Route
+                      path="/"
+                      element={
+                        <ProtectedRoute>
+                          <PublicLayout />
+                        </ProtectedRoute>
+                      }
+                    >
+                      <Route index element={<Home />} />
+                      <Route path="about" element={<About />} />
+                      <Route path="orders/create" element={<NewOrderPage />} />
+                      <Route path="orders/search" element={<SearchOrders />} />
+                      <Route path="customers" element={<Customers />} />
+                    </Route>
 
-                {/* Catch all - redirect to login */}
-                <Route path="*" element={<Navigate to="/login" replace />} />
-              </Routes>
-            </BrowserRouter>
-          </NotificationProvider>
-          <VirtualKeyboard />
-        </KeyboardProvider>
-      </AuthProvider>
-    </ThemeProvider>
+                    {/* Admin Routes - Protected with Admin Check */}
+                    <Route
+                      path="/admin"
+                      element={
+                        <ProtectedRoute requireAdmin={true}>
+                          <AdminLayout />
+                        </ProtectedRoute>
+                      }
+                    >
+                      <Route index element={<Dashboard />} />
+                      <Route path="system-data" element={<SystemData />} />
+                      <Route path="products" element={<Products />} />
+                      <Route path="orders" element={<Orders />} />
+                      <Route path="settings" element={<AdminSettings />} />
+                      <Route path="components-example" element={<ComponentsExample />} />
+                      <Route path="customers" element={<CustomersMasterData />} />
+                      <Route path="order-prices" element={<OrderPriceMasterData />} />
+                      <Route path="notifications" element={<SystemNotifications />} />
+                      <Route path="cache" element={<CacheManagement />} />
+                      <Route path="design-models" element={<DesignModels />} />
+                    </Route>
+
+                    {/* Catch all - redirect to login */}
+                    <Route path="*" element={<Navigate to="/login" replace />} />
+                  </Routes>
+                </BrowserRouter>
+              </NotificationProvider>
+              <GlobalLoader />
+              <VirtualKeyboard />
+            </KeyboardProvider>
+          </ApiLoaderProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

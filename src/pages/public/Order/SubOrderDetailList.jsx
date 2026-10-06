@@ -32,6 +32,7 @@ export default function SubOrderDetailList({ order, setOrder, setWorkTypeSelecto
     const handleWorkTypeSelection = (e, workType, index) => {
         e.stopPropagation();
         var model = order;
+        workType.workTypeId=workType.id;
         model.selectedSubOrderIndex = index;
         if (workType.code === '0') {
             var totalWorkCodes = workTypeList?.filter(c => c.code !== '0')?.length;

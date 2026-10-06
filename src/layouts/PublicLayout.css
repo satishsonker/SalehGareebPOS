@@ -279,6 +279,18 @@
 
 /* ── Responsive ─────────────────────────────────────────── */
 
+@media (min-aspect-ratio: 1 / 1) and (max-aspect-ratio: 1.25 / 1) {
+  .ph-container {
+    max-width: 1100px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .public-main {
+    padding: 1.5rem;
+  }
+}
+
 @media (max-width: 480px) {
   .ph-shop-code { display: none; }
   .ph-icon-btn  { width: 34px; height: 34px; font-size: 1rem; }

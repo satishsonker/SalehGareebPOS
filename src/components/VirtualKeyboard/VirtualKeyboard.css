@@ -10,31 +10,24 @@
 
     position: fixed;
 
-    inset: 0;
 
-    z-index: 99999;
-
-    background: var(--vk-overlay);
-
+.vk-close-button {
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: transparent;
+    font-size: 18px;
+    transition: var(--vk-transition);
     display: flex;
-
+    align-items: center;
     justify-content: center;
-
-    align-items: flex-end;
-
-    padding: 20px;
-
-    animation: vkFade .18s ease;
-
-    touch-action: none;
-
 }
-
-/* ==========================================================
-   Container
-   ========================================================== */
-
-.vk-container {
+.vk-close-button:hover {
+    background: var(--vk-key-hover);
+    color: var(--vk-text);
+}
 
     width: 100%;
 
@@ -121,23 +114,14 @@
 }
 
 .vk-display-input {
-
     width: 100%;
-
     border: 1px solid var(--vk-border);
-
     border-radius: 10px;
-
     padding: 14px;
-
     font-size: 22px;
-
     outline: none;
-
-    background: white;
-
+    background: var(--vk-key-bg);
     color: var(--vk-text);
-
 }
 
 /* ==========================================================
@@ -162,53 +146,30 @@
 
 .vk-row:last-child {
 
-    margin-bottom: 0;
-
-}
-
-/* ==========================================================
-   Keys
-   ========================================================== */
-
-.vk-key {
-
-    flex: 1;
-
-    height: 60px;
-
-    border: 1px solid var(--vk-border);
-
-    border-radius: 10px;
-
-    background: var(--vk-key-bg);
-
-    cursor: pointer;
-
-    font-size: 20px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    transition:
-
-        background var(--vk-transition),
-
-        transform .08s ease,
-
-        box-shadow var(--vk-transition);
-
-    position: relative;
-
-    overflow: hidden;
-
-}
-
-.vk-key:hover {
-
-    background: var(--vk-key-hover);
+    .vk-key {
+        flex: 1;
+        height: 64px;
+        min-width: 58px;
+        border: 1px solid var(--vk-border);
+        border-radius: 10px;
+        background: var(--vk-key-bg);
+        cursor: pointer;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background var(--vk-transition), transform .08s ease, box-shadow var(--vk-transition);
+        position: relative;
+        overflow: hidden;
+        touch-action: manipulation;
+    }
+    .vk-key:hover {
+        background: var(--vk-key-hover);
+    }
+    .vk-key:active {
+        transform: scale(.985);
+        background: var(--vk-key-active);
+    }
 
 }
 

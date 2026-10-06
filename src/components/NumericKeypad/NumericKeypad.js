@@ -21,7 +21,7 @@ const ROWS = [
  *   label       string   — header label
  *   maxLength   number   — default 10
  */
-function NumericKeypad({ isOpen, value = '', onChange, onConfirm, onClose, label = 'Enter Amount', maxLength = 10, name = 'numeric-pad' }) {
+function NumericKeypad({ isOpen, value = '', onChange, onConfirm, onClose, label = 'Enter Amount', maxLength = 10, name = 'numeric-pad', maxRange = 9999999999,showMaxValue=false }) {
 
   // Physical keyboard passthrough
   useEffect(() => {
@@ -41,8 +41,11 @@ function NumericKeypad({ isOpen, value = '', onChange, onConfirm, onClose, label
   const press = (key) => {
     if (key === 'DEL') { onChange(value.slice(0, -1)); return; }
     if (key === '.' && value.includes('.')) return;
-    if (value.replace('.', '').length >= maxLength) return;
-    onChange(value + key);
+    if (value?.toString()?.replace('.', '')?.length >= maxLength) return;
+    var combinedDitig =parseFloat(value + key);
+    if (combinedDitig > maxRange)
+      combinedDitig = maxRange;
+    onChange(combinedDitig?.toString());
   };
 
   const handleConfirm = () => {

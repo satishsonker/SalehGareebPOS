@@ -36,12 +36,12 @@
 
     border-radius: 18px;
 
-    background: #ffffff;
+    background: var(--surface-card);
 
     text-align: center;
 
     box-shadow:
-        0 20px 55px rgba(15, 23, 42, 0.22);
+        0 20px 55px var(--shadow-strong);
 
     overflow: hidden;
 
@@ -190,7 +190,7 @@
     font-size: 23px;
     font-weight: 700;
 
-    color: #172033;
+    color: var(--text-primary);
 }
 
 
@@ -305,8 +305,8 @@
 ========================================= */
 
 .status-modal--info {
-    --status-color: #1d4ed8;
-    --status-soft: #eff6ff;
+    --status-color: var(--brand-primary);
+    --status-soft: var(--info-soft);
 }
 
 

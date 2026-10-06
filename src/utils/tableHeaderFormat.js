@@ -21,9 +21,11 @@ export const tableHeaderFormat = {
                 );
             },
         },
-        { key: 'name',         header: 'Name',        width: '200px' },
-        { key: 'code',         header: 'Code',        width: '140px',
-          render: (v) => <span style={{ fontFamily: 'monospace', fontSize: '0.82rem' }}>{v}</span> },
+        { key: 'name', header: 'Name', width: '200px' },
+        {
+            key: 'code', header: 'Code', width: '140px',
+            render: (v) => <span style={{ fontFamily: 'monospace', fontSize: '0.82rem' }}>{v}</span>
+        },
         {
             key: 'designerName',
             header: 'Designer',
@@ -141,7 +143,7 @@ export const tableHeaderFormat = {
         },
     ],
     masterShopData: [
-         {
+        {
             key: 'shopImagePath',
             header: 'Image',
             width: '100px',
@@ -160,8 +162,29 @@ export const tableHeaderFormat = {
             width: '120px',
         },
         {
-            key: 'address',
+            key: 'address1',
             header: 'Address',
+        },
+        {
+            key: 'address2',
+            header: 'Address 2',
+        },
+        {
+            key: 'address3',
+            header: 'Address 3',
+        },
+         {
+            key: 'city',
+            header: 'City',
+        },
+           {
+            key: 'country',
+            header: 'Country',
+        },
+        {
+            key: 'mobile',
+            header: 'Mobile',
+            width: '150px',
         },
         {
             key: 'phone',
@@ -247,11 +270,11 @@ export const tableHeaderFormat = {
             align: 'center',
             render: (value) => {
                 const map = {
-                    Info:         { bg: '#dbeafe', color: '#1d4ed8' },
-                    Warning:      { bg: '#fef3c7', color: '#b45309' },
-                    Success:      { bg: '#dcfce7', color: '#15803d' },
-                    Error:        { bg: '#fee2e2', color: '#dc2626' },
-                    Announcement: { bg: '#f3e8ff', color: '#7e22ce' },
+                    Info: { bg: 'var(--info-soft)', color: 'var(--brand-primary)' },
+                    Warning: { bg: 'var(--warning-soft)', color: 'var(--warning)' },
+                    Success: { bg: 'var(--success-soft)', color: 'var(--success)' },
+                    Error: { bg: 'var(--danger-soft)', color: 'var(--danger)' },
+                    Announcement: { bg: 'var(--brand-accent-soft)', color: 'var(--brand-accent)' },
                 };
                 const s = map[value] || { bg: '#f1f5f9', color: '#475569' };
                 return (
@@ -314,7 +337,7 @@ export const tableHeaderFormat = {
             align: 'right',
             render: (v) => v != null ? Number(v).toFixed(2) : '—',
         },
-         {
+        {
             key: 'crystalPackets',
             header: 'Crystal Packets',
             width: '140px',
@@ -344,13 +367,13 @@ export const tableHeaderFormat = {
             width: '150px',
             align: 'center',
             render: (validTo, row) => {
-                const now   = new Date();
-                const from  = row.validFrom ? new Date(row.validFrom) : null;
-                const to    = validTo       ? new Date(validTo)       : null;
+                const now = new Date();
+                const from = row.validFrom ? new Date(row.validFrom) : null;
+                const to = validTo ? new Date(validTo) : null;
 
                 // Strip time for day-level comparison
                 now.setHours(0, 0, 0, 0);
-                if (to)   to.setHours(0, 0, 0, 0);
+                if (to) to.setHours(0, 0, 0, 0);
                 if (from) from.setHours(0, 0, 0, 0);
 
                 if (to && now > to) {
@@ -421,7 +444,7 @@ export const tableHeaderFormat = {
             width: '100px',
             align: 'center',
             render: (value) => (
-                <span className={value ? 'text-danger' : 'text-success' }>
+                <span className={value ? 'text-danger' : 'text-success'}>
                     {value ? 'No' : 'Yes'}
                 </span>
             ),

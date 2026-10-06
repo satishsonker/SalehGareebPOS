@@ -325,6 +325,9 @@ export default function OrderPriceSelector({
                 },
                 (_, index) => ({
                     orderNo: `12345-${startIndex + index}`,
+                    subTotalAmount: Number(selectedPrice.price),
+                    vatAmount: commonLogic.calculateVAT(Number(selectedPrice.price)).vatAmount,
+                    totalAmount: commonLogic.calculateVAT(Number(selectedPrice.price)).amountWithVat,
                     price: Number(selectedPrice.price),
                     crystalPackets: Number(
                         selectedPrice.crystalPackets

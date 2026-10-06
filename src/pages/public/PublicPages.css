@@ -80,3 +80,23 @@
 .content-section a:hover {
   text-decoration: underline;
 }
+
+@media (min-aspect-ratio: 1 / 1) and (max-aspect-ratio: 1.25 / 1) {
+  .public-page {
+    max-width: 1100px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .page-container {
+    padding: 1.5rem;
+  }
+
+  .page-container h1 {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+  }
+}

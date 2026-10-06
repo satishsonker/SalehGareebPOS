@@ -12,6 +12,27 @@ import { tableHeaderFormat } from '../../../utils/tableHeaderFormat';
 import { mergeValidationErrorsFromApi } from '../../../utils/apiError';
 
 function ShopsMasterData() {
+  const EMPTY_SHOP = {
+    name: '',
+    code: '',
+    address1: '',
+    address2: '',
+    address3: '',
+    phone: '',
+    mobile: '',
+    email: '',
+    customerSupportHeading: '',
+    customerSupportNumber: '',
+    ar_name: '',
+    ar_address1: '',
+    ar_address2: '',
+    ar_address3: '',
+    ar_phone: '',
+    ar_mobile: '',
+    ar_customerSupportNumber: '',
+    ar_customerSupportHeading: '',
+    trn: ''
+  }
   const { success, error: showError, warning, info, confirm } = useNotification();
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -23,14 +44,7 @@ function ShopsMasterData() {
   const [pageNo, setPageNo] = useState(1);
   const [pageSize] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [addFormData, setAddFormData] = useState({
-    name: '',
-    code: '',
-    address: '',
-    phone: '',
-    email: '',
-    trn: '',
-  });
+  const [addFormData, setAddFormData] = useState(EMPTY_SHOP);
   const [addFormErrors, setAddFormErrors] = useState({});
   const [editFormErrors, setEditFormErrors] = useState({});
   const [saving, setSaving] = useState(false);
@@ -63,16 +77,9 @@ function ShopsMasterData() {
   };
 
   const handleAddShop = () => {
-        setAddFormData({
-          name: '',
-          code: '',
-          address: '',
-          phone: '',
-          email: '',
-          trn: '',
-        });
-        setAddFormErrors({});
-        setAddModalOpen(true);
+    setAddFormData(EMPTY_SHOP);
+    setAddFormErrors({});
+    setAddModalOpen(true);
   };
 
   const handleSaveAdd = async () => {
@@ -86,12 +93,16 @@ function ShopsMasterData() {
     if (!addFormData.code || addFormData.code.trim() === '') {
       errors.code = 'Shop code is required';
     }
-    if (!addFormData.address || addFormData.address.trim() === '') {
-      errors.address = 'Address is required';
+    if (!addFormData.address1 || addFormData.address1.trim() === '') {
+      errors.address1 = 'Address is required';
     }
-    if (!addFormData.phone || addFormData.phone.trim() === '') {
-      errors.phone = 'Phone is required';
+    if (!addFormData.address2 || addFormData.address2.trim() === '') {
+      errors.address2 = 'Address is required';
     }
+    if (!addFormData.mobile || addFormData.mobile.trim() === '') {
+      errors.mobile = 'Mobile is required';
+    }
+
     if (!addFormData.email || addFormData.email.trim() === '') {
       errors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addFormData.email)) {
@@ -99,6 +110,23 @@ function ShopsMasterData() {
     }
     if (!addFormData.trn || addFormData.trn.trim() === '') {
       errors.trn = 'TRN is required';
+    }
+
+    if (!addFormData.ar_name || addFormData.ar_name.trim() === '') {
+      errors.ar_name = 'Arabic shop name is required';
+    }
+    if (!addFormData.ar_address1 || addFormData.ar_address1.trim() === '') {
+      errors.ar_address1 = 'Arabic Address is required';
+    }
+    if (!addFormData.ar_address2 || addFormData.ar_address2.trim() === '') {
+      errors.ar_address2 = 'Arabic Address line2  is required';
+    }
+    if (!addFormData.ar_mobile || addFormData.ar_mobile.trim() === '') {
+      errors.ar_mobile = 'Arabic Mobile is required';
+    }
+
+    if (!addFormData.customerSupportNumber || addFormData.customerSupportNumber.trim() === '') {
+      errors.customerSupportNumber = 'Customer support number is required';
     }
 
     setAddFormErrors(errors);
@@ -115,14 +143,7 @@ function ShopsMasterData() {
       if (response.success) {
         success('Shop created successfully');
         setAddModalOpen(false);
-        setAddFormData({
-          name: '',
-          code: '',
-          address: '',
-          phone: '',
-          email: '',
-          trn: '',
-        });
+        setAddFormData(EMPTY_SHOP);
         setAddFormErrors({});
         fetchShops();
       } else {
@@ -169,24 +190,58 @@ function ShopsMasterData() {
           if (response.success && response.data) {
             setSelectedShop(response.data);
             setEditFormData({
-              name: response.data.name || '',
               code: response.data.code || '',
-              address: response.data.address || '',
+              name: response.data.name || '',
+              address1: response.data.address1 || '',
+              address2: response.data.address2 || '',
+              address3: response.data.address3 || '',
+              city: response.data.city || '',
+              country: response.data.country || '',
               phone: response.data.phone || '',
+              mobile: response.data.mobile || '',
               email: response.data.email || '',
               trn: response.data.trn || '',
+              arName: response.data.arName || '',
+              arAddress1: response.data.arAddress1 || '',
+              arAddress2: response.data.arAddress2 || '',
+              arAddress3: response.data.arAddress3 || '',
+              arPhone: response.data.arPhone || '',
+              arMobile: response.data.arMobile || '',
+              arCity: response.data.arCity || '',
+              arCountry: response.data.arCountry || '',
+              customerSupportNumber: response.data.customerSupportNumber || '',
+              arCustomerSupportNumber: response.data.arCustomerSupportNumber || '',
+              arCustomerSupportHeading: response.data.arCustomerSupportHeading || '',
+              customerSupportHeading: response.data.customerSupportHeading || ''
             });
             setEditFormErrors({});
             setEditModalOpen(true);
           } else {
             setSelectedShop(row);
             setEditFormData({
-              name: row.name || '',
               code: row.code || '',
-              address: row.address || '',
+              name: row.name || '',
+              address1: row.address1 || '',
+              address2: row.address2 || '',
+              address3: row.address3 || '',
               phone: row.phone || '',
+              mobile: row.mobile || '',
               email: row.email || '',
               trn: row.trn || '',
+              city: row.city || '',
+              country: row.country || '',
+              arName: row.arName || '',
+              arAddress1: row.arAddress1 || '',
+              arAddress2: row.arAddress2 || '',
+              arAddress3: row.arAddress3 || '',
+              arPhone: row.arPhone || '',
+              arMobile: row.arMobile || '',
+              arCity: row.arCity || '',
+              arCountry: row.arCountry || '',
+              customerSupportNumber: row.customerSupportNumber || '',
+              arCustomerSupportNumber: row.arCustomerSupportNumber || '',
+              arCustomerSupportHeading: row.arCustomerSupportHeading || '',
+              customerSupportHeading: row.customerSupportHeading || ''
             });
             setEditFormErrors({});
             setEditModalOpen(true);
@@ -195,12 +250,29 @@ function ShopsMasterData() {
           console.error('Failed to fetch shop details:', error);
           setSelectedShop(row);
           setEditFormData({
-            name: row.name || '',
             code: row.code || '',
-            address: row.address || '',
+            name: row.name || '',
+            address1: row.address1 || '',
+            address2: row.address2 || '',
+            address3: row.address3 || '',
             phone: row.phone || '',
+            mobile: row.mobile || '',
             email: row.email || '',
             trn: row.trn || '',
+            city: row.city || '',
+            country: row.country || '',
+            arName: row.arName || '',
+            arAddress1: row.arAddress1 || '',
+            arAddress2: row.arAddress2 || '',
+            arAddress3: row.arAddress3 || '',
+            arPhone: row.arPhone || '',
+            arMobile: row.arMobile || '',
+            arCity: row.arCity || '',
+            arCountry: row.arCountry || '',
+            customerSupportNumber: row.customerSupportNumber || '',
+            arCustomerSupportNumber: row.arCustomerSupportNumber || '',
+            arCustomerSupportHeading: row.arCustomerSupportHeading || '',
+            customerSupportHeading: row.customerSupportHeading || ''
           });
           setEditModalOpen(true);
         }
@@ -282,17 +354,45 @@ function ShopsMasterData() {
     const errors = {};
 
     // Validate required fields
-    if (!editFormData.name || editFormData.name.trim() === '') {
-      errors.name = 'Shop name is required';
-    }
     if (!editFormData.code || editFormData.code.trim() === '') {
       errors.code = 'Shop code is required';
     }
-    if (!editFormData.address || editFormData.address.trim() === '') {
-      errors.address = 'Address is required';
+    if (!editFormData.name || editFormData.name.trim() === '') {
+      errors.name = 'Shop name is required';
     }
-    if (!editFormData.phone || editFormData.phone.trim() === '') {
-      errors.phone = 'Phone is required';
+    if (!editFormData.address1 || editFormData.address1.trim() === '') {
+      errors.address1 = 'Address is required';
+    }
+    if (!editFormData.address2 || editFormData.address2.trim() === '') {
+      errors.address2 = 'Address line 2 is required';
+    }
+    if (!editFormData.mobile || editFormData.mobile.trim() === '') {
+      errors.mobile = 'Mobile is required';
+    }
+
+    if (!editFormData.arName || editFormData.arName.trim() === '') {
+      errors.arName = 'Arabic shop name is required';
+    }
+    if (!editFormData.arAddress1 || editFormData.arAddress1.trim() === '') {
+      errors.arAddress1 = 'Arabic address is required';
+    }
+    if (!editFormData.arAddress2 || editFormData.arAddress2.trim() === '') {
+      errors.arAddress2 = 'Arabic address line 2 is required';
+    }
+     if (!editFormData.city || editFormData.city.trim() === '') {
+      errors.city = 'City is required';
+    }
+     if (!editFormData.arCity || editFormData.arCity.trim() === '') {
+      errors.arCity = 'Arabic city is required';
+    }
+     if (!editFormData.country || editFormData.country.trim() === '') {
+      errors.country = 'Country is required';
+    }
+     if (!editFormData.arCountry || editFormData.arCountry.trim() === '') {
+      errors.arCountry = 'Arabic country is required';
+    }
+    if (!editFormData.arMobile || editFormData.arMobile.trim() === '') {
+      errors.arMobile = 'Arabic mobile is required';
     }
     if (!editFormData.email || editFormData.email.trim() === '') {
       errors.email = 'Email is required';
@@ -313,6 +413,7 @@ function ShopsMasterData() {
 
     setSaving(true);
     try {
+       setEditFormData({ ...editFormData, "id": selectedShop.id });
       const response = await updateShop(selectedShop.id, editFormData);
       if (response.success) {
         success('Shop updated successfully');
@@ -332,7 +433,7 @@ function ShopsMasterData() {
     }
   };
 
-  const columns =tableHeaderFormat.masterShopData;
+  const columns = tableHeaderFormat.masterShopData;
   // Custom toolbar with button group
   const customToolbar = (
     <>
@@ -360,14 +461,14 @@ function ShopsMasterData() {
             loading={loading}
             title="Reload shops list"
             aria-label="Reload"
-          /> 
+          />
           <Button
-          variant="ghost"
-          icon={<FaPlus />}
-          onClick={handleAddShop}
-          title="Add new shop"
-          aria-label="Add new"
-        />
+            variant="ghost"
+            icon={<FaPlus />}
+            onClick={handleAddShop}
+            title="Add new shop"
+            aria-label="Add new"
+          />
         </div>
       </div>
     </>
@@ -425,7 +526,7 @@ function ShopsMasterData() {
             </div>
             <div className="detail-row">
               <label><FaHouseFlag /> Name:</label>
-              <span>{selectedShop.name || 'N/A'}</span>
+              <span>{selectedShop.name || 'N/A'}-{selectedShop.arName || 'N/A'}</span>
             </div>
             <div className="detail-row">
               <label><FaCode /> Code:</label>
@@ -433,15 +534,47 @@ function ShopsMasterData() {
             </div>
             <div className="detail-row">
               <label><FaMapLocation /> Address:</label>
-              <span>{selectedShop.address || 'N/A'}</span>
+              <span>{selectedShop.address || 'N/A'}-{selectedShop.arAddress || 'N/A'}</span>
+            </div>
+            <div className="detail-row">
+              <label><FaMapLocation /> Address Line 2:</label>
+              <span>{selectedShop.address2 || 'N/A'}-{selectedShop.arAddress2 || 'N/A'}</span>
+            </div>
+            <div className="detail-row">
+              <label><FaMapLocation /> Address Line 3:</label>
+              <span>{selectedShop.address3 || 'N/A'}-{selectedShop.arAddress3 || 'N/A'}</span>
+            </div>
+             <div className="detail-row">
+              <label><FaMapLocation /> Address Line 3:</label>
+              <span>{selectedShop.address3 || 'N/A'}-{selectedShop.arAddress3 || 'N/A'}</span>
+            </div>
+            <div className="detail-row">
+              <label><FaMapLocation /> City:</label>
+              <span>{selectedShop.city || 'N/A'}-{selectedShop.arCity || 'N/A'}</span>
+            </div>
+            <div className="detail-row">
+              <label><FaMapLocation /> Country:</label>
+              <span>{selectedShop.country || 'N/A'}-{selectedShop.arCountry || 'N/A'}</span>
             </div>
             <div className="detail-row">
               <label><FaPhone /> Phone:</label>
               <span>{selectedShop.phone || 'N/A'}</span>
             </div>
+             <div className="detail-row">
+              <label><FaPhone /> Mobile:</label>
+              <span>{selectedShop.mobile || 'N/A'}-{selectedShop.arMobile || 'N/A'}</span>
+            </div>
             <div className="detail-row">
               <label><FaRegEnvelope /> Email:</label>
               <span>{selectedShop.email || 'N/A'}</span>
+            </div>
+             <div className="detail-row">
+              <label><FaRegEnvelope /> Customer Support Number:</label>
+              <span>{selectedShop.customerSupportNumber || 'N/A'}-{selectedShop.arCustomerSupportNumber || 'N/A'}</span>
+            </div>
+             <div className="detail-row">
+              <label><FaRegEnvelope /> Customer Support Header:</label>
+              <span>{selectedShop.customerSupportHeader || 'N/A'}-{selectedShop.arCustomerSupportHeader || 'N/A'}</span>
             </div>
             <div className="detail-row">
               <label><FaIdCard /> TRN:</label>
@@ -490,7 +623,7 @@ function ShopsMasterData() {
           <div className="modal-form">
             <div className="form-group">
               <TextBox
-                id="edit-name"
+                id="edit-arName"
                 label="Shop Name"
                 required={true}
                 value={editFormData.name || ''}
@@ -503,6 +636,21 @@ function ShopsMasterData() {
                 placeholder="Enter shop name"
                 leftIcon={<FaHouseFlag />}
                 error={editFormErrors.name}
+              />
+              <TextBox
+                id="edit-arName"
+                label="Arabic Shop Name"
+                required={true}
+                value={editFormData.arName || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, "arName": e.target.value });
+                  if (editFormErrors.arName) {
+                    setEditFormErrors({ ...editFormErrors, "arName": '' });
+                  }
+                }}
+                placeholder="Enter Arabic shop name"
+                leftIcon={<FaHouseFlag />}
+                error={editFormErrors.arName}
               />
             </div>
             <div className="form-group">
@@ -517,7 +665,7 @@ function ShopsMasterData() {
                     setEditFormErrors({ ...editFormErrors, code: '' });
                   }
                 }}
-                placeholder="Enter shop code"  
+                placeholder="Enter shop code"
                 leftIcon={<FaCode />}
                 error={editFormErrors.code}
               />
@@ -527,29 +675,205 @@ function ShopsMasterData() {
                 id="edit-address"
                 label="Address"
                 required={true}
-                value={editFormData.address || ''}
+                value={editFormData.address1 || ''}
                 onChange={(e) => {
-                  setEditFormData({ ...editFormData, address: e.target.value });
-                  if (editFormErrors.address) {
-                    setEditFormErrors({ ...editFormErrors, address: '' });
+                  setEditFormData({ ...editFormData, "address1": e.target.value });
+                  if (editFormErrors.address1) {
+                    setEditFormErrors({ ...editFormErrors, "address1": '' });
                   }
                 }}
                 placeholder="Enter shop address"
                 leftIcon={<FaMapLocation />}
-                error={editFormErrors.address}
+                error={editFormErrors.address1}
+              />
+              <TextBox
+                id="edit-address"
+                label="Arabic Address Line`` 1"
+                required={true}
+                value={editFormData.arAddress1 || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, "arAddress1": e.target.value });
+                  if (editFormErrors.arAddress1) {
+                    setEditFormErrors({ ...editFormErrors, "arAddress1": '' });
+                  }
+                }}
+                placeholder="Enter shop address"
+                leftIcon={<FaMapLocation />}
+                error={editFormErrors.arAddress1}
+              />
+            </div>
+            <div className="form-group">
+              <TextBox
+                id="edit-address"
+                label="Address Line 2"
+                required={true}
+                value={editFormData.address2 || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, "address2": e.target.value });
+                  if (editFormErrors.address2) {
+                    setEditFormErrors({ ...editFormErrors, "address2": '' });
+                  }
+                }}
+                placeholder="Enter shop address"
+                leftIcon={<FaMapLocation />}
+                error={editFormErrors.address2}
+              />
+              <TextBox
+                id="edit-address"
+                label="Arabic Address Line 2"
+                required={true}
+                value={editFormData.arAddress2 || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, "arAddress2": e.target.value });
+                  if (editFormErrors.arAddress2) {
+                    setEditFormErrors({ ...editFormErrors, "arAddress2": '' });
+                  }
+                }}
+                placeholder="Enter shop address"
+                leftIcon={<FaMapLocation />}
+                error={editFormErrors.arAddress2}
+              />
+            </div>
+            <div className="form-group">
+              <TextBox
+                id="edit-address"
+                label="Address Line 3"
+                value={editFormData.address3 || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, "address3": e.target.value });
+                  if (editFormErrors.address3) {
+                    setEditFormErrors({ ...editFormErrors, "address3": '' });
+                  }
+                }}
+                placeholder="Enter shop address"
+                leftIcon={<FaMapLocation />}
+                error={editFormErrors.address3}
+              />
+              <TextBox
+                id="edit-address"
+                label="Arabic Address Line 3"
+                value={editFormData.arAddress3 || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, "arAddress3": e.target.value });
+                  if (editFormErrors.arAddress3) {
+                    setEditFormErrors({ ...editFormErrors, "arAddress3": '' });
+                  }
+                }}
+                placeholder="Enter shop address"
+                leftIcon={<FaMapLocation />}
+                error={editFormErrors.arAddress3}
+              />
+            </div>
+            <div className="form-group">
+              <TextBox
+                id="edit-city"
+                label="City"
+                required={true}
+                value={editFormData.city || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, city: e.target.value });
+                  if (editFormErrors.city) {
+                    setEditFormErrors({ ...editFormErrors, city: '' });
+                  }
+                }}
+                placeholder="Enter shop city"
+                leftIcon={<FaMapLocation />}
+                error={editFormErrors.city}
+              />
+              <TextBox
+                id="edit-ar-city"
+                label="Arabic City"
+                required={true}
+                value={editFormData.arCity || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, "arCity": e.target.value });
+                  if (editFormErrors.arCity) {
+                    setEditFormErrors({ ...editFormErrors, "arCity": '' });
+                  }
+                }}
+                placeholder="Enter shop city in arabic"
+                leftIcon={<FaMapLocation />}
+                error={editFormErrors.arCity}
+              />
+            </div>
+            <div className="form-group">
+              <TextBox
+                id="edit-country"
+                label="Country"
+                required={true}
+                value={editFormData.country || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, country: e.target.value });
+                  if (editFormErrors.country) {
+                    setEditFormErrors({ ...editFormErrors, country: '' });
+                  }
+                }}
+                placeholder="Enter shop country"
+                leftIcon={<FaMapLocation />}
+                error={editFormErrors.country}
+              />
+              <TextBox
+                id="edit-ar-country"
+                label="Arabic Country"
+                required={true}
+                value={editFormData.arCountry || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, "arCountry": e.target.value });
+                  if (editFormErrors.arCountry) {
+                    setEditFormErrors({ ...editFormErrors, "arCountry": '' });
+                  }
+                }}
+                placeholder="Enter shop country in arabic"
+                leftIcon={<FaMapLocation />}
+                error={editFormErrors.arCountry}
+              />
+            </div>
+            <div className="form-group">
+              <TextBox
+                id="edit-mobile"
+                label="Mobile"
+                required={true}
+                type="tel"
+                value={editFormData.mobile || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, mobile: e.target.value });
+                  if (editFormErrors.mobile) {
+                    setEditFormErrors({ ...editFormErrors, mobile: '' });
+                  }
+                }}
+                placeholder="Enter mobile number"
+                leftIcon={<FaPhone />}
+                showVirtualKeyboard={true}
+                error={editFormErrors.mobile}
+              />
+              <TextBox
+                id="edit-ar-mobile"
+                label="Arabic Mobile"
+                required={true}
+                type="tel"
+                value={editFormData.arMobile || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, "arMobile": e.target.value });
+                  if (editFormErrors.arMobile) {
+                    setEditFormErrors({ ...editFormErrors, "arMobile": '' });
+                  }
+                }}
+                placeholder="Enter mobile number"
+                leftIcon={<FaPhone />}
+                showVirtualKeyboard={true}
+                error={editFormErrors.arMobile}
               />
             </div>
             <div className="form-group">
               <TextBox
                 id="edit-phone"
                 label="Phone"
-                required={true}
                 type="tel"
                 value={editFormData.phone || ''}
                 onChange={(e) => {
-                  setEditFormData({ ...editFormData, phone: e.target.value });
+                  setEditFormData({ ...editFormData, "phone": e.target.value });
                   if (editFormErrors.phone) {
-                    setEditFormErrors({ ...editFormErrors, phone: '' });
+                    setEditFormErrors({ ...editFormErrors, "phone": '' });
                   }
                 }}
                 placeholder="Enter phone number"
@@ -566,9 +890,9 @@ function ShopsMasterData() {
                 type="email"
                 value={editFormData.email || ''}
                 onChange={(e) => {
-                  setEditFormData({ ...editFormData, email: e.target.value });
+                  setEditFormData({ ...editFormData, "email": e.target.value });
                   if (editFormErrors.email) {
-                    setEditFormErrors({ ...editFormErrors, email: '' });
+                    setEditFormErrors({ ...editFormErrors, "email": '' });
                   }
                 }}
                 placeholder="Enter email address"
@@ -584,13 +908,73 @@ function ShopsMasterData() {
                 required={true}
                 value={editFormData.trn || ''}
                 onChange={(e) => {
-                  setEditFormData({ ...editFormData, trn: e.target.value });
+                  setEditFormData({ ...editFormData, "trn": e.target.value });
                   if (editFormErrors.trn) {
-                    setEditFormErrors({ ...editFormErrors, trn: '' });
+                    setEditFormErrors({ ...editFormErrors, "trn": '' });
                   }
                 }}
                 placeholder="Enter TRN"
                 error={editFormErrors.trn}
+              />
+            </div>
+            <div className="form-group">
+              <TextBox
+                id="edit-customerSupportNumber"
+                label="Customer Support Number"
+                value={editFormData.customerSupportNumber || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, "customerSupportNumber": e.target.value });
+                  if (editFormErrors.customerSupportNumber) {
+                    setEditFormErrors({ ...editFormErrors, "customerSupportNumber": '' });
+                  }
+                }}
+                placeholder="Enter customer support number"
+                leftIcon={<FaMapLocation />}
+                error={editFormErrors.customerSupportNumber}
+              />
+              <TextBox
+                id="edit-ar-customerSupportNumber"
+                label="Arabic Customer Support Number"
+                value={editFormData.arCustomerSupportNumber || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, "arCustomerSupportNumber": e.target.value });
+                  if (editFormErrors.arCustomerSupportNumber) {
+                    setEditFormErrors({ ...editFormErrors, "arCustomerSupportNumber": '' });
+                  }
+                }}
+                placeholder="Enter customer support number in arabic"
+                leftIcon={<FaMapLocation />}
+                error={editFormErrors.arCustomerSupportNumber}
+              />
+            </div>
+              <div className="form-group">
+              <TextBox
+                id="edit-customerSupportHeader"
+                label="Customer Support Header"
+                value={editFormData.customerSupportHeader || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, "customerSupportHeader": e.target.value });
+                  if (editFormErrors.customerSupportHeader) {
+                    setEditFormErrors({ ...editFormErrors, "customerSupportHeader": '' });
+                  }
+                }}
+                placeholder="Enter customer support header"
+                leftIcon={<FaMapLocation />}
+                error={editFormErrors.customerSupportHeader}
+              />
+              <TextBox
+                id="edit-ar-customerSupportHeader"
+                label="Arabic Customer Support Header"
+                value={editFormData.arCustomerSupportHeader || ''}
+                onChange={(e) => {
+                  setEditFormData({ ...editFormData, "arCustomerSupportHeader": e.target.value });
+                  if (editFormErrors.arCustomerSupportHeader) {
+                    setEditFormErrors({ ...editFormErrors, "arCustomerSupportHeader": '' });
+                  }
+                }}
+                placeholder="Enter customer support header in arabic"
+                leftIcon={<FaMapLocation />}
+                error={editFormErrors.arCustomerSupportHeader}
               />
             </div>
           </div>
@@ -602,18 +986,11 @@ function ShopsMasterData() {
         isOpen={addModalOpen}
         onClose={() => {
           setAddModalOpen(false);
-          setAddFormData({
-            name: '',
-            code: '',
-            address: '',
-            phone: '',
-            email: '',
-            trn: '',
-          });
+          setAddFormData(EMPTY_SHOP);
           setAddFormErrors({});
         }}
         title="Add New Shop"
-        size="medium"
+        size="large"
         type="default"
         showCloseButton={true}
         closeOnOverlayClick={!saving}
@@ -623,14 +1000,7 @@ function ShopsMasterData() {
             label: 'Cancel',
             onClick: () => {
               setAddModalOpen(false);
-              setAddFormData({
-                name: '',
-                code: '',
-                address: '',
-                phone: '',
-                email: '',
-                trn: '',
-              });
+              setAddFormData(EMPTY_SHOP);
             },
             variant: 'secondary',
             disabled: saving,
@@ -646,7 +1016,7 @@ function ShopsMasterData() {
         <div className="modal-form">
           <div className="form-group">
             <TextBox
-            label="Shop Name"
+              label="Shop Name"
               id="add-name"
               value={addFormData.name}
               onChange={(e) => {
@@ -659,6 +1029,21 @@ function ShopsMasterData() {
               required={true}
               leftIcon={<FaHouseFlag />}
               error={addFormErrors.name}
+            />
+            <TextBox
+              label="Arabic Shop Name"
+              id="add-ar-name"
+              value={addFormData.arName}
+              onChange={(e) => {
+                setAddFormData({ ...addFormData, arName: e.target.value });
+                if (addFormErrors.arName) {
+                  setAddFormErrors({ ...addFormErrors, arName: '' });
+                }
+              }}
+              placeholder="Enter shop name"
+              required={true}
+              leftIcon={<FaHouseFlag />}
+              error={addFormErrors.arName}
             />
           </div>
           <div className="form-group">
@@ -683,16 +1068,131 @@ function ShopsMasterData() {
               label="Address"
               required={true}
               id="add-address"
-              value={addFormData.address}
+              value={addFormData.address1}
               onChange={(e) => {
-                setAddFormData({ ...addFormData, address: e.target.value });
-                if (addFormErrors.address) {
-                  setAddFormErrors({ ...addFormErrors, address: '' });
+                setAddFormData({ ...addFormData, address1: e.target.value });
+                if (addFormErrors.address1) {
+                  setAddFormErrors({ ...addFormErrors, address1: '' });
                 }
               }}
               placeholder="Enter shop address"
               leftIcon={<FaMapLocation />}
-              error={addFormErrors.address}
+              error={addFormErrors.address1}
+            />
+            <TextBox
+              label="Arabic Address"
+              required={true}
+              id="add-ar-address"
+              value={addFormData.arAddress1}
+              onChange={(e) => {
+                setAddFormData({ ...addFormData, arAddress1: e.target.value });
+                if (addFormErrors.arAddress1) {
+                  setAddFormErrors({ ...addFormErrors, arAddress1: '' });
+                }
+              }}
+              placeholder="Enter shop address"
+              leftIcon={<FaMapLocation />}
+              error={addFormErrors.arAddress1}
+            />
+          </div>
+          <div className="form-group">
+            <TextBox
+              label="Address Line 2"
+              required={true}
+              id="add-address"
+              value={addFormData.address2}
+              onChange={(e) => {
+                setAddFormData({ ...addFormData, address2: e.target.value });
+                if (addFormErrors.address2) {
+                  setAddFormErrors({ ...addFormErrors, address2: '' });
+                }
+              }}
+              placeholder="Enter shop address"
+              leftIcon={<FaMapLocation />}
+              error={addFormErrors.address2}
+            />
+            <TextBox
+              label="Arabic Address Line 2"
+              required={true}
+              id="add-ar-address"
+              value={addFormData.arAddress2}
+              onChange={(e) => {
+                setAddFormData({ ...addFormData, arAddress2: e.target.value });
+                if (addFormErrors.arAddress2) {
+                  setAddFormErrors({ ...addFormErrors, arAddress2: '' });
+                }
+              }}
+              placeholder="Enter shop address"
+              leftIcon={<FaMapLocation />}
+              error={addFormErrors.arAddress2}
+            />
+          </div>
+          <div className="form-group">
+            <TextBox
+              label="Address Line 3"
+              required={true}
+              id="add-address"
+              value={addFormData.address3}
+              onChange={(e) => {
+                setAddFormData({ ...addFormData, address3: e.target.value });
+                if (addFormErrors.address3) {
+                  setAddFormErrors({ ...addFormErrors, address3: '' });
+                }
+              }}
+              placeholder="Enter shop address"
+              leftIcon={<FaMapLocation />}
+              error={addFormErrors.address3}
+            />
+            <TextBox
+              label="Arabic Address Line 3"
+              required={true}
+              id="add-ar-address"
+              value={addFormData.arAddress3}
+              onChange={(e) => {
+                setAddFormData({ ...addFormData, arAddress3: e.target.value });
+                if (addFormErrors.arAddress3) {
+                  setAddFormErrors({ ...addFormErrors, arAddress3: '' });
+                }
+              }}
+              placeholder="Enter shop address"
+              leftIcon={<FaMapLocation />}
+              error={addFormErrors.arAddress3}
+            />
+          </div>
+          <div className="form-group">
+            <TextBox
+              id="add-mobile"
+              label="Mobile"
+              required={true}
+              type="tel"
+              value={addFormData.mobile}
+              onChange={(e) => {
+                setAddFormData({ ...addFormData, mobile: e.target.value });
+                if (addFormErrors.mobile) {
+                  setAddFormErrors({ ...addFormErrors, mobile: '' });
+                }
+              }}
+              placeholder="Enter mobile number"
+              leftIcon={<FaPhone />}
+              showVirtualKeyboard={true}
+              error={addFormErrors.mobile}
+            />
+            <TextBox
+              id="add-ar-mobile"
+              label="Arabic Mobile"
+              required={true}
+              type="tel"
+              value={addFormData.arMobile}
+              onChange={(e) => {
+                setAddFormData({ ...addFormData, arMobile: e.target.value });
+                if (addFormErrors.arMobile) {
+                  setAddFormErrors({ ...addFormErrors, arMobile: '' });
+                }
+              }}
+              placeholder="Enter Arabic mobile number"
+              leftIcon={<FaPhone />}
+              showVirtualKeyboard={true}
+              error={addFormErrors.arMobile}
             />
           </div>
           <div className="form-group">

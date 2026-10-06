@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import './NewOrderPage.css'
 import OrderPriceSelector from './OrderPriceSelector';
-import Modal from '../../../components/Modal/Modal';
-import { FiTag, FiSave, FiPlus, FiUser, FiPhone, FiCalendar, FiImage, FiX, FiFolder, FiCamera, FiChevronRight, FiEye, FiEdit2, FiStar, FiClock, FiAlertCircle, FiAlertTriangle, FiTruck, FiFeather, FiMinus, FiRefreshCw } from 'react-icons/fi';
-import { FcFlowChart } from 'react-icons/fc';
-import { FaCrown, FaTag } from "react-icons/fa";
+import { FiSave, FiClock, FiAlertCircle, FiAlertTriangle, FiTruck, FiFeather, FiMinus, FiRefreshCw, FiPrinter } from 'react-icons/fi';
 import WorkTypeSelector from './WorkTypeSelector';
-import SubOrderConfig from './SubOrderConfig';
-import WorkDescriptionSelector from './WorkDescriptionSelector';
-import PaymentSelector from './PaymentSelector';
 import OrderSummary from './OrderSummary';
 import { getEmirates, getMasterDataByTypes } from '../../../services/api/masterDataApi';
-import { getCustomers, createCustomerBasic } from '../../../services/api/customersApi';
+import { getCustomers } from '../../../services/api/customersApi';
 import { createOrder } from '../../../services/api/ordersApi';
 import { multipleGet } from '../../../utils/api';
 import NumericKeypad from '../../../components/NumericKeypad/NumericKeypad';
@@ -22,9 +16,10 @@ import SubOrderDetailList from './SubOrderDetailList';
 import { enums } from '../../../utils/enums';
 import StatusModal from '../../../components/StatusModel/StatusModel';
 import { getWorkTypes } from '../../../services/api/workTypeApi';
+import PrintOrderReceiptPopup from './PrintOrderReceiptPopup';
 export default function NewOrderPage() {
   const EMPTY_CREATE_ORDER = () => ({
-    id: Date.now(),
+    orderId: 0,
     isd: '+971',
     mobile: '',
     customerId: 0,
@@ -33,7 +28,7 @@ export default function NewOrderPage() {
     employeeId: 1,
     customerClass: 'Regular',
     price: 0,
-    priceGrage: '',
+    priceGragde: '',
     orderDate: new Date().toISOString().split('T')[0],
     deliveryDate: '',
     orderDetails: [],
@@ -48,22 +43,19 @@ export default function NewOrderPage() {
     orderNo: '12345'
   });
   const [workTypeList, setWorkTypeList] = useState([]);
+  const [deliveryDate, setDeliveryDate] = useState()
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const [keypadMode, setKeypadMode] = useState(null);
-  const [deliveryDate, setDeliveryDate] = useState('')
   const [customerList, setCustomerList] = useState([])
   const [emirateList, setEmirateList] = useState([])
   const [openPriceModel, setOpenPriceModel] = useState(false);
+  const [advancePercentageList, setAdvancePercentageList] = useState([])
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [workTypeSelectorModalOpen, setWorkTypeSelectorModalOpen] = useState(false)
   const [order, setOrder] = useState(EMPTY_CREATE_ORDER());
   const [isdCountry, setIsdCountry] = useState({ code: '+971', name: 'UAE', short: 'ARE' });
   const [phone, setPhone] = useState('');
-  const [customerName, setCustomerName] = useState('');
-  const [reviewOrderModalOpen, setReviewOrderModalOpen] = useState(false);
-  const [isCustomerExits, setIsCustomerExits] = useState(true);
   const [addCustomerModalOpen, setAddCustomerModalOpen] = useState(false);
-  const [validationSummaryModalOpen, setValidationSummaryModalOpen] = useState(false);
   const [paymentModeList, setPaymentModeList] = useState([])
   const [bookingTypeList, setBookingTypeList] = useState([]);
   const [urgencyList, setUrgencyList] = useState([]);
@@ -71,10 +63,16 @@ export default function NewOrderPage() {
   const [sleeveList, setSleeveList] = useState([]);
   const [lengthList, setLengthList] = useState([]);
   const [advanceAmount, setAdvanceAmount] = useState(0);
-  const [advancePercent, setAdvancePercent] = useState(50);
-  const [StatusModelData, setStatusModelData] = useState({ isOpen: false, title: '', message: '', type: 'info', onConfirm: null });
+  const [advancePercent, setAdvancePercent] = useState(0);
+  const [statusModelData, setStatusModelData] = useState({ isOpen: false, title: '', message: '', type: 'info', onConfirm: null });
+  const [showPrintReceiptPopup, setShowPrintReceiptPopup] = useState(false);
   const openPhoneKeypad = () => setKeypadMode('phone');
+   const openCustomeAdvanceAmountKeypad = () => setKeypadMode('advance');
   const closeKeypad = () => setKeypadMode(null);
+  const handlePrint = () => {
+    setStatusModelData((prev) => ({ ...prev, isOpen: false }));
+    setShowPrintReceiptPopup(true);
+  }
   const handleSave = () => {
     if (!ValidateOrder()) {
       return;
@@ -86,13 +84,20 @@ export default function NewOrderPage() {
           title: response.message,
           type: response.success ? 'success' : 'warn',
           buttonText: response.success ? 'Print' : "Ok",
-          showCloseButton: response.success
+          showCloseButton: response.success,
+          onConfirm: response.success ? handlePrint : undefined,
+          buttons:[{
+            buttonText:'Print',
+            handler: handlePrint,
+            icon:<FiPrinter/>
+          }]
         };
         if (response.success) {
           statusData.message = ` Order No: ${response.data}`;
-          setOrder({...EMPTY_CREATE_ORDER})
+          //setOrder({ ...EMPTY_CREATE_ORDER() })
         }
         setStatusModelData({ ...statusData });
+        setOrder(pre=>({...pre,["orderId"]:response?.data?.id}))
       })
       .catch(error => {
         var statusData = { isOpen: false, title: 'Something went wrong', type: 'error' };
@@ -141,7 +146,7 @@ export default function NewOrderPage() {
   }
 
   useEffect(() => {
-    multipleGet([getCustomers(1, 100), getEmirates(), getMasterDataByTypes([enums.masterDataCode.paymentMode, enums.masterDataCode.bookingType, enums.masterDataCode.urgency, enums.masterDataCode.length, enums.masterDataCode.neckline, enums.masterDataCode.sleeve]), getWorkTypes()])
+    multipleGet([getCustomers(1, 100), getEmirates(), getMasterDataByTypes([enums.masterDataCode.paymentMode, enums.masterDataCode.bookingType, enums.masterDataCode.urgency, enums.masterDataCode.length, enums.masterDataCode.neckline, enums.masterDataCode.sleeve, enums.masterDataCode.advancePercentage]), getWorkTypes()])
       .then(([customersRes, emiratesRes, masterDataRes, workTypesRes]) => {
         setCustomerList(customersRes.data.data);
         setEmirateList(emiratesRes.data.data);
@@ -151,6 +156,7 @@ export default function NewOrderPage() {
         setLengthList(masterDataRes.data.data.filter(item => item.masterDataType?.toLowerCase() === enums.masterDataCode.length) || []);
         setNeckLineList(masterDataRes.data.data.filter(item => item.masterDataType?.toLowerCase() === enums.masterDataCode.neckline) || []);
         setSleeveList(masterDataRes.data.data.filter(item => item.masterDataType?.toLowerCase() === enums.masterDataCode.sleeve) || []);
+        setAdvancePercentageList(masterDataRes?.data?.data?.filter((item) => item.masterDataType?.toLowerCase() === enums.masterDataCode.advancePercentage));
         if (workTypesRes.data.filter(x => x.code === '0').length === 0) {
           workTypesRes.data?.push({ id: 0, code: '0', name: 'All' });
         }
@@ -158,7 +164,10 @@ export default function NewOrderPage() {
       })
       .catch(err => console.error('Failed to load order prices or customers:', err));
   }, []);
-
+  const onCustomAdvanceAmountChange = ({ name, value }) => {
+    setAdvanceAmount(value);
+    setOrder(pre=>({...pre,["advanceAmount"]:value}));
+  }
   const onNumericPadChangeHandler = ({ name, value }) => {
     var model = order;
     model[name] = value;
@@ -174,7 +183,6 @@ export default function NewOrderPage() {
       model.customerName = '';
       model.customerClass = '';
       model.emirateId = 0;
-      setIsCustomerExits(false);
       setAddCustomerModalOpen(true);
       return;
     }
@@ -184,17 +192,18 @@ export default function NewOrderPage() {
     model.customerName = `${customer.firstName} ${customer.lastName}`;
     model.customerClass = customer.customerClass;
     setOrder({ ...model });
-    setIsCustomerExits(true);
     setAddCustomerModalOpen(false);
   };
-  const handleAdvanceChange = (e) => {
+  const handleAdvanceChange = (e,percentObj) => {
+    var percent=parseFloat(percentObj?.code);
+    var advanceAmount=(totalAmount*percent)/100;
     const value = Math.min(
-      Math.max(Number(e.target.value) || 0, 0),
+      (Math.ceil(advanceAmount / 100) * 100),
       totalAmount
     );
 
     setOrder({ ...order, ["advanceAmount"]: value });
-    setAdvancePercent(null);
+    setAdvancePercent(parseFloat(percentObj?.code));
   }
   return (
     <>
@@ -259,7 +268,7 @@ export default function NewOrderPage() {
           <div>
             <div className="panel order-summary-panel">
               <div className="payment-column actionButtons-container">
-                <button type="button" className="btn btn-danger actionButtons" onClick={() => setReviewOrderModalOpen(true)}>
+                <button type="button" className="btn btn-danger actionButtons" onClick={() => { }}>
                   <FiRefreshCw />
                   Reset
                 </button>
@@ -345,34 +354,30 @@ export default function NewOrderPage() {
                   Advance Payment
                 </div>
                 <div className="advance-options">
-                  {commonLogic.advancePercentage.map(percent => (
-                    <button
-                      key={percent}
-                      type="button"
-                      className={`advance-option ${advancePercent === percent ? 'active' : ''}`}
-                      onClick={() => {
-                        const amount = Math.round(((totalAmount * percent) / 100) / 50) * 50;
-                        setAdvancePercent(percent);
-                        handleAdvanceChange({ target: { value: amount } });
-                      }}
-                    >
-                      {percent}%
-                    </button>
-                  ))}
-
-                  {/* <button
+                  <button
                     type="button"
-                    className={`advance-option ${advancePercent === null ? 'active' : ''
-                      }`}
+                    className={`advance-option ${advancePercent == null ? 'active' : '' }`}
                     onClick={() => {
+                      openCustomeAdvanceAmountKeypad()
                       setAdvancePercent(null);
                       setAdvanceAmount(0);
                     }}
                   >
                     Custom
-                  </button> */}
+                  </button>
+                  {advancePercentageList?.map((percentObj, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      className={`advance-option ${advancePercent == percentObj?.code ? 'active' : ''}`}
+                      onClick={e =>handleAdvanceChange(e,percentObj) }
+                    >
+                      {percentObj?.displayValue}
+                    </button>
+                  ))}
+
                 </div>
-                <OrderSummary order={order} setOrder={setOrder} paymentModalOpen={paymentModalOpen} setPaymentModalOpen={setPaymentModalOpen} setReviewOrderModalOpen={setReviewOrderModalOpen} setValidationSummaryModalOpen={setValidationSummaryModalOpen} />
+                <OrderSummary order={order} setOrder={setOrder} paymentModalOpen={paymentModalOpen} setPaymentModalOpen={setPaymentModalOpen} />
               </div>
             </div>
 
@@ -391,7 +396,6 @@ export default function NewOrderPage() {
       </div>
 
       <OrderPriceSelector order={order} setOrder={setOrder} openPriceModel={openPriceModel} setOpenPriceModel={setOpenPriceModel}></OrderPriceSelector>
-      <PaymentSelector order={order} setOrder={setOrder} paymentModalOpen={paymentModalOpen} setPaymentModalOpen={setPaymentModalOpen} />
       <NumericKeypad
         isOpen={keypadMode === 'phone'}
         value={phone}
@@ -401,6 +405,19 @@ export default function NewOrderPage() {
         onClose={closeKeypad}
         label="Phone Number"
         maxLength={15}
+        maxRange={9999999999}
+      />
+      <NumericKeypad
+        isOpen={keypadMode === 'advance'}
+        value={advanceAmount}
+        name="mobile"
+        onChange={setAdvanceAmount}
+        onConfirm={onCustomAdvanceAmountChange}
+        onClose={closeKeypad}
+        label="Advance Amount"
+        maxLength={7}
+        maxRange={order?.totalAmount} 
+        showMaxValue={true}
       />
       <DatePickerModal
         isOpen={isDatePickerOpen}
@@ -415,18 +432,29 @@ export default function NewOrderPage() {
         onClose={() => setIsDatePickerOpen(false)}
       />
       <StatusModal
-        isOpen={StatusModelData.isOpen}
-        type={StatusModelData.type}
-        title={StatusModelData.title}
-        message={StatusModelData.message}
+        isOpen={statusModelData.isOpen}
+        type={statusModelData.type}
+        title={statusModelData.title}
+        message={statusModelData.message}
         onConfirm={() => {
-          setStatusModelData({ ...StatusModelData, isOpen: false });
+          setStatusModelData({ ...statusModelData, isOpen: false });
+          if (statusModelData.onConfirm) {
+            statusModelData.onConfirm();
+          }
         }}
         onClose={() => {
-          setStatusModelData({ ...StatusModelData, isOpen: false });
+          setStatusModelData({ ...statusModelData, isOpen: false });
         }}
       />
       <AddCustomerModel emirateList={emirateList} order={order} setOrder={setOrder} addCustomerModalOpen={addCustomerModalOpen} setAddCustomerModalOpen={setAddCustomerModalOpen}></AddCustomerModel>
+      <PrintOrderReceiptPopup
+        isOpen={showPrintReceiptPopup}
+        onClosePrintOrderReceiptPopup={() => setShowPrintReceiptPopup(false)}
+        setPrintReceiptHandler={() => {}}
+        showInPupop={true}
+        orderId={order?.orderId}
+        modelId={order?.orderId || 'print-order-receipt'}
+      />
     </>
   )
 }

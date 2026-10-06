@@ -85,9 +85,9 @@
 .snb-close {
   flex-shrink: 0;
   background: none;
-  border: none;
-  cursor: pointer;
-  padding: 2px;
+  background: var(--info-soft);
+  color: var(--brand-primary-deep);
+  border-bottom-color: color-mix(in srgb, var(--brand-primary) 30%, transparent);
   border-radius: 4px;
   color: inherit;
   opacity: 0.6;

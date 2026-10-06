@@ -1,4 +1,11 @@
-import { get, post, put, del,apiBasePath  as apiBaseUrl} from '../../utils/api';
+import {
+  get,
+  post,
+  put,
+  del,
+  apiBasePath as apiBaseUrl,
+} from '../../utils/api';
+import { notifyApiRequestEnd, notifyApiRequestStart } from '../../contexts/ApiLoaderContext';
 
 /**
  * Users API Service
@@ -34,26 +41,32 @@ export const deleteUser = (id) => {
 
 
 // Upload profile picture
-export const uploadProfilePicture = (id, file) => {
+export const uploadProfilePicture = async (id, file) => {
   const formData = new FormData();
   formData.append('file', file);
-  
+
   const token = localStorage.getItem('token') || sessionStorage.getItem('token');
   const apiUrl = process.env.REACT_APP_API_URL || 'https://localhost:7194';
-  
-  return fetch(`${apiUrl}/api/Users/${id}/profile-picture`, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      // Don't set Content-Type header, browser will set it with boundary for FormData
-      ...(token && { 'Authorization': `Bearer ${token}` }),
-    },
-  }).then(response => {
+
+  notifyApiRequestStart();
+
+  try {
+    const response = await fetch(`${apiUrl}/api/Users/${id}/profile-picture`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    });
+
     if (!response.ok) {
       throw new Error(`API Error: ${response.status} ${response.statusText}`);
     }
+
     return response.json();
-  });
+  } finally {
+    notifyApiRequestEnd();
+  }
 };
 
 // Delete profile picture

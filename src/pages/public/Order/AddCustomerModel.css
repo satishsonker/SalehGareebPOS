@@ -14,18 +14,13 @@
 .customer-error {
     display: flex;
     align-items: center;
-
     margin-bottom: 14px;
     padding: 9px 11px;
-
-    border: 1px solid #efc5c1;
+    border: 1px solid var(--alert-border);
     border-radius: 7px;
-
-    background: #fff6f5;
-
-    color: #a52a22;
-
-    font-size: 11px;
+    background: var(--alert-bg);
+    color: var(--alert-color);
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -188,7 +183,7 @@
         0 0 0 2px rgba(31, 42, 68, .06);
 }
 
-.customer-input > svg {
+.customer-input>svg {
     flex-shrink: 0;
 
     margin-left: 10px;
@@ -245,7 +240,7 @@
    FOOTER
    ========================================================= */
 
-.customer-modal + .op-footer {
+.customer-modal+.op-footer {
     width: 100%;
 }
 

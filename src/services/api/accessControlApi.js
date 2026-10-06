@@ -1,3 +1,4 @@
+import { getCachedApi } from '../../cache/apiCache';
 import { get, post, del } from '../../utils/api';
 
 /**
@@ -16,7 +17,10 @@ export const grantShopAccess = (data) => {
 };
 
 export const getAllShopAccess = () => {
-  return get(`${API_CONTROLLER}/shop-access/get/all`);
+   return getCachedApi({
+          key: `shop-access-list-user-wise`,  
+          fetcher: () =>get(`${API_CONTROLLER}/shop-access/get/all`)
+      });
 };
 
 export const grantBulkShopAccess = (data) => {

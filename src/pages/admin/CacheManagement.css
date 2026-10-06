@@ -101,8 +101,8 @@
 }
 
 .cm-service-badge {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--info-soft);
+  color: var(--brand-primary);
   padding: 2px 8px;
   border-radius: 20px;
   font-size: 0.75rem;

@@ -49,16 +49,18 @@ export default function WorkTypeSelector({ options }) {
     const handleWorkDescSelection = desc => {
         const model = { ...options.order };
         const detailIndex = model?.selectedSubOrderIndex;
-        let descriptions = [...(model?.orderDetails?.[detailIndex]?.workDescriptions || [])];
-
-        if (descriptions.some(x => x.id === desc.id)) {
+        let workTypes = [...(model?.orderDetails?.[detailIndex]?.workTypes|| [])];
+        let descriptions = [...(model?.orderDetails?.[detailIndex]?.workTypes?.find(x => x.workTypeId === desc.workTypeId)?.workDescriptions || [])];
+        if (descriptions.some(x => x.workTypeId === desc.workTypeId)) {
             descriptions = descriptions.filter(x => x.id !== desc.id);
         } else {
             descriptions.push(desc);
         }
 
         if (descriptions.length > 0) setError({ message: "" });
-        model.orderDetails[detailIndex].workDescriptions = descriptions;
+        if(!model.orderDetails[detailIndex].workTypes)
+            model.orderDetails[detailIndex].workTypes=[];
+        model.orderDetails[detailIndex].workTypes.find(x => x.workTypeId === desc.workTypeId).workDescriptions = descriptions;
         options.setOrder(model);
     };
 
@@ -81,6 +83,9 @@ export default function WorkTypeSelector({ options }) {
         return NO_DATA_MESSAGE("Please select any sub order");
     }
 
+    const isConfigured = (workType) => {
+        return options?.order?.orderDetails[options?.order?.selectedSubOrderIndex]?.workType?.workDescriptions?.filter(x => x.workTypeCode === workType?.code?.toString())?.length > 0;
+    }
     return (
         <Modal
             isOpen={options.workTypeSelectorModalOpen}
@@ -114,56 +119,57 @@ export default function WorkTypeSelector({ options }) {
             }
         >
             <div className="worktype-selector">
-                <section className="wt-panel wt-work-panel">
-                    <div className="wt-panel-header">
-                        <div>
-                            <div className="wt-panel-title">WORK TYPES</div>
-                            <div className="wt-panel-subtitle">Select work type</div>
-                        </div>
-                        <div className="wt-count">
-                            {selectedSubOrder?.workTypes?.length || 0} SELECTED
-                        </div>
-                    </div>
-                    <div className="wt-work-list">
-                        {options.workTypeList?.filter(x => x.code !== "0")?.map(workType => {
-                            const selected = isWorkTypeSelected(workType.code);
-                            const current =
-                                currentClickedWorkType?.toString() === workType.code?.toString();
 
-                            return (
-                                <button
-                                    type="button"
-                                    key={workType.id}
-                                    className={`wt-work-card ${selected ? "selected" : ""} ${current ? "current" : ""}`}
-                                    onClick={() => handleWorkTypeClick(workType)}
-                                >
-                                    <div className="wt-work-code">
-                                        {selected ? <FiCheck size={13} /> : workType.code}
-                                    </div>
-                                    <div className="wt-work-info">
-                                        <div className="wt-work-short">
-                                            {commonLogic.workTypeCodesAbbr(workType.code)}
-                                        </div>
-                                        <div className="wt-work-name">
-                                            {workType.code === "0"
-                                                ? "Select all"
-                                                : workType.name?.replace("Emboardery", "Emb.")}
-                                        </div>
-                                    </div>
-                                    {selected && (
-                                        <div className="wt-work-check">
-                                            <FiCheck size={14} />
-                                        </div>
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </section>
 
                 <div className="wt-bottom-layout">
                     <section className="wt-panel wt-description-panel">
-                        <div className="wt-panel-header">
+                        <section className="wt-panel wt-work-panel">
+                            <div className="wt-panel-header">
+                                <div>
+                                    <div className="wt-panel-title">WORK TYPES</div>
+                                    <div className="wt-panel-subtitle">Select work type</div>
+                                </div>
+                                <div className="wt-count">
+                                    {selectedSubOrder?.workTypes?.length || 0} SELECTED
+                                </div>
+                            </div>
+                            <div className="wt-work-list">
+                                {options.workTypeList?.filter(x => x.code !== "0")?.map(workType => {
+                                    const selected = isWorkTypeSelected(workType.code);
+                                    const current = currentClickedWorkType?.toString() === workType.code?.toString();
+                                    if(!selected)
+                                        return;
+                                    return (
+                                        <button
+                                            type="button"
+                                            key={workType.id}
+                                            className={`wt-work-card ${selected ? "selected" : ""} ${current ? "current" : ""} ${isConfigured(workType)?'configured':""}`}
+                                            onClick={() => handleWorkTypeClick(workType)}
+                                        >
+                                            {/* <div className="wt-work-code">
+                                                {selected ? <FiCheck size={13} /> : workType.code}
+                                            </div> */}
+                                            <div className="wt-work-info">
+                                                <div className="wt-work-short">
+                                                    {commonLogic.workTypeCodesAbbr(workType.code)}
+                                                </div>
+                                                <div className="wt-work-name">
+                                                    {workType.code === "0"
+                                                        ? "Select all"
+                                                        : workType.name?.replace("Emboardery", "Emb.")}
+                                                </div>
+                                            </div>
+                                            {selected && (
+                                                <div className="wt-work-check">
+                                                    <FiCheck size={30} />
+                                                </div>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </section>
+                        {/* <div className="wt-panel-header">
                             <div>
                                 <div className="wt-panel-title">SELECT WORK DESCRIPTIONS</div>
                                 <div className="wt-panel-subtitle">
@@ -175,7 +181,7 @@ export default function WorkTypeSelector({ options }) {
                             <div className="wt-count">
                                 {selectedSubOrder?.workDescriptions?.length || 0} SELECTED
                             </div>
-                        </div>
+                        </div> */}
                         <div className="wt-description-list">
                             {isWorkTypeSelected(currentClickedWorkType) ? (
                                 filteredWorkDescByWorkCode?.length > 0 ? (
@@ -216,13 +222,13 @@ export default function WorkTypeSelector({ options }) {
                                     <button
                                         key={mode?.code}
                                         type="button"
-                                        className={`wt-option-btn ${selectedSubOrder?.neckline === mode?.code ? "active" : ""}`}
+                                        className={`wt-option-btn ${selectedSubOrder?.measurement?.neckline === mode?.code ? "active" : ""}`}
                                         onClick={() => {
                                             const orderDetails = [...options.order.orderDetails];
-                                            orderDetails[options.order.selectedSubOrderIndex] = {
-                                                ...orderDetails[options.order.selectedSubOrderIndex],
-                                                neckline: mode?.code
-                                            };
+                                            if(!orderDetails[options.order.selectedSubOrderIndex].measurement) {
+                                                orderDetails[options.order.selectedSubOrderIndex].measurement = {};
+                                            }
+                                            orderDetails[options.order.selectedSubOrderIndex].measurement.neckline = mode?.code;
 
                                             options.setOrder({
                                                 ...options.order,
@@ -244,13 +250,14 @@ export default function WorkTypeSelector({ options }) {
                                     <button
                                         key={mode?.code}
                                         type="button"
-                                        className={`wt-option-btn ${selectedSubOrder?.length === mode?.code ? "active" : ""}`}
+                                        className={`wt-option-btn ${selectedSubOrder?.measurement?.length === mode?.code ? "active" : ""}`}
                                         onClick={() => {
                                             const orderDetails = [...options.order.orderDetails];
-                                            orderDetails[options.order.selectedSubOrderIndex] = {
-                                                ...orderDetails[options.order.selectedSubOrderIndex],
-                                                length: mode?.code
-                                            };
+                                             if(!orderDetails[options.order.selectedSubOrderIndex].measurement) {
+                                                orderDetails[options.order.selectedSubOrderIndex].measurement = {};
+                                            }
+                                            orderDetails[options.order.selectedSubOrderIndex].measurement.length = mode?.code;
+
 
                                             options.setOrder({
                                                 ...options.order,
@@ -272,13 +279,13 @@ export default function WorkTypeSelector({ options }) {
                                     <button
                                         key={mode?.code}
                                         type="button"
-                                        className={`wt-option-btn ${selectedSubOrder?.sleeves === mode?.code ? "active" : ""}`}
+                                        className={`wt-option-btn ${selectedSubOrder?.measurement?.sleeve === mode?.code ? "active" : ""}`}
                                         onClick={() => {
                                             const orderDetails = [...options.order.orderDetails];
-                                            orderDetails[options.order.selectedSubOrderIndex] = {
-                                                ...orderDetails[options.order.selectedSubOrderIndex],
-                                                sleeves: mode?.code
-                                            };
+                                            if(!orderDetails[options.order.selectedSubOrderIndex].measurement) {
+                                                orderDetails[options.order.selectedSubOrderIndex].measurement = {};
+                                            }
+                                            orderDetails[options.order.selectedSubOrderIndex].measurement.sleeve = mode?.code;
 
                                             options.setOrder({
                                                 ...options.order,

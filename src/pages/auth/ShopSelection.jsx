@@ -112,7 +112,7 @@ function ShopSelection() {
                                     type="button"
                                     className={`shopselection-shop-card ${isSelected ? "selected" : ""}`}
                                     style={{ "--shop-color": color }}
-                                    onClick={() => setSelectedShop(shop.id)}
+                                    onClick={() => setSelectedShop(shop)}
                                 >
                                     <div className="shopselection-card-circles" />
 

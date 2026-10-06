@@ -1,5 +1,6 @@
+import { getCachedApi } from '../../cache/apiCache';
 import { get, post, put, del } from '../../utils/api';
-
+const cacheExpiration = 60 * 60 * 1000; // 1 hour
 
 
 // Get all MasterDatas
@@ -30,16 +31,26 @@ export const getMasterDataByType = (type) => {
   return get(`/MasterData/by-type/${type}?pageNo=1&pageSize=100`);
 };
 export const getMasterDataByTypes = (types) => {
-  return get(`/MasterData/by-types/${types.join('%2C')}?pageNo=1&pageSize=100`);
+  return getCachedApi({
+    key: `master-data-by-type-list:${1}:${100}`,
+    fetcher: () =>
+      get(`/MasterData/by-types/${types.join('%2C')}?pageNo=${1}&pageSize=${100}`),
+    expiration: cacheExpiration // 1 hour
+  });
 };
 
 export const getMasterDataTypes = () => {
   return get(`/MasterData/types`);
 };
-export const searchMasterData = (pageNo,PageSize,query) => {
+export const searchMasterData = (pageNo, PageSize, query) => {
   return get(`/MasterData/search?pageNo=${pageNo}&pageSize=${PageSize}&q=${query}`);
 };
 
 export const getEmirates = () => {
-  return get(`/MasterData/by-type/emirate?pageNo=1&pageSize=100`);
+  return getCachedApi({
+    key: `emirates-list:${1}:${100}`,
+    fetcher: () =>
+      get(`/MasterData/by-type/emirate?pageNo=1&pageSize=100`),
+    expiration: cacheExpiration // 1 hour
+  });
 };

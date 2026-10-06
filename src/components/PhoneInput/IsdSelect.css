@@ -85,7 +85,7 @@
   transition: background 0.1s;
 }
 .isd-option:hover       { background: var(--color-bg-subtle, #f8fafc); }
-.isd-option--active     { background: #eff6ff; }
+.isd-option--active     { background: var(--info-soft); }
 
 .isd-option__flag-img {
   width: 26px;

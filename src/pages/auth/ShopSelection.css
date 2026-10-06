@@ -38,10 +38,10 @@
   align-items: center;
   justify-content: center;
   border-radius: 16px;
-  background: var(--accent-color, #2563eb);
-  color: #fff;
+  background: var(--brand-primary);
+  color: var(--text-inverse);
   font-size: 28px;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--brand-primary) 22%, transparent);
 }
 
 .shopselection-header h1 {
@@ -110,7 +110,7 @@
 }
 
 .shopselection-shop-card:focus-visible {
-  outline: 3px solid var(--accent-color, #2563eb);
+  outline: 3px solid var(--brand-primary);
   outline-offset: 4px;
 }
 
@@ -242,8 +242,8 @@
   padding: 15px 24px;
   border: none;
   border-radius: 12px;
-  background: var(--accent-color, #2563eb);
-  color: #fff;
+  background: var(--brand-primary);
+  color: var(--btn-primary-text);
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -252,7 +252,7 @@
 
 .shopselection-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--brand-primary) 28%, transparent);
 }
 
 .shopselection-button:active:not(:disabled) {
