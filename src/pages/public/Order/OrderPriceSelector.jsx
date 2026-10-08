@@ -333,8 +333,7 @@ export default function OrderPriceSelector({
                         selectedPrice.crystalPackets
                     ),
                     grade: selectedPrice.grade,
-                    isCustom: selectedPrice.isCustom,
-                    workDescriptions: []
+                    isCustom: selectedPrice.isCustom,                    workTypes: [],                    workDescriptions: []
                 })
             );
 

@@ -32,41 +32,56 @@ export default function SubOrderDetailList({ order, setOrder, setWorkTypeSelecto
     const handleWorkTypeSelection = (e, workType, index) => {
         e.stopPropagation();
         var model = order;
-        workType.workTypeId=workType.id;
         model.selectedSubOrderIndex = index;
-        if (workType.code === '0') {
-            var totalWorkCodes = workTypeList?.filter(c => c.code !== '0')?.length;
-            if (model.orderDetails[index].workTypes?.filter(c => c.code !== '0').length === totalWorkCodes) {
-                model.orderDetails[index].workTypes = [];
-                setOrder({ ...model });
-                return;
-            }
-            if (!model.orderDetails[index].workTypes || model.orderDetails[index].workTypes?.length < totalWorkCodes) {
-                model.orderDetails[index].workTypes = workTypeList?.filter(c => c.code !== '0') || [];
-                setOrder({ ...model });
-                return;
-            }
+
+        const workTypeCode = workType?.code;
+        const normalizedWorkTypes = Array.isArray(model.orderDetails[index]?.workTypes)
+            ? model.orderDetails[index].workTypes.map(item => ({
+                ...item,
+                workDescriptions: Array.isArray(item?.workDescriptions) ? [...item.workDescriptions] : []
+            }))
+            : [];
+
+        if (workTypeCode === '0') {
+            const allWorkTypes = (workTypeList || []).filter(c => c.code !== '0').map(item => ({
+                ...item,
+                workTypeId: item?.id ?? item?.workTypeId,
+                workDescriptions: []
+            }));
+
+            const hasAllSelected = normalizedWorkTypes.filter(c => c.code !== '0').length === allWorkTypes.length;
+            model.orderDetails[index].workTypes = hasAllSelected ? [] : allWorkTypes;
+            setOrder({ ...model });
+            return;
         }
-        var savedWorkTypes = model.orderDetails[index]?.workTypes || [];
-        if (savedWorkTypes.filter(c => c.code === workType.code)?.length > 0) {
-            savedWorkTypes = savedWorkTypes?.filter(c => c.code !== workType.code);
-             model.orderDetails[index].workDescriptions = model.orderDetails[index].workDescriptions?.filter(c => c.workTypeCode !== workType.code.toString());
+
+        const existingIndex = normalizedWorkTypes.findIndex(item => String(item?.code ?? item?.workTypeCode) === String(workTypeCode));
+
+        if (existingIndex >= 0) {
+            normalizedWorkTypes.splice(existingIndex, 1);
         } else {
-            savedWorkTypes.push(workType);
+            normalizedWorkTypes.push({
+                ...workType,
+                workTypeId: workType?.id ?? workType?.workTypeId,
+                workDescriptions: []
+            });
         }
-        model.orderDetails[index].workTypes = savedWorkTypes;
+
+        model.orderDetails[index].workTypes = normalizedWorkTypes;
         setOrder({ ...model });
     }
 
     const isWorkTypeSelected = (workTypeCode, index) => {
-        return order?.orderDetails?.[index]?.workTypes?.filter(workType => workType.code === workTypeCode)?.length > 0;
+        return order?.orderDetails?.[index]?.workTypes?.some(workType => String(workType.code ?? workType.workTypeCode) === String(workTypeCode));
     }
 
     const getWorkTypeSelectedClass = (workTypeCode, index) => {
        var className= "subOrderDetailList-item__workTypeBadge ";
         if(isWorkTypeSelected(workTypeCode, index))
             className=className+'active ';
-        if(order?.orderDetails?.[index]?.workDescriptions?.filter(workType => workType.workTypeCode === workTypeCode.toString())?.length > 0)
+
+        const selectedWorkType = order?.orderDetails?.[index]?.workTypes?.find(workType => String(workType.code ?? workType.workTypeCode) === String(workTypeCode));
+        if((selectedWorkType?.workDescriptions ?? []).length > 0)
             className=className+'active_selected';
         return className;
     }

@@ -6,6 +6,111 @@ import Modal from "../../../components/Modal/Modal";
 import { commonLogic } from "../../../utils/commonLogic";
 import SubOrderDetailSkeleton from "./SubOrderDetailSkeleton";
 
+export const getMatchingWorkType = (workTypes = [], workType = {}) => {
+    if (!Array.isArray(workTypes)) return null;
+
+    const targetId = workType?.id ?? workType?.workTypeId;
+    const targetCode = workType?.code ?? workType?.workTypeCode;
+
+    return (
+        workTypes.find(item => {
+            const currentId = item?.id ?? item?.workTypeId;
+            const currentCode = item?.code ?? item?.workTypeCode;
+
+            return (
+                (targetId !== undefined && targetId !== null && String(currentId) === String(targetId)) ||
+                (targetCode !== undefined && targetCode !== null && String(currentCode) === String(targetCode))
+            );
+        }) ?? null
+    );
+};
+
+export const toggleWorkTypeDescriptionSelection = (workTypes = [], workTypeList = [], desc = null) => {
+    if (!desc) return workTypes;
+
+    const normalizedWorkTypes = Array.isArray(workTypes)
+        ? workTypes.map(item => ({
+            ...item,
+            workDescriptions: Array.isArray(item?.workDescriptions) ? [...item.workDescriptions] : []
+        }))
+        : [];
+
+    const matchingWorkType =
+        getMatchingWorkType(normalizedWorkTypes, desc) ??
+        getMatchingWorkType(
+            (workTypeList || []).map(item => ({
+                ...item,
+                workTypeId: item?.id ?? item?.workTypeId
+            })),
+            desc
+        );
+
+    const sourceWorkType =
+        matchingWorkType ??
+        (workTypeList || []).find(item => {
+            const itemId = item?.id ?? item?.workTypeId;
+            const itemCode = item?.code ?? item?.workTypeCode;
+            return (
+                (desc?.workTypeId !== undefined && desc?.workTypeId !== null && String(itemId) === String(desc.workTypeId)) ||
+                (desc?.workTypeCode !== undefined && desc?.workTypeCode !== null && String(itemCode) === String(desc.workTypeCode))
+            );
+        });
+
+    const workTypeEntry = sourceWorkType
+        ? {
+            ...sourceWorkType,
+            id: sourceWorkType?.id ?? sourceWorkType?.workTypeId,
+            workTypeId: sourceWorkType?.id ?? sourceWorkType?.workTypeId,
+            code: sourceWorkType?.code ?? sourceWorkType?.workTypeCode,
+            workDescriptions: Array.isArray(sourceWorkType?.workDescriptions) ? [...sourceWorkType.workDescriptions] : []
+        }
+        : {
+            id: desc?.workTypeId,
+            workTypeId: desc?.workTypeId,
+            code: desc?.workTypeCode,
+            workTypeCode: desc?.workTypeCode,
+            workDescriptions: []
+        };
+
+    const existingWorkTypeIndex = normalizedWorkTypes.findIndex(item =>
+        String(item?.id ?? item?.workTypeId) === String(workTypeEntry?.id ?? workTypeEntry?.workTypeId) ||
+        String(item?.code ?? item?.workTypeCode) === String(workTypeEntry?.code ?? workTypeEntry?.workTypeCode)
+    );
+
+    if (existingWorkTypeIndex >= 0) {
+        normalizedWorkTypes[existingWorkTypeIndex] = {
+            ...normalizedWorkTypes[existingWorkTypeIndex],
+            ...workTypeEntry,
+            workDescriptions: Array.isArray(normalizedWorkTypes[existingWorkTypeIndex].workDescriptions)
+                ? [...normalizedWorkTypes[existingWorkTypeIndex].workDescriptions]
+                : []
+        };
+    } else {
+        normalizedWorkTypes.push(workTypeEntry);
+    }
+
+    const targetEntry = normalizedWorkTypes.find(item =>
+        String(item?.id ?? item?.workTypeId) === String(workTypeEntry?.id ?? workTypeEntry?.workTypeId) ||
+        String(item?.code ?? item?.workTypeCode) === String(workTypeEntry?.code ?? workTypeEntry?.workTypeCode)
+    );
+
+    const existingDescriptions = Array.isArray(targetEntry?.workDescriptions) ? [...targetEntry.workDescriptions] : [];
+    const alreadySelected = existingDescriptions.some(item => String(item.id) === String(desc.id));
+
+    targetEntry.workDescriptions = alreadySelected
+        ? existingDescriptions.filter(item => String(item.id) !== String(desc.id))
+        : [
+            ...existingDescriptions,
+            {
+                ...desc,
+                workTypeId: targetEntry?.workTypeId ?? targetEntry?.id ?? desc.workTypeId,
+                workTypeCode: targetEntry?.code ?? targetEntry?.workTypeCode ?? desc.workTypeCode
+            }
+        ];
+
+    return normalizedWorkTypes;
+};
+
 export default function WorkTypeSelector({ options }) {
     const [workDescriptionList, setWorkDescriptionList] = useState([]);
     const [currentClickedWorkType, setCurrentClickedWorkType] = useState(0);
@@ -15,7 +120,11 @@ export default function WorkTypeSelector({ options }) {
     const selectedSubOrder = options.order?.orderDetails?.[options.order?.selectedSubOrderIndex];
 
     const getActiveClassForDesc = ele =>
-        selectedSubOrder?.workDescriptions?.some(x => x.id === ele.id) ? "active" : "";
+        selectedSubOrder?.workTypes?.some(workType =>
+            (workType?.workDescriptions ?? []).some(desc => String(desc.id) === String(ele.id))
+        )
+            ? "active"
+            : "";
 
     useEffect(() => {
         getWorkTypeDescriptions()
@@ -47,20 +156,31 @@ export default function WorkTypeSelector({ options }) {
     };
 
     const handleWorkDescSelection = desc => {
-        const model = { ...options.order };
+        const model = {
+            ...options.order,
+            orderDetails: [...(options.order?.orderDetails ?? [])]
+        };
         const detailIndex = model?.selectedSubOrderIndex;
-        let workTypes = [...(model?.orderDetails?.[detailIndex]?.workTypes|| [])];
-        let descriptions = [...(model?.orderDetails?.[detailIndex]?.workTypes?.find(x => x.workTypeId === desc.workTypeId)?.workDescriptions || [])];
-        if (descriptions.some(x => x.workTypeId === desc.workTypeId)) {
-            descriptions = descriptions.filter(x => x.id !== desc.id);
-        } else {
-            descriptions.push(desc);
+
+        if (detailIndex === undefined || detailIndex < 0) return;
+
+        const targetWorkTypes = Array.isArray(model.orderDetails[detailIndex]?.workTypes)
+            ? model.orderDetails[detailIndex].workTypes.map(item => ({
+                ...item,
+                workDescriptions: Array.isArray(item?.workDescriptions) ? [...item.workDescriptions] : []
+            }))
+            : [];
+
+        model.orderDetails[detailIndex].workTypes = toggleWorkTypeDescriptionSelection(
+            targetWorkTypes,
+            options.workTypeList || [],
+            desc
+        );
+
+        if (model.orderDetails[detailIndex].workTypes?.some(item => (item?.workDescriptions ?? []).length > 0)) {
+            setError({ message: "" });
         }
 
-        if (descriptions.length > 0) setError({ message: "" });
-        if(!model.orderDetails[detailIndex].workTypes)
-            model.orderDetails[detailIndex].workTypes=[];
-        model.orderDetails[detailIndex].workTypes.find(x => x.workTypeId === desc.workTypeId).workDescriptions = descriptions;
         options.setOrder(model);
     };
 
@@ -84,8 +204,11 @@ export default function WorkTypeSelector({ options }) {
     }
 
     const isConfigured = (workType) => {
-        return options?.order?.orderDetails[options?.order?.selectedSubOrderIndex]?.workType?.workDescriptions?.filter(x => x.workTypeCode === workType?.code?.toString())?.length > 0;
-    }
+        return selectedSubOrder?.workTypes?.some(item =>
+            String(item?.code ?? item?.workTypeCode) === String(workType?.code) &&
+            (item?.workDescriptions ?? []).length > 0
+        );
+    };
     return (
         <Modal
             isOpen={options.workTypeSelectorModalOpen}

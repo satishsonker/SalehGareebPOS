@@ -33,18 +33,19 @@ export default function WorkDescriptionSelector({ order, setOrder }) {
     }, [])
 
     useEffect(() => {
-        var data = order?.orderDetails[order.selectedSubOrderIndex]?.workDescriptions?.filter(x => x.code === selectedWorkTypeCode);
-        if (data) {
-            setSelectedWorkDescriptions([...data]);
-        }
-    }, [order?.selectedSubOrderIndex])
+        const selectedWorkType = order?.orderDetails?.[order.selectedSubOrderIndex]?.workTypes?.find(
+            x => String(x?.code ?? x?.workTypeCode) === String(selectedWorkTypeCode)
+        );
+        setSelectedWorkDescriptions(selectedWorkType?.workDescriptions ?? []);
+    }, [order?.selectedSubOrderIndex, selectedWorkTypeCode, order?.orderDetails])
 
 
     const isWorkTypeExistInSuborder = (ele) => {
         if (order?.selectedSubOrderIndex === undefined)
-            return;
-        var index = order?.orderDetails[order?.selectedSubOrderIndex]?.workTypes?.indexOf(parseInt(ele?.code));
-        return index > -1 ? true : false;
+            return false;
+        return order?.orderDetails?.[order.selectedSubOrderIndex]?.workTypes?.some(
+            x => String(x?.code ?? x?.workTypeCode) === String(ele?.code)
+        ) ?? false;
     }
 
     const handleWorkDescSave = () => {
@@ -53,34 +54,55 @@ export default function WorkDescriptionSelector({ order, setOrder }) {
             return;
         }
 
-        var model = order;
+        var model = { ...order, orderDetails: [...(order?.orderDetails ?? [])] };
         if (model?.orderDetails[order?.selectedSubOrderIndex] !== undefined) {
-            model.orderDetails[order?.selectedSubOrderIndex].workDescriptions = selectedWorkDescriptions;
-            setOrder({ ...model });
+            const selectedSubOrder = model.orderDetails[order.selectedSubOrderIndex];
+            const selectedWorkType = selectedSubOrder?.workTypes?.find(
+                x => String(x?.code ?? x?.workTypeCode) === String(selectedWorkTypeCode)
+            );
+
+            if (selectedWorkType) {
+                selectedWorkType.workDescriptions = selectedWorkDescriptions;
+            } else {
+                selectedSubOrder.workTypes = [
+                    ...(selectedSubOrder.workTypes ?? []),
+                    {
+                        code: selectedWorkTypeCode,
+                        workDescriptions: selectedWorkDescriptions
+                    }
+                ];
+            }
+
+            setOrder(model);
             setWorkDescSelectorOpen(false);
             setSelectedWorkDescriptions([]);
             setSelectedWorkTypeCode(0);
         }
     }
     const handleWorkTypeSelection = (workTypeCode) => {
-        setSelectedWorkDescriptions(order.orderDetails[order?.selectedSubOrderIndex].workDescriptions ?? []);
+        const selectedSubOrder = order?.orderDetails?.[order?.selectedSubOrderIndex];
+        const selectedWorkType = selectedSubOrder?.workTypes?.find(
+            x => String(x?.code ?? x?.workTypeCode) === String(workTypeCode)
+        );
+        setSelectedWorkDescriptions(selectedWorkType?.workDescriptions ?? []);
         setWorkDescSelectorOpen(true);
         setSelectedWorkTypeCode(workTypeCode);
     }
 
     const handleWorkDescSelection = (desc) => {
-        let uniqueWorkDescriptions = [
-            ...new Map(
-                [
-                    ...selectedWorkDescriptions,
-                    ...(order.orderDetails[order?.selectedSubOrderIndex].workDescriptions ?? [])
-                ].map(item => [item.id, item])
-            ).values()
-        ];
+        const selectedSubOrder = order?.orderDetails?.[order?.selectedSubOrderIndex];
+        const selectedWorkType = selectedSubOrder?.workTypes?.find(
+            x => String(x?.code ?? x?.workTypeCode) === String(selectedWorkTypeCode)
+        );
+
+        const existingDescriptions = [...(selectedWorkType?.workDescriptions ?? []), ...selectedWorkDescriptions];
+        let uniqueWorkDescriptions = [...new Map(existingDescriptions.map(item => [item.id, item])).values()];
+
         if (uniqueWorkDescriptions.filter(x => x.id === desc.id).length > 0)
             uniqueWorkDescriptions = uniqueWorkDescriptions.filter(x => x.id !== desc.id);
         else
             uniqueWorkDescriptions.push(desc);
+
         if (uniqueWorkDescriptions.length > 0) {
             setError({ message: '' });
         }
@@ -96,12 +118,17 @@ export default function WorkDescriptionSelector({ order, setOrder }) {
     }
 
     const countDescriptionByWorkType = (workTypeCode) => {
-        return order?.orderDetails[order.selectedSubOrderIndex]?.workDescriptions?.filter(x => x.workTypeCode === workTypeCode).length;
+        const selectedSubOrder = order?.orderDetails?.[order.selectedSubOrderIndex];
+        return selectedSubOrder?.workTypes?.find(
+            x => String(x?.code ?? x?.workTypeCode) === String(workTypeCode)
+        )?.workDescriptions?.length ?? 0;
     }
 
     const getWorkDescByWorkType = (code) => {
-        return (order?.orderDetails[order?.selectedSubOrderIndex]?.workDescriptions || [])
-            .filter(x => x.workTypeCode === code)
+        const selectedSubOrder = order?.orderDetails?.[order?.selectedSubOrderIndex];
+        return (selectedSubOrder?.workTypes?.find(
+            x => String(x?.code ?? x?.workTypeCode) === String(code)
+        )?.workDescriptions || [])
             .map((ele, index) => {
                 return <span key={index}>{ele?.name}</span>
             });

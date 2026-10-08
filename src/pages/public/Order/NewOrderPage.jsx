@@ -18,6 +18,7 @@ import StatusModal from '../../../components/StatusModel/StatusModel';
 import { getWorkTypes } from '../../../services/api/workTypeApi';
 import PrintOrderReceiptPopup from './PrintOrderReceiptPopup';
 export default function NewOrderPage() {
+  const vat = parseFloat(process.env.REACT_APP_VAT?? '5');
   const EMPTY_CREATE_ORDER = () => ({
     orderId: 0,
     isd: '+971',
@@ -35,12 +36,14 @@ export default function NewOrderPage() {
     selectedSubOrderIndex: 0,
     paymentMode: 'VISA',
     subTotal: 0,
+    vat:vat,
     totalAmount: 0,
     advanceAmount: 0,
     balanceAmount: 0,
     bookingType: '',
     urgency: '',
-    orderNo: '12345'
+    orderNo: '12345',
+    Ledgers:[]
   });
   const [workTypeList, setWorkTypeList] = useState([]);
   const [deliveryDate, setDeliveryDate] = useState()
@@ -77,6 +80,9 @@ export default function NewOrderPage() {
     if (!ValidateOrder()) {
       return;
     }
+    order.subTotalAmount=order.subTotal;
+    order.vat=vat;
+    order.Ledgers=[];
     createOrder(order)
       .then(response => {
         var statusData = {
@@ -202,7 +208,7 @@ export default function NewOrderPage() {
       totalAmount
     );
 
-    setOrder({ ...order, ["advanceAmount"]: value });
+    setOrder({ ...order, ["advanceAmount"] : value });
     setAdvancePercent(parseFloat(percentObj?.code));
   }
   return (
@@ -258,7 +264,7 @@ export default function NewOrderPage() {
         <div className='order-details'>
           <div className="panel">
             <div className="panel-header">
-              <div>Total Suborder : {order.orderDetails?.length}</div>
+              <div>Total SubOrder : {order?.orderDetails?.length}</div>
             </div>
             <div className="subconfig-panel" style={{ paddingBottom: '0' }}>
               <SubOrderDetailList order={order} workTypeList={workTypeList} setOrder={setOrder} setWorkTypeSelectorModalOpen={setWorkTypeSelectorModalOpen} workTypeList={workTypeList} />
@@ -271,6 +277,15 @@ export default function NewOrderPage() {
                 <button type="button" className="btn btn-danger actionButtons" onClick={() => { }}>
                   <FiRefreshCw />
                   Reset
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-info actionButtons"
+                  onClick={handlePrint}
+                  disabled={!order?.orderId}
+                >
+                  <FiPrinter />
+                  Print Invoice
                 </button>
                 <button type="button" className="btn btn-success actionButtons" onClick={handleSave}>
                   <FiSave />

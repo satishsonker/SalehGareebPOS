@@ -6,13 +6,13 @@ import DirhamSymbol from '../../../components/Symbols/DirhamSymbol';
 import OrderCommonHeaderComponent from './OrderCommonHeaderComponent';
 
 const InvoicePrintLayout = memo(({ printRef, mainData, finalOrder }) => {
-    const vat = parseFloat(process.env.REACT_APP_VAT);
+    const vat = 5;//parseFloat(process.env.REACT_APP_VAT);
     
     const totals = useMemo(() => {
         const cancelledOrDeletedTotal = 0;
         const cancelledOrDeletedSubTotal = 0;
-        const totalVat = commonLogic.calculatePercent(mainData?.subTotalAmount - cancelledOrDeletedSubTotal, vat);
-        const firstAdvanceCredit = mainData?.accountStatements?.find(x => x.isFirstAdvance)?.credit ?? 0;
+        const totalVat = commonLogic.calculatePercent(mainData?.subtotalAmount - cancelledOrDeletedSubTotal, vat);
+        const firstAdvanceCredit = mainData?.ledgers?.find(x => x.isFirstAdvance)?.amount ?? 0;
         const totalBalance = mainData?.totalAmount - cancelledOrDeletedTotal - firstAdvanceCredit;
         
         return {
@@ -27,11 +27,14 @@ const InvoicePrintLayout = memo(({ printRef, mainData, finalOrder }) => {
     const getWorkOrderTypes = useCallback((workType) => {
         if (!workType) return '';
         
-        const types = ['', 'Designing', 'Cutting', 'M. Emb', 'Hot Fix', 'H. Emb', 'Apliq', 'Stitching'];
-        return workType.split('')
-            .map(ele => types[parseInt(ele)])
-            .filter(Boolean)
-            .join(', ');
+     return  workType
+    ?.map(ele => ele?.name)
+    ?.join('-');
+        // const types = ['', 'Designing', 'Cutting', 'M. Emb', 'Hot Fix', 'H. Emb', 'Apliq', 'Stitching'];
+        // return workType.split('')
+        //     .map(ele => types[parseInt(ele)])
+        //     .filter(Boolean)
+        //     .join(', ');
     }, []);
 
     const getModel = useCallback((ele) => {
@@ -57,7 +60,7 @@ const InvoicePrintLayout = memo(({ printRef, mainData, finalOrder }) => {
                     {hasKeys(ele) ? `${index + 1}.` : ""}
                 </td>
                 <td style={{paddingRight:'0',paddingLeft:'1px'}} className={"text-center border border-secondary text-wrap" + getClassName(ele, index)} width="25%">
-                    {getWorkOrderTypes(ele.workType)}
+                    {getWorkOrderTypes(ele.workTypes)}
                 </td>
                 <td className={"text-center border border-secondary" + getClassName(ele, index)} width="1%">
                     {getModel(ele)}
@@ -66,10 +69,10 @@ const InvoicePrintLayout = memo(({ printRef, mainData, finalOrder }) => {
                     {commonLogic.printDecimal(ele.qty, true)}
                 </td>
                 <td className={"text-center border border-secondary" + getClassName(ele, index)} width="10%">
-                    <DirhamSymbol amount={commonLogic.printDecimal((ele.subTotalAmount / ele.qty), true)} />
+                    <DirhamSymbol amount={commonLogic.printDecimal((ele.subtotalAmount / ele.qty), true)} />
                 </td>
                 <td className={"text-center border border-secondary" + getClassName(ele, index)} width="10%">
-                    <DirhamSymbol amount={commonLogic.printDecimal(ele.subTotalAmount, true)} />
+                    <DirhamSymbol amount={commonLogic.printDecimal(ele.subtotalAmount, true)} />
                 </td>
                 <td className={"text-center border border-secondary" + getClassName(ele, index)} width="10%">
                     <DirhamSymbol amount={commonLogic.printDecimal(ele.vatAmount, true)} />
@@ -94,9 +97,9 @@ const InvoicePrintLayout = memo(({ printRef, mainData, finalOrder }) => {
                         orderNo={mainData?.orderNo}
                         customerName={mainData?.customerName}
                         orderDate={mainData?.orderDate}
-                        contact={mainData?.contact1}
-                        orderDeliveryDate={mainData?.orderDeliveryDate}
-                        salesman={mainData?.salesman}
+                        contact={mainData?.customerNumber}
+                        orderDeliveryDate={mainData?.deliveryDate}
+                        salesman={mainData?.employeeName}
                     />
                     <div className="card-body pb-0">
                         <div className="table-responsive1">
@@ -127,7 +130,7 @@ const InvoicePrintLayout = memo(({ printRef, mainData, finalOrder }) => {
                                         <td colSpan={2} className="text-center">VAT {vat}%</td>
                                         <td colSpan={1} className="fs-6 fw-bold text-center">Total Amount</td>
                                         <td colSpan={1} className="text-end">
-                                            <DirhamSymbol amount={commonLogic.printDecimal(mainData?.subTotalAmount)} />
+                                            <DirhamSymbol amount={commonLogic.printDecimal(mainData?.subtotalAmount)} />
                                         </td>
                                     </tr>
                                     <tr>

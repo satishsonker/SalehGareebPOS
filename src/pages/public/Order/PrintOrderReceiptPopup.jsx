@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useReactToPrint } from 'react-to-print';
 import { commonLogic } from '../../../utils/commonLogic';
 import ButtonBox from '../../../components/BottonBox/ButtonBox';
 import Dropdown from '../../../components/Dropdown/Dropdown';
@@ -21,12 +22,18 @@ export default function PrintOrderReceiptPopup({
     const [orderNos, setOrderNos] = useState([]);
     const [selectOrderId, setSelectOrderId] = useState(0);
 
+    const handlePrint = useReactToPrint({
+        contentRef: printRef,
+        documentTitle: `Invoice-${mainData?.orderNo || 'Order'}`,
+        pageStyle: '@page { size: A4; margin: 10mm; } body { -webkit-print-color-adjust: exact; }'
+    });
+
     useEffect(() => {
         if (typeof setPrintReceiptHandler === 'function') {
             setPrintReceiptHandler(printRef.current);
         }
     }, [setPrintReceiptHandler, orderId]);
-    const vat = parseFloat(process.env.REACT_APP_VAT);
+    const vat = parseFloat(process.env.REACT_APP_VAT?? '5');
     let cancelledOrDeletedSubTotal = 0;
     let cancelledOrDeletedTotal = 0;
     let cancelledOrDeletedVatTotal = 0;
@@ -36,8 +43,8 @@ export default function PrintOrderReceiptPopup({
         cancelledOrDeletedVatTotal = 0;
         cancelledOrDeletedTotal = 0;
         cancelledOrDeletedOrderDetails?.forEach(element => {
-            cancelledOrDeletedSubTotal += element.subTotalAmount;
-            cancelledOrDeletedVatTotal += (element.totalAmount - element.subTotalAmount);
+            cancelledOrDeletedSubTotal += element.subtotalAmount;
+            cancelledOrDeletedVatTotal += (element.totalAmount - element.subtotalAmount);
             cancelledOrDeletedTotal += element.totalAmount;
         });
     }
@@ -68,7 +75,8 @@ export default function PrintOrderReceiptPopup({
                 activeOrderDetails?.forEach(res => {
                     var orderindex = orderChecker.indexOf(res.workType + res.totalInvoiced);
                     res.vatAmount = 0;
-                    res.vatAmount += commonLogic.calculateVAT(res.subTotalAmount, vat).vatAmount;
+                    res.vat=vat;
+                    res.vatAmount += commonLogic.calculateVAT(res.subtotalAmount, vat).vatAmount;
                     if (orderindex === -1) {
                         res.qty = 1;
                         orders.push(res);
@@ -76,7 +84,7 @@ export default function PrintOrderReceiptPopup({
                     }
                     else {
                         orders[orderindex].qty += 1;
-                        orders[orderindex].subTotalAmount += res.subTotalAmount;
+                        orders[orderindex].subtotalAmount += res.subtotalAmount;
                         orders[orderindex].totalAmount += res.totalAmount;
                         orders[orderindex].vatAmount += res.vatAmount;
                     }
@@ -121,13 +129,10 @@ export default function PrintOrderReceiptPopup({
                             <InvoicePrintLayout mainData={mainData} printRef={printRef} finalOrder={finalOrder}></InvoicePrintLayout>
                         </div>
                         <div className="receipt-popup-footer">
+                            <button type="button" className="btn btn-sm btn-success" onClick={handlePrint}>
+                                <i className='bi bi-printer'></i> Print Invoice
+                            </button>
                             <ButtonBox type="cancel" modelDismiss={true} className="btn-sm" onClickHandler={() => onClosePrintOrderReceiptPopup?.()}></ButtonBox>
-                            {/* <ReactToPrint
-                                trigger={() => {
-                                    return <button className='btn btn-sm btn-success' data-bs-dismiss="modal"><i className='bi bi-printer'></i> Print</button>
-                                }}
-                                content={(el) => (printRef.current)}
-                            /> */}
                         </div>
                     </div>
                 </div>
