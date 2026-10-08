@@ -12,7 +12,8 @@ import {
     FiDollarSign,
     FiPackage
 } from "react-icons/fi";
-import { getOrders } from "../../services/api/ordersApi";
+import { getOrders, getOrderById } from "../../services/api/ordersApi";
+import Modal from "../../components/Modal/Modal";
 import "./SearchOrders.css";
 
 const FILTERS = [
@@ -89,6 +90,20 @@ const formatAmount = amount =>
         maximumFractionDigits: 2
     });
 
+const getStatusLabel = status => {
+    const normalized = normalizeStatus(status);
+
+    if (isPartialDelivered(normalized)) return "Partial Delivered";
+    if (isCancelled(normalized)) return "Cancelled";
+    if (normalized === "active") return "Active";
+    if (normalized === "processing") return "Processing";
+    if (normalized === "completed") return "Completed";
+    if (normalized === "packing") return "Packing";
+    if (normalized === "delivered") return "Delivered";
+
+    return "Active";
+};
+
 function OrderStatusTimeline({ status }) {
     const currentIndex = getStatusIndex(status);
     const cancelled = isCancelled(status);
@@ -103,19 +118,16 @@ function OrderStatusTimeline({ status }) {
                 return (
                     <React.Fragment key={step.key}>
                         <div
-                            className={`so-timeline__step ${
-                                isCompleted
+                            className={`so-timeline__step ${isCompleted
                                     ? "so-timeline__step--completed"
                                     : ""
-                            } ${
-                                isCurrent
+                                } ${isCurrent
                                     ? "so-timeline__step--current"
                                     : ""
-                            } ${
-                                cancelled && isCurrent
+                                } ${cancelled && isCurrent
                                     ? "so-timeline__step--cancelled"
                                     : ""
-                            }`}
+                                }`}
                         >
                             <div className="so-timeline__dot">
                                 {isCompleted ? "✓" : index + 1}
@@ -126,11 +138,10 @@ function OrderStatusTimeline({ status }) {
 
                         {index < ORDER_STEPS.length - 1 && (
                             <div
-                                className={`so-timeline__line ${
-                                    index < currentIndex
+                                className={`so-timeline__line ${index < currentIndex
                                         ? "so-timeline__line--completed"
                                         : ""
-                                }`}
+                                    }`}
                             />
                         )}
                     </React.Fragment>
@@ -152,19 +163,14 @@ function OrderStatusTimeline({ status }) {
     );
 }
 
-function OrderCard({ order, onClick }) {
+function OrderCard({ order, onViewClick }) {
     const status = normalizeStatus(order?.status);
-
-    const statusLabel = isPartialDelivered(status)
-        ? "Partial Delivered"
-        : isCancelled(status)
-          ? "Cancelled"
-          : order?.status || "Active";
+    const statusLabel = getStatusLabel(order?.status);
 
     return (
         <div
             className="so-card"
-            onClick={() => onClick(order)}
+            onClick={() => onViewClick(order)}
         >
             <div className="so-card__header">
                 <div className="so-card__order">
@@ -180,7 +186,7 @@ function OrderCard({ order, onClick }) {
                         "-"
                     )}`}
                 >
-                    {ORDER_STEPS[status-1].label}
+                    {statusLabel}
                 </div>
             </div>
 
@@ -268,7 +274,7 @@ function OrderCard({ order, onClick }) {
                     className="so-view-btn"
                     onClick={event => {
                         event.stopPropagation();
-                        onClick(order);
+                        onViewClick(order);
                     }}
                 >
                     View
@@ -286,23 +292,27 @@ function SearchOrders() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [detailLoading, setDetailLoading] = useState(false);
+    const [detailError, setDetailError] = useState("");
     const debounceRef = useRef(null);
 
-    const fetchOrders = useCallback((q, filter) => {
+    const fetchOrders = useCallback((q) => {
         setLoading(true);
         setError("");
 
-        getOrders(1, 100)
-    .then(res => {
-        const orderList = res?.data?.data ?? [];
-        setOrders(orderList);
-    })
-    .catch(() => setError('Failed to load orders.'))
-    .finally(() => setLoading(false));
+        getOrders(1, 100, q)
+            .then(res => {
+                const orderList = res?.data?.data ?? [];
+                setOrders(orderList);
+            })
+            .catch(() => setError('Failed to load orders.'))
+            .finally(() => setLoading(false));
     }, []);
 
     useEffect(() => {
-        fetchOrders("", "all");
+        fetchOrders(query);
     }, [fetchOrders]);
 
     useEffect(() => {
@@ -310,7 +320,7 @@ function SearchOrders() {
 
         debounceRef.current = setTimeout(() => {
             fetchOrders(query, activeFilter);
-        }, 350);
+        }, 650);
 
         return () => clearTimeout(debounceRef.current);
     }, [query, activeFilter, fetchOrders]);
@@ -320,8 +330,28 @@ function SearchOrders() {
         setQuery("");
     };
 
-    const handleOrderClick = order => {
-        navigate(`/orders/${order.id}`);
+    const handleOrderClick = async (order) => {
+        if (!order?.id) return;
+
+        setDetailLoading(true);
+        setDetailError("");
+
+        try {
+            const res = await getOrderById(order.id);
+            const detail = res?.data?.data ?? res?.data ?? {};
+            setSelectedOrder(detail);
+            setIsDetailModalOpen(true);
+        } catch {
+            setDetailError('Failed to load order details.');
+        } finally {
+            setDetailLoading(false);
+        }
+    };
+
+    const closeDetailModal = () => {
+        setIsDetailModalOpen(false);
+        setSelectedOrder(null);
+        setDetailError("");
     };
 
     const filterPlaceholder = {
@@ -332,7 +362,8 @@ function SearchOrders() {
     }[activeFilter];
 
     return (
-        <div className="so-root">
+        <>
+            <div className="so-root">
             <div className="so-header">
                 <button
                     type="button"
@@ -377,11 +408,10 @@ function SearchOrders() {
                             <button
                                 type="button"
                                 key={filter.id}
-                                className={`so-filter-btn ${
-                                    activeFilter === filter.id
+                                className={`so-filter-btn ${activeFilter === filter.id
                                         ? "so-filter-btn--active"
                                         : ""
-                                }`}
+                                    }`}
                                 onClick={() =>
                                     handleFilterChange(filter.id)
                                 }
@@ -421,12 +451,111 @@ function SearchOrders() {
                             <OrderCard
                                 key={order.id}
                                 order={order}
-                                onClick={handleOrderClick}
+                                onViewClick={handleOrderClick}
                             />
                         ))}
                 </div>
             </div>
         </div>
+
+            <Modal
+                isOpen={isDetailModalOpen}
+                onClose={closeDetailModal}
+                title={selectedOrder ? `Order Details - ${selectedOrder.orderNo || selectedOrder.id}` : 'Order Details'}
+                size="large"
+                loading={detailLoading}
+            >
+                {detailError ? (
+                    <div className="so-modal__error">{detailError}</div>
+                ) : selectedOrder ? (
+                    <div className="so-modal__content">
+                        <div className="so-modal__summary">
+                            <div className="so-modal__group">
+                                <span>Customer</span>
+                                <strong>{selectedOrder.customerName || "-"}</strong>
+                            </div>
+                            <div className="so-modal__group">
+                                <span>Phone</span>
+                                <strong>{selectedOrder.customerNumber || selectedOrder.phone || "-"}</strong>
+                            </div>
+                            <div className="so-modal__group">
+                                <span>Status</span>
+                                <strong>{getStatusLabel(selectedOrder.status)}</strong>
+                            </div>
+                            <div className="so-modal__group">
+                                <span>City</span>
+                                <strong>{selectedOrder.city || "-"}</strong>
+                            </div>
+                        </div>
+
+                        <div className="so-modal__metrics">
+                            <div className="so-modal__metric">
+                                <span>Total Amount</span>
+                                <strong>₹{formatAmount(selectedOrder.totalAmount ?? selectedOrder.totalInvoiced)}</strong>
+                            </div>
+                            <div className="so-modal__metric">
+                                <span>Advance</span>
+                                <strong>₹{formatAmount(selectedOrder.advanceAmount)}</strong>
+                            </div>
+                            <div className="so-modal__metric">
+                                <span>Balance</span>
+                                <strong>₹{formatAmount(selectedOrder.balanceAmount)}</strong>
+                            </div>
+                            <div className="so-modal__metric">
+                                <span>Booking Type</span>
+                                <strong>{selectedOrder.bookingType || "-"}</strong>
+                            </div>
+                        </div>
+
+                        <div className="so-modal__section">
+                            <h3>Order Information</h3>
+                            <div className="so-modal__grid">
+                                <div><span>Order No</span><strong>{selectedOrder.orderNo || selectedOrder.id || "-"}</strong></div>
+                                <div><span>Order Date</span><strong>{formatDate(selectedOrder.orderDate)}</strong></div>
+                                <div><span>Delivery Date</span><strong>{formatDate(selectedOrder.deliveryDate)}</strong></div>
+                                <div><span>Urgency</span><strong>{selectedOrder.urgency || "-"}</strong></div>
+                                <div><span>Payment</span><strong>{selectedOrder.paymentMode || "-"}</strong></div>
+                                <div><span>VAT</span><strong>{formatAmount(selectedOrder.vatAmount)} ({selectedOrder.vat || 0}%)</strong></div>
+                            </div>
+                        </div>
+
+                        <div className="so-modal__section">
+                            <h3>Order Items</h3>
+                            {(selectedOrder.orderDetails || []).length > 0 ? (
+                                <div className="so-modal__items">
+                                    {selectedOrder.orderDetails.map((item) => (
+                                        <div key={item.id ?? `${selectedOrder.id}-${item.orderNo || Math.random()}`} className="so-modal__item">
+                                            <div className="so-modal__item-header">
+                                                <strong>{item.orderNo || `Item ${item.id}`}</strong>
+                                                <span>{item.status || "Active"}</span>
+                                            </div>
+                                            <p>{item.description || "No description provided."}</p>
+                                            <div className="so-modal__item-grid">
+                                                <div><span>Crystal Packets</span><strong>{item.crystalPackets ?? 0}</strong></div>
+                                                <div><span>Subtotal</span><strong>₹{formatAmount(item.subtotalAmount)}</strong></div>
+                                                <div><span>VAT</span><strong>₹{formatAmount(item.vatAmount)}</strong></div>
+                                                <div><span>Total</span><strong>₹{formatAmount(item.totalAmount)}</strong></div>
+                                            </div>
+                                            {item.workTypes && item.workTypes.length > 0 && (
+                                                <div className="so-modal__tags">
+                                                    {item.workTypes.map((workType, index) => (
+                                                        <span key={`${item.id}-${workType.name || index}`} className="so-modal__tag">
+                                                            {workType.name || "Work Type"}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="so-modal__empty">No order items available.</div>
+                            )}
+                        </div>
+                    </div>
+                ) : null}
+            </Modal>
+        </>
     );
 }
 

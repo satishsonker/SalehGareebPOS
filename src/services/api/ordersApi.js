@@ -6,8 +6,8 @@ export const searchOrders = (params) => {
   return get(`/orders/search?${query}`);
 };
 
-export const getOrders = (pageNo = 1, pageSize = 20) =>
-  get(`/orders?pageNo=${pageNo}&pageSize=${pageSize}`);
+export const getOrders = (pageNo = 1, pageSize = 20, searchTerm = "") =>
+  get(`/orders?pageNo=${pageNo}&pageSize=${pageSize}&searchTerm=${searchTerm}`);
 
 export const getOrderById = (id) => get(`/orders/${id}`);
 
