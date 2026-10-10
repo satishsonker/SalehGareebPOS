@@ -14,6 +14,10 @@ import {
 } from "react-icons/fi";
 import { getOrders, getOrderById } from "../../services/api/ordersApi";
 import Modal from "../../components/Modal/Modal";
+import PaymentPopup from "./PaymentPopup";
+import MeasurementPopup from "./MeasurementPopup";
+import StatusPopup from "./StatusPopup";
+import InvoicePrintPopup from "./InvoicePrintPopup";
 import "./SearchOrders.css";
 
 const FILTERS = [
@@ -104,6 +108,31 @@ const getStatusLabel = status => {
     return "Active";
 };
 
+const getOrderPaymentHistory = order => {
+    if (Array.isArray(order?.paymentHistory) && order.paymentHistory.length > 0) return order.paymentHistory;
+    if (Array.isArray(order?.payments) && order.payments.length > 0) return order.payments;
+
+    return [
+        {
+            id: 1,
+            amount: Number(order?.advanceAmount || order?.totalInvoiced || 0),
+            method: order?.paymentMode || "Cash",
+            date: order?.orderDate || new Date().toISOString(),
+            note: "Initial deposit"
+        }
+    ];
+};
+
+const getWorkTypeStatus = status => {
+    const normalized = normalizeStatus(status);
+
+    if (normalized === "done" || normalized === "completed" || normalized === "finished") return "Done";
+    if (normalized === "pending" || normalized === "in-progress" || normalized === "in progress") return "Pending";
+    if (normalized === "processing") return "In Progress";
+
+    return "Pending";
+};
+
 function OrderStatusTimeline({ status }) {
     const currentIndex = getStatusIndex(status);
     const cancelled = isCancelled(status);
@@ -163,7 +192,7 @@ function OrderStatusTimeline({ status }) {
     );
 }
 
-function OrderCard({ order, onViewClick }) {
+function OrderCard({ order, onViewClick, onActionClick }) {
     const status = normalizeStatus(order?.status);
     const statusLabel = getStatusLabel(order?.status);
 
@@ -176,7 +205,7 @@ function OrderCard({ order, onViewClick }) {
                 <div className="so-card__order">
                     <span>ORDER NO.</span>
                     <strong>
-                        {order?.orderNo ?? order?.id ?? "-"}
+                        {order?.orderNo ?? order?.id ?? "-"} - {order?.qty ?? 0} Sub Order(s)
                     </strong>
                 </div>
 
@@ -269,17 +298,59 @@ function OrderCard({ order, onViewClick }) {
             <div className="so-card__footer">
                 <OrderStatusTimeline status={status} />
 
-                <button
-                    type="button"
-                    className="so-view-btn"
-                    onClick={event => {
-                        event.stopPropagation();
-                        onViewClick(order);
-                    }}
-                >
-                    View
-                    <FiChevronRight size={15} />
-                </button>
+                <div className="so-card__actions">
+                    <button
+                        type="button"
+                        className="so-action-btn so-action-btn--success"
+                        onClick={event => {
+                            event.stopPropagation();
+                            onActionClick(order, 'payment');
+                        }}
+                    >
+                        Payment
+                    </button>
+                    <button
+                        type="button"
+                        className="so-action-btn so-action-btn--info"
+                        onClick={event => {
+                            event.stopPropagation();
+                            onActionClick(order, 'measurement');
+                        }}
+                    >
+                        Measurement
+                    </button>
+                    <button
+                        type="button"
+                        className="so-action-btn so-action-btn--warning"
+                        onClick={event => {
+                            event.stopPropagation();
+                            onActionClick(order, 'status');
+                        }}
+                    >
+                        Status
+                    </button>
+                    <button
+                        type="button"
+                        className="so-action-btn so-action-btn--primary"
+                        onClick={event => {
+                            event.stopPropagation();
+                            onActionClick(order, 'print');
+                        }}
+                    >
+                        Print
+                    </button>
+                    <button
+                        type="button"
+                        className="so-view-btn"
+                        onClick={event => {
+                            event.stopPropagation();
+                            onViewClick(order);
+                        }}
+                    >
+                        View
+                        <FiChevronRight size={15} />
+                    </button>
+                </div>
             </div>
         </div>
     );
@@ -296,6 +367,8 @@ function SearchOrders() {
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [detailLoading, setDetailLoading] = useState(false);
     const [detailError, setDetailError] = useState("");
+    const [activeModalType, setActiveModalType] = useState("view");
+    const [paymentDraft, setPaymentDraft] = useState({ amount: "", method: "Cash", note: "" });
     const debounceRef = useRef(null);
 
     const fetchOrders = useCallback((q) => {
@@ -330,7 +403,7 @@ function SearchOrders() {
         setQuery("");
     };
 
-    const handleOrderClick = async (order) => {
+    const fetchOrderForModal = async (order, modalType = "view") => {
         if (!order?.id) return;
 
         setDetailLoading(true);
@@ -340,19 +413,193 @@ function SearchOrders() {
             const res = await getOrderById(order.id);
             const detail = res?.data?.data ?? res?.data ?? {};
             setSelectedOrder(detail);
+            setActiveModalType(modalType);
             setIsDetailModalOpen(true);
         } catch {
+            setSelectedOrder(order);
+            setActiveModalType(modalType);
+            setIsDetailModalOpen(true);
             setDetailError('Failed to load order details.');
         } finally {
             setDetailLoading(false);
         }
     };
 
+    const handleOrderClick = async (order) => {
+        await fetchOrderForModal(order, "view");
+    };
+
+    const handleActionClick = async (order, modalType) => {
+        await fetchOrderForModal(order, modalType);
+    };
+
     const closeDetailModal = () => {
         setIsDetailModalOpen(false);
         setSelectedOrder(null);
         setDetailError("");
+        setActiveModalType("view");
+        setPaymentDraft({ amount: "", method: "Cash", note: "" });
     };
+
+    const handlePaymentSubmit = () => {
+        if (!selectedOrder) return;
+
+        const amount = Number(paymentDraft.amount || 0);
+        if (!amount || amount <= 0) return;
+
+        const newPayment = {
+            id: Date.now(),
+            amount,
+            method: paymentDraft.method || "Cash",
+            date: new Date().toISOString(),
+            note: paymentDraft.note || "Manual payment"
+        };
+
+        const updatedOrder = {
+            ...selectedOrder,
+            paymentHistory: [...getOrderPaymentHistory(selectedOrder), newPayment],
+            advanceAmount: Number(selectedOrder.advanceAmount || 0) + amount,
+            totalInvoiced: Number(selectedOrder.totalInvoiced || selectedOrder.totalAmount || 0)
+        };
+
+        setSelectedOrder(updatedOrder);
+        setPaymentDraft({ amount: "", method: "Cash", note: "" });
+    };
+
+    const handleMeasurementUpdate = (itemId, field, value) => {
+        if (!selectedOrder?.orderDetails) return;
+
+        setSelectedOrder(prev => ({
+            ...prev,
+            orderDetails: (prev.orderDetails || []).map(item => {
+                if (!item || item.id !== itemId) return item;
+
+                const nextMeasurement = {
+                    ...(item.measurement || {}),
+                    [field]: value
+                };
+
+                return { ...item, measurement: nextMeasurement };
+            })
+        }));
+    };
+
+    const renderModalBody = () => {
+        if (detailError) return <div className="so-modal__error">{detailError}</div>;
+        if (!selectedOrder) return null;
+
+        if (activeModalType === "payment") {
+            return <PaymentPopup order={selectedOrder} onClose={closeDetailModal} onSaved={order => setSelectedOrder(order)} />;
+        }
+
+        if (activeModalType === "measurement") {
+            return <MeasurementPopup order={selectedOrder} onClose={closeDetailModal} onSaved={order => setSelectedOrder(order)} />;
+        }
+
+        if (activeModalType === "status") {
+            return <StatusPopup order={selectedOrder} onClose={closeDetailModal} onSaved={order => setSelectedOrder(order)} />;
+        }
+
+        if (activeModalType === "print") {
+            return <InvoicePrintPopup orderId={selectedOrder?.id} isOpen={isDetailModalOpen} onClose={closeDetailModal} />;
+        }
+
+        return (
+            <div className="so-modal__content">
+                <div className="so-modal__summary">
+                    <div className="so-modal__group">
+                        <span>Customer</span>
+                        <strong>{selectedOrder.customerName || "-"}</strong>
+                    </div>
+                    <div className="so-modal__group">
+                        <span>Phone</span>
+                        <strong>{selectedOrder.customerNumber || selectedOrder.phone || "-"}</strong>
+                    </div>
+                    <div className="so-modal__group">
+                        <span>Status</span>
+                        <strong>{getStatusLabel(selectedOrder.status)}</strong>
+                    </div>
+                    <div className="so-modal__group">
+                        <span>City</span>
+                        <strong>{selectedOrder.city || "-"}</strong>
+                    </div>
+                </div>
+
+                <div className="so-modal__metrics">
+                    <div className="so-modal__metric">
+                        <span>Total Amount</span>
+                        <strong>₹{formatAmount(selectedOrder.totalAmount ?? selectedOrder.totalInvoiced)}</strong>
+                    </div>
+                    <div className="so-modal__metric">
+                        <span>Advance</span>
+                        <strong>₹{formatAmount(selectedOrder.advanceAmount)}</strong>
+                    </div>
+                    <div className="so-modal__metric">
+                        <span>Balance</span>
+                        <strong>₹{formatAmount(selectedOrder.balanceAmount)}</strong>
+                    </div>
+                    <div className="so-modal__metric">
+                        <span>Booking Type</span>
+                        <strong>{selectedOrder.bookingType || "-"}</strong>
+                    </div>
+                </div>
+
+                <div className="so-modal__section">
+                    <h3>Order Information</h3>
+                    <div className="so-modal__grid">
+                        <div><span>Order No</span><strong>{selectedOrder.orderNo || selectedOrder.id || "-"}</strong></div>
+                        <div><span>Order Date</span><strong>{formatDate(selectedOrder.orderDate)}</strong></div>
+                        <div><span>Delivery Date</span><strong>{formatDate(selectedOrder.deliveryDate)}</strong></div>
+                        <div><span>Urgency</span><strong>{selectedOrder.urgency || "-"}</strong></div>
+                        <div><span>Payment</span><strong>{selectedOrder.paymentMode || "-"}</strong></div>
+                        <div><span>VAT</span><strong>{formatAmount(selectedOrder.vatAmount)} ({selectedOrder.vat || 0}%)</strong></div>
+                    </div>
+                </div>
+
+                <div className="so-modal__section">
+                    <h3>Order Items</h3>
+                    {(selectedOrder.orderDetails || []).length > 0 ? (
+                        <div className="so-modal__items">
+                            {selectedOrder.orderDetails.map((item) => (
+                                <div key={item.id ?? `${selectedOrder.id}-${item.orderNo || Math.random()}`} className="so-modal__item">
+                                    <div className="so-modal__item-header">
+                                        <strong>{item.orderNo || `Item ${item.id}`}</strong>
+                                        <span>{item.status || "Active"}</span>
+                                    </div>
+                                    <p>{item.description || "No description provided."}</p>
+                                    <div className="so-modal__item-grid">
+                                        <div><span>Crystal Packets</span><strong>{item.crystalPackets ?? 0}</strong></div>
+                                        <div><span>Subtotal</span><strong>₹{formatAmount(item.subtotalAmount)}</strong></div>
+                                        <div><span>VAT</span><strong>₹{formatAmount(item.vatAmount)}</strong></div>
+                                        <div><span>Total</span><strong>₹{formatAmount(item.totalAmount)}</strong></div>
+                                    </div>
+                                    {item.workTypes && item.workTypes.length > 0 && (
+                                        <div className="so-modal__tags">
+                                            {item.workTypes.map((workType, index) => (
+                                                <span key={`${item.id}-${workType.name || index}`} className="so-modal__tag">
+                                                    {workType.name || "Work Type"}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="so-modal__empty">No order items available.</div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    const modalTitle = {
+        view: selectedOrder ? `Order Details - ${selectedOrder.orderNo || selectedOrder.id}` : 'Order Details',
+        payment: selectedOrder ? `Payment - ${selectedOrder.orderNo || selectedOrder.id}` : 'Payment',
+        measurement: selectedOrder ? `Measurement - ${selectedOrder.orderNo || selectedOrder.id}` : 'Measurement',
+        status: selectedOrder ? `Status - ${selectedOrder.orderNo || selectedOrder.id}` : 'Status',
+        print: selectedOrder ? `Print Invoice - ${selectedOrder.orderNo || selectedOrder.id}` : 'Print Invoice'
+    }[activeModalType] || 'Order Details';
 
     const filterPlaceholder = {
         all: "Search orders...",
@@ -452,6 +699,7 @@ function SearchOrders() {
                                 key={order.id}
                                 order={order}
                                 onViewClick={handleOrderClick}
+                                onActionClick={handleActionClick}
                             />
                         ))}
                 </div>
@@ -459,102 +707,22 @@ function SearchOrders() {
         </div>
 
             <Modal
-                isOpen={isDetailModalOpen}
+                isOpen={isDetailModalOpen && activeModalType !== 'print'}
                 onClose={closeDetailModal}
-                title={selectedOrder ? `Order Details - ${selectedOrder.orderNo || selectedOrder.id}` : 'Order Details'}
+                title={modalTitle}
                 size="large"
                 loading={detailLoading}
             >
-                {detailError ? (
-                    <div className="so-modal__error">{detailError}</div>
-                ) : selectedOrder ? (
-                    <div className="so-modal__content">
-                        <div className="so-modal__summary">
-                            <div className="so-modal__group">
-                                <span>Customer</span>
-                                <strong>{selectedOrder.customerName || "-"}</strong>
-                            </div>
-                            <div className="so-modal__group">
-                                <span>Phone</span>
-                                <strong>{selectedOrder.customerNumber || selectedOrder.phone || "-"}</strong>
-                            </div>
-                            <div className="so-modal__group">
-                                <span>Status</span>
-                                <strong>{getStatusLabel(selectedOrder.status)}</strong>
-                            </div>
-                            <div className="so-modal__group">
-                                <span>City</span>
-                                <strong>{selectedOrder.city || "-"}</strong>
-                            </div>
-                        </div>
-
-                        <div className="so-modal__metrics">
-                            <div className="so-modal__metric">
-                                <span>Total Amount</span>
-                                <strong>₹{formatAmount(selectedOrder.totalAmount ?? selectedOrder.totalInvoiced)}</strong>
-                            </div>
-                            <div className="so-modal__metric">
-                                <span>Advance</span>
-                                <strong>₹{formatAmount(selectedOrder.advanceAmount)}</strong>
-                            </div>
-                            <div className="so-modal__metric">
-                                <span>Balance</span>
-                                <strong>₹{formatAmount(selectedOrder.balanceAmount)}</strong>
-                            </div>
-                            <div className="so-modal__metric">
-                                <span>Booking Type</span>
-                                <strong>{selectedOrder.bookingType || "-"}</strong>
-                            </div>
-                        </div>
-
-                        <div className="so-modal__section">
-                            <h3>Order Information</h3>
-                            <div className="so-modal__grid">
-                                <div><span>Order No</span><strong>{selectedOrder.orderNo || selectedOrder.id || "-"}</strong></div>
-                                <div><span>Order Date</span><strong>{formatDate(selectedOrder.orderDate)}</strong></div>
-                                <div><span>Delivery Date</span><strong>{formatDate(selectedOrder.deliveryDate)}</strong></div>
-                                <div><span>Urgency</span><strong>{selectedOrder.urgency || "-"}</strong></div>
-                                <div><span>Payment</span><strong>{selectedOrder.paymentMode || "-"}</strong></div>
-                                <div><span>VAT</span><strong>{formatAmount(selectedOrder.vatAmount)} ({selectedOrder.vat || 0}%)</strong></div>
-                            </div>
-                        </div>
-
-                        <div className="so-modal__section">
-                            <h3>Order Items</h3>
-                            {(selectedOrder.orderDetails || []).length > 0 ? (
-                                <div className="so-modal__items">
-                                    {selectedOrder.orderDetails.map((item) => (
-                                        <div key={item.id ?? `${selectedOrder.id}-${item.orderNo || Math.random()}`} className="so-modal__item">
-                                            <div className="so-modal__item-header">
-                                                <strong>{item.orderNo || `Item ${item.id}`}</strong>
-                                                <span>{item.status || "Active"}</span>
-                                            </div>
-                                            <p>{item.description || "No description provided."}</p>
-                                            <div className="so-modal__item-grid">
-                                                <div><span>Crystal Packets</span><strong>{item.crystalPackets ?? 0}</strong></div>
-                                                <div><span>Subtotal</span><strong>₹{formatAmount(item.subtotalAmount)}</strong></div>
-                                                <div><span>VAT</span><strong>₹{formatAmount(item.vatAmount)}</strong></div>
-                                                <div><span>Total</span><strong>₹{formatAmount(item.totalAmount)}</strong></div>
-                                            </div>
-                                            {item.workTypes && item.workTypes.length > 0 && (
-                                                <div className="so-modal__tags">
-                                                    {item.workTypes.map((workType, index) => (
-                                                        <span key={`${item.id}-${workType.name || index}`} className="so-modal__tag">
-                                                            {workType.name || "Work Type"}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="so-modal__empty">No order items available.</div>
-                            )}
-                        </div>
-                    </div>
-                ) : null}
+                {activeModalType === 'print' ? null : renderModalBody()}
             </Modal>
+
+            {activeModalType === 'print' && selectedOrder && (
+                <InvoicePrintPopup
+                    orderId={selectedOrder.id}
+                    isOpen={isDetailModalOpen}
+                    onClose={closeDetailModal}
+                />
+            )}
         </>
     );
 }

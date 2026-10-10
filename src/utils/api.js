@@ -21,6 +21,10 @@ const readResponseBody = async (response) => {
 const getAuthToken = () => {
   return localStorage.getItem('token') || sessionStorage.getItem('token');
 };
+const getSelectedShop = () => {
+  var data = localStorage.getItem('selectedShop') || sessionStorage.getItem('selectedShop');
+  return data ? JSON.parse(data) : null;
+};
 
 /**
  * Make an API request
@@ -36,11 +40,18 @@ export const apiRequest = async (endpoint, options = {}) => {
   // Get auth token
   const token = getAuthToken();
   const deviceId = localStorage.getItem('device-id') || sessionStorage.getItem('device-id');
+  const selectedShop = getSelectedShop();
+  // 1. Convert your string into a Uint8Array of bytes
+const encoder = new TextEncoder();
+const byteArray = encoder.encode(String(selectedShop?.id ?? 0));
+const base64String = btoa(String.fromCharCode(...byteArray));
+
   const defaultOptions = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       'X-Device-ID': deviceId || '',
+      'X-Selected-Shop': base64String || '',
     },
     timeout: config.api.timeout,
   };

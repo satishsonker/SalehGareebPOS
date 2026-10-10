@@ -99,7 +99,7 @@ export default function NewOrderPage() {
           }]
         };
         if (response.success) {
-          statusData.message = ` Order No: ${response.data}`;
+          statusData.message = ` Order No: ${response.data?.orderNo || orderNo} created successfully.`;
           //setOrder({ ...EMPTY_CREATE_ORDER() })
         }
         setStatusModelData({ ...statusData });
@@ -451,6 +451,9 @@ export default function NewOrderPage() {
         type={statusModelData.type}
         title={statusModelData.title}
         message={statusModelData.message}
+        buttonText={statusModelData.buttonText}
+        showCloseButton={statusModelData.showCloseButton}
+        buttons={statusModelData.buttons}
         onConfirm={() => {
           setStatusModelData({ ...statusModelData, isOpen: false });
           if (statusModelData.onConfirm) {

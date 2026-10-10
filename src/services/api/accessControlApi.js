@@ -1,6 +1,6 @@
 import { getCachedApi } from '../../cache/apiCache';
 import { get, post, del } from '../../utils/api';
-
+const cacheExpiration = 60 * 60 * 1000; // 1 hour
 /**
  * Access Control API Service
  * Handles user access control, shop access, and menu access management
@@ -41,10 +41,14 @@ export const removeShopAccess = (userId, shopId) => {
 export const removeMenuAccess = (roleId, shopId, menuId) => {
   return del(`${API_CONTROLLER}/menu-access/${roleId}/${shopId}/${menuId}`);
 };
-export const getShopAccessByUser = (userId) => {
-  return post(`${API_CONTROLLER}/shop-access/by/user/${userId}`);
-};
 
+export const getShopAccessByUser = (userId) => {
+  return getCachedApi({
+    key: `shop-access-by-user-${userId}`,
+    fetcher: () => post(`${API_CONTROLLER}/shop-access/by/user/${userId}`),
+    expiration: cacheExpiration * 8// 8 hour
+  });
+}
 
 // Check if user has access to a shop/menu
 export const checkAccess = (params) => {

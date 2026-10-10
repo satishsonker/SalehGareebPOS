@@ -164,8 +164,8 @@
   justify-content: space-between;
   gap: 12px;
   padding: 9px 13px;
-  background: var(--color-bg-subtle, #f8fafc);
-  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  background: #074126e3;
+  border-bottom: 1px solid #074126e3;
 }
 
 .so-card__order {
@@ -176,7 +176,7 @@
 }
 
 .so-card__order span {
-  color: var(--color-text-primary, #1e293b);
+  color: var(--color-text-primary, white);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.7px;
@@ -184,8 +184,8 @@
 }
 
 .so-card__order strong {
-  color: var(--accent-color, #2d6cdf);
-  font-size: 17px;
+  color: white;
+  font-size: 20px;
   font-weight: 800;
   white-space: nowrap;
 }
@@ -398,27 +398,105 @@
   color: var(--danger, #dc2626);
 }
 
+/* Payment popup tabs */
+.so-modal__tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.so-modal__tab {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-surface, #fff);
+  color: var(--color-text-secondary, #475569);
+  font-weight: 700;
+  cursor: pointer;
+}
+.so-modal__tab.active {
+  background: var(--brand-primary-deep, #e6f0ff);
+  border-color: var(--accent-color, #2d6cdf);
+  color: white;
+}
+
+/* Make modal tabs sticky and non-scrolling */
+.so-modal__tabs {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: transparent;
+  padding-bottom: 8px;
+}
+
+.so-modal__panel {
+  max-height: calc(70vh);
+  overflow: auto;
+}
+
 .so-timeline__branch--partial {
   background: rgba(45, 108, 223, 0.08);
   color: rgba(45, 108, 223, 0.8);
 }
 
+.so-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.so-action-btn,
 .so-view-btn {
   display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    flex-shrink: 0;
-    height: 39px;
-    padding: 0 9px;
-    border: 1px solid #0dcaf0;
-    border-radius: 6px;
-    background: #0dcaf0;
-    color: var(--accent-color, #2d6cdf);
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  flex-shrink: 0;
+  height: 35px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.so-action-btn:hover,
+.so-view-btn:hover {
+  transform: translateY(-1px);
+}
+
+.so-action-btn--success {
+  background: rgba(22, 163, 74, 0.1);
+  border-color: rgba(22, 163, 74, 0.25);
+  color: var(--success, #16a34a);
+}
+
+.so-action-btn--info {
+  background: rgba(14, 165, 233, 0.1);
+  border-color: rgba(14, 165, 233, 0.25);
+  color: #0ea5e9;
+}
+
+.so-action-btn--warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: #d97706;
+}
+
+.so-action-btn--primary {
+  background: rgba(45, 108, 223, 0.1);
+  border-color: rgba(45, 108, 223, 0.25);
+  color: var(--accent-color, #2d6cdf);
+}
+
+.so-view-btn {
+  border-color: #0dcaf0;
+  background: #0dcaf0;
+  color: var(--accent-color, #2d6cdf);
+  font-size: 0.9rem;
 }
 
 .so-view-btn:hover {
@@ -502,6 +580,7 @@
 
 .so-modal__summary {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 12px;
 }
 
 .so-modal__metrics {
@@ -547,9 +626,13 @@
 }
 
 .so-modal__section h3 {
-  margin: 0;
-  color: var(--color-text-primary, #1e293b);
-  font-size: 1rem;
+     margin: 0;
+    color: var(--color-text-primary, #1e293b);
+    font-size: 1rem;
+    border: 1px solid #8080804a;
+    border-radius: 6px;
+    padding-left: 5px;
+    background: antiquewhite;
 }
 
 .so-modal__grid {
@@ -562,10 +645,77 @@
   gap: 12px;
 }
 
-.so-modal__item {
+.so-modal__actions {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.so-modal__primary,
+.so-modal__secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.so-modal__primary {
+  background: var(--accent-color, #2d6cdf);
+  color: #fff;
+}
+
+.so-modal__secondary {
+  background: rgba(15, 23, 42, 0.04);
+  border-color: var(--color-border, #e2e8f0);
+  color: var(--color-text-primary, #1e293b);
+}
+
+.so-modal__grid input,
+.so-modal__grid select {
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 7px;
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #1e293b);
+  box-sizing: border-box;
+}
+
+.so-modal__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 999px;
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text-secondary, #475569);
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.so-modal__chip.active {
+  background: rgba(45, 108, 223, 0.1);
+  border-color: rgba(45, 108, 223, 0.3);
+  color: var(--accent-color, #2d6cdf);
+}
+
+.so-modal__span-2 {
+  grid-column: span 2;
+}
+
+.so-modal__grid--compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .so-modal__item-header {
@@ -584,7 +734,7 @@
   border-radius: 999px;
   background: rgba(45, 108, 223, 0.08);
   color: var(--accent-color, #2d6cdf);
-  font-size: 0.7rem;
+  font-size: 1.1rem;
   font-weight: 700;
 }
 

@@ -68,11 +68,11 @@ function ShopSelection() {
             setError('Please select a shop to continue.');
             return;
         }
-            localStorage.setItem('selectedShop', JSON.stringify(selectedShop));
-            const from = location.state?.from || '/'; 
-            console.log('ShopSelection redirecting (TEMP full reload) to:', from);
-            // TEMP: force full page redirect for debugging navigation issues
-            window.location.replace(from);
+        localStorage.setItem('selectedShop', JSON.stringify(selectedShop));
+        const from = location.state?.from || '/';
+        console.log('ShopSelection redirecting (TEMP full reload) to:', from);
+        // TEMP: force full page redirect for debugging navigation issues
+        window.location.replace(from);
     };
 
     return (
@@ -81,11 +81,11 @@ function ShopSelection() {
                 <div className="shopselection-header">
                     <div className="shopselection-brand">
                         <div className="shopselection-brand-icon">
-                              <img
-                                            src={`${apiBasePath}${shopList[0]?.userImageThumbPath || "/assets/images/default-shop-image.jpg"}`}
-                                            alt={shopList[0]?.shopName || "Shop"}
-                                            className="shopselection-logo"
-                                        />
+                            <img
+                                src={`${apiBasePath}${shopList[0]?.userImageThumbPath || "/assets/images/default-shop-image.jpg"}`}
+                                alt={shopList[0]?.shopName || "Shop"}
+                                className="shopselection-logo"
+                            />
                         </div>
                         <div>
                             <h1>Welcome Back, {userData?.firstName}</h1>
@@ -94,7 +94,7 @@ function ShopSelection() {
                     </div>
                     <div className="shopselection-user">
                         <span>Logged in as</span>
-                        <strong>{userData?.firstName}</strong>
+                        <strong>{userData?.firstName} {userData?.lastName}</strong>
                     </div>
                 </div>
 
@@ -103,7 +103,7 @@ function ShopSelection() {
 
                     <div className="shopselection-grid">
                         {shopList?.map((shop, index) => {
-                            const isSelected = selectedShop == shop.id;
+                            const isSelected = selectedShop.id == shop.id;
                             const color = shopColors[index % shopColors.length];
 
                             return (
@@ -116,19 +116,37 @@ function ShopSelection() {
                                 >
                                     <div className="shopselection-card-circles" />
 
-                                    {/* <div className="shopselection-shop-icon">
-                                        <img
-                                            src={`${apiBasePath}${shop.userImageThumbPath || "/assets/images/default-shop-image.jpg"}`}
-                                            alt={shop.shopName || "Shop"}
-                                            className="shopselection-logo"
-                                        />
-                                    </div> */}
+                                    <div className="shopselection-shop-container">
+                                        <div className='shopselection-shop-icon'>
+                                            <img
+                                                src={`${apiBasePath}${shop.userImageThumbPath || "/assets/images/default-shop-image.jpg"}`}
+                                                alt={shop.shopName || "Shop"}
+                                                className="shopselection-logo"
+                                            />
+                                        </div>
+                                        <div>
+                                            <h3 className="shopselection-shop-name">{shop.shopName || shop.name || "Shop"}</h3>
+                                            <h4 className="shopselection-shop-name-ar">{shop.shopNameAr || shop.arName || "Shop"}</h4>
+                                        </div>
+                                    </div>
 
                                     <div className="shopselection-shop-content">
-                                        <h2>{shop.shopName || shop.name || "Shop"}</h2>
+
                                         <p className="shopselection-shop-location">
                                             <FiMapPin />
-                                            {shop.address || shop.location || "Shop location"}
+                                            {shop.address1 || shop.address2 || shop.location || "Shop location"}
+                                        </p>
+                                        <p className="shopselection-shop-location">
+                                            <FiMapPin />
+                                            {shop.address2 || shop.address3 || shop.location || "Shop location"}
+                                        </p>
+                                         <p className="shopselection-shop-location">
+                                            <FiMapPin />
+                                            {shop.address3 || shop.city || shop.location || "Shop location"}
+                                        </p>
+                                         <p className="shopselection-shop-location">
+                                            <FiMapPin />
+                                            {shop.city}, {shop.country || "Shop location"} - {shop.poBox || shop.PoBox || "00000"}
                                         </p>
                                     </div>
 
