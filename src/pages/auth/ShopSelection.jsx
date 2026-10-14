@@ -103,7 +103,7 @@ function ShopSelection() {
 
                     <div className="shopselection-grid">
                         {shopList?.map((shop, index) => {
-                            const isSelected = selectedShop.id == shop.id;
+                            const isSelected = selectedShop?.id == shop?.id;
                             const color = shopColors[index % shopColors.length];
 
                             return (

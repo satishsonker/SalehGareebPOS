@@ -6,24 +6,7 @@ import * as FiIcons from 'react-icons/fi';
 import './Home.css';
 
 let LARGE_TILES = [];
-
-// [
-//   { id: 'createOrder', label: 'Create Order', icon: FiShoppingCart, color: '#2563eb', path: '/orders/create' },
-//   { id: 'fabricSale', label: 'Fabric Sale', icon: FiClock, color: '#ea580c', path: '/fabric/sale' },
-//   { id: 'alteration', label: 'Alteration', icon: FiBarChart2, color: '#7c3aed', path: '/orders/alteration' },
-//   { id: 'searchOrders', label: 'Search Orders', icon: FiSearch, color: '#1e293b', path: '/orders/search' },
-//   { id: 'orderAlert', label: 'Order Alerts', icon: FiCheckCircle, color: '#16a34a', path: '/orders/alerts' },
-//   { id: 'advance', label: 'Advance', icon: FiDollarSign, color: '#dc2626', path: '/orders/advance' },
-// ];
-
 let SMALL_TILES = []
-
-// [
-//   { id: 'customers', label: 'Customers', subtitle: 'Manage customers', icon: FiUsers, color: '#0891b2', path: '/customers' },
-//   { id: 'updateImage', label: 'Update Image', subtitle: 'Update product images', icon: FiImage, color: '#d97706', path: '/products/images' },
-//   { id: 'cancelOrder', label: 'Cancel Order', subtitle: 'Cancel existing orders', icon: FiXCircle, color: '#be123c', path: '/orders/cancel' },
-// ];
-
 function getGreeting() {
   const h = new Date().getHours();
   if (h < 12) return 'Good Morning';
@@ -80,13 +63,25 @@ function Home() {
   const firstName = user?.firstName || user?.username || 'User';
   const [tiles, setTiles] = useState([]);
 
+  const getSelectedShop = () => {
+    var data = localStorage.getItem('selectedShop') || sessionStorage.getItem('selectedShop');
+    return data ? JSON.parse(data) : null;
+  };
+
+ 
+
   useEffect(() => {
+    var selectedShop=getSelectedShop();
+     if (!selectedShop || !selectedShop.id) {
+    const from = '/shop-selection';
+    navigate(from, { replace: true });
+  }
     const fetchTiles = async () => {
       try {
         const response = await getTiles();
         setTiles(response.data?.data || []);
-        LARGE_TILES=response.data?.data?.filter(tile => tile.size?.toLowerCase() === 'large') || [];
-        SMALL_TILES=response.data?.data?.filter(tile => tile.size?.toLowerCase() === 'small') || [];
+        LARGE_TILES = response.data?.data?.filter(tile => tile.size?.toLowerCase() === 'large') || [];
+        SMALL_TILES = response.data?.data?.filter(tile => tile.size?.toLowerCase() === 'small') || [];
       } catch (error) {
         console.error('Error fetching tiles:', error);
       }

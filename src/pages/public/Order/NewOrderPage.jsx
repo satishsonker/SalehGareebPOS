@@ -99,14 +99,14 @@ export default function NewOrderPage() {
           }]
         };
         if (response.success) {
-          statusData.message = ` Order No: ${response.data?.orderNo || orderNo} created successfully.`;
+          statusData.message = `Order No: ${response.data?.orderNo} created successfully.`;
           //setOrder({ ...EMPTY_CREATE_ORDER() })
         }
         setStatusModelData({ ...statusData });
         setOrder(pre=>({...pre,["orderId"]:response?.data?.id}))
       })
       .catch(error => {
-        var statusData = { isOpen: false, title: 'Something went wrong', type: 'error' };
+        var statusData = { isOpen: false, title: 'Something went wrong', message: 'An error occurred while creating the order.', type: 'error',buttonText:'Ok',showCloseButton:true };
         setStatusModelData({ ...statusData });
       });
   };

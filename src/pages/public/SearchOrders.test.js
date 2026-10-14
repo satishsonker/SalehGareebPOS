@@ -81,6 +81,26 @@ describe('SearchOrders', () => {
     container.remove();
   });
 
+  it('shows clear, reload and pagination controls alongside the filter buttons', async () => {
+    await act(async () => {
+      root.render(
+        <ThemeProvider>
+          <MemoryRouter>
+            <SearchOrders />
+          </MemoryRouter>
+        </ThemeProvider>
+      );
+      await flushPromises();
+    });
+
+    const buttons = Array.from(container.querySelectorAll('button')).map((btn) =>
+      btn.textContent && btn.textContent.trim()
+    ).filter(Boolean);
+
+    expect(buttons).toEqual(expect.arrayContaining(['All', 'Order No', 'Customer', 'Phone', 'Clear', 'Reload']));
+    expect(container.querySelector('.so-pagination')).not.toBeNull();
+  });
+
   it('opens a details modal with fetched order data when the View button is clicked', async () => {
     await act(async () => {
       root.render(
@@ -91,6 +111,10 @@ describe('SearchOrders', () => {
         </ThemeProvider>
       );
       await flushPromises();
+    });
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 700));
     });
 
     const viewButton = Array.from(container.querySelectorAll('button')).find((btn) =>

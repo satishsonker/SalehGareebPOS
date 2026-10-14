@@ -8,9 +8,12 @@ import {
     FiUser,
     FiPhone,
     FiCalendar,
+    FiChevronLeft,
     FiChevronRight,
     FiDollarSign,
-    FiPackage
+    FiPackage,
+    FiRefreshCw,
+    FiX
 } from "react-icons/fi";
 import { getOrders, getOrderById } from "../../services/api/ordersApi";
 import Modal from "../../components/Modal/Modal";
@@ -23,7 +26,6 @@ import "./SearchOrders.css";
 const FILTERS = [
     { id: "all", label: "All", icon: FiFilter },
     { id: "orderNo", label: "Order No", icon: FiHash },
-    { id: "customer", label: "Customer", icon: FiUser },
     { id: "phone", label: "Phone", icon: FiPhone }
 ];
 
@@ -132,6 +134,48 @@ const getWorkTypeStatus = status => {
 
     return "Pending";
 };
+
+function Pagination({ currentPage, totalPages, totalRecords, pageSize, onPageChange }) {
+    const safeTotalPages = Math.max(1, Number(totalPages) || 1);
+    const startIndex = totalRecords === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    const endIndex = totalRecords === 0 ? 0 : Math.min(currentPage * pageSize, totalRecords);
+
+    return (
+        <div className="so-pagination">
+            <span className="so-pagination__meta">
+                {totalRecords > 0
+                    ? `Showing ${startIndex}-${endIndex} of ${totalRecords}`
+                    : "No records"}
+            </span>
+
+            <div className="so-pagination__controls">
+                <button
+                    type="button"
+                    className="so-pagination__button"
+                    disabled={currentPage <= 1}
+                    onClick={() => onPageChange(currentPage - 1)}
+                    aria-label="Previous page"
+                >
+                    <FiChevronLeft size={14} />
+                </button>
+
+                <span className="so-pagination__page">
+                    {currentPage} / {safeTotalPages}
+                </span>
+
+                <button
+                    type="button"
+                    className="so-pagination__button"
+                    disabled={currentPage >= safeTotalPages}
+                    onClick={() => onPageChange(currentPage + 1)}
+                    aria-label="Next page"
+                >
+                    <FiChevronRight size={14} />
+                </button>
+            </div>
+        </div>
+    );
+}
 
 function OrderStatusTimeline({ status }) {
     const currentIndex = getStatusIndex(status);
@@ -369,38 +413,61 @@ function SearchOrders() {
     const [detailError, setDetailError] = useState("");
     const [activeModalType, setActiveModalType] = useState("view");
     const [paymentDraft, setPaymentDraft] = useState({ amount: "", method: "Cash", note: "" });
+    const [pageNo, setPageNo] = useState(1);
+    const [pageSize] = useState(10);
+    const [totalRecords, setTotalRecords] = useState(0);
     const debounceRef = useRef(null);
 
-    const fetchOrders = useCallback((q) => {
+    const fetchOrders = useCallback((q = "", page = 1, size = pageSize) => {
         setLoading(true);
         setError("");
 
-        getOrders(1, 100, q)
+        getOrders(page, size, q)
             .then(res => {
-                const orderList = res?.data?.data ?? [];
+                const payload = res?.data ?? {};
+                const orderList = Array.isArray(payload?.data)
+                    ? payload.data
+                    : Array.isArray(res?.data)
+                        ? res.data
+                        : [];
+
                 setOrders(orderList);
+                setTotalRecords(Number(payload?.totalRecords ?? orderList.length ?? 0));
             })
             .catch(() => setError('Failed to load orders.'))
             .finally(() => setLoading(false));
-    }, []);
-
-    useEffect(() => {
-        fetchOrders(query);
-    }, [fetchOrders]);
+    }, [pageSize]);
 
     useEffect(() => {
         clearTimeout(debounceRef.current);
 
         debounceRef.current = setTimeout(() => {
-            fetchOrders(query, activeFilter);
+            setPageNo(1);
+            fetchOrders(query, 1, pageSize);
         }, 650);
 
         return () => clearTimeout(debounceRef.current);
-    }, [query, activeFilter, fetchOrders]);
+    }, [query, activeFilter, fetchOrders, pageSize]);
 
     const handleFilterChange = id => {
         setActiveFilter(id);
         setQuery("");
+        setPageNo(1);
+    };
+
+    const handlePageChange = nextPage => {
+        const safePage = Math.max(1, nextPage);
+        setPageNo(safePage);
+        fetchOrders(query, safePage, pageSize);
+    };
+
+    const handleClearSearch = () => {
+        setQuery("");
+        setPageNo(1);
+    };
+
+    const handleReload = () => {
+        fetchOrders(query, pageNo, pageSize);
     };
 
     const fetchOrderForModal = async (order, modalType = "view") => {
@@ -630,44 +697,76 @@ function SearchOrders() {
             </div>
 
             <div className="so-body">
-                <div className="so-search-wrap">
-                    <FiSearch
-                        className="so-search-icon"
-                        size={16}
-                    />
+                <div className="so-search-toolbar">
+                    <div className="so-search-wrap">
+                        <FiSearch
+                            className="so-search-icon"
+                            size={16}
+                        />
 
-                    <input
-                        className="so-search-input"
-                        type="text"
-                        placeholder={filterPlaceholder}
-                        value={query}
-                        onChange={event =>
-                            setQuery(event.target.value)
-                        }
-                    />
+                        <input
+                            className="so-search-input"
+                            type="text"
+                            placeholder={filterPlaceholder}
+                            value={query}
+                            onChange={event =>
+                                setQuery(event.target.value)
+                            }
+                        />
+                    </div>
+
+                    <div className="so-inline-actions">
+                        <button
+                            type="button"
+                            className="so-action-icon-btn"
+                            onClick={handleClearSearch}
+                        >
+                            <FiX size={15} />
+                            Clear
+                        </button>
+
+                        <button
+                            type="button"
+                            className="so-action-icon-btn so-action-icon-btn--primary"
+                            onClick={handleReload}
+                        >
+                            <FiRefreshCw size={15} />
+                            Reload
+                        </button>
+                    </div>
                 </div>
 
-                <div className="so-filters">
-                    {FILTERS.map(filter => {
-                        const Icon = filter.icon;
+                <div className="so-toolbar">
+                    <div className="so-filters">
+                        {FILTERS.map(filter => {
+                            const Icon = filter.icon;
 
-                        return (
-                            <button
-                                type="button"
-                                key={filter.id}
-                                className={`so-filter-btn ${activeFilter === filter.id
-                                        ? "so-filter-btn--active"
-                                        : ""
-                                    }`}
-                                onClick={() =>
-                                    handleFilterChange(filter.id)
-                                }
-                            >
-                                <Icon size={14} />
-                                {filter.label}
-                            </button>
-                        );
-                    })}
+                            return (
+                                <button
+                                    type="button"
+                                    key={filter.id}
+                                    className={`so-filter-btn ${activeFilter === filter.id
+                                            ? "so-filter-btn--active"
+                                            : ""
+                                        }`}
+                                    onClick={() =>
+                                        handleFilterChange(filter.id)
+                                    }
+                                >
+                                    <Icon size={14} />
+                                    {filter.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <Pagination
+                        currentPage={pageNo}
+                        totalPages={Math.max(1, Math.ceil(totalRecords / pageSize))}
+                        totalRecords={totalRecords}
+                        pageSize={pageSize}
+                        onPageChange={handlePageChange}
+                    />
                 </div>
 
                 <div className="so-results">
