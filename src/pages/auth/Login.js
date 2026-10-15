@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { FiUser, FiLock, FiLogIn } from 'react-icons/fi';
+import { FiUser, FiLock, FiLogIn, FiEye, FiEyeOff, FiShield } from 'react-icons/fi';
 import { apiBasePath } from '../../services/api/commonApi';
 import './Login.css';
 
@@ -16,6 +16,7 @@ function Login() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -86,18 +87,37 @@ function Login() {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <div className="login-icon">
-            <img src={`${apiBasePath}/logo/logo.png`} alt="Saleh Gareeb POS Icon" className="logo" />
+      <main className="login-shell">
+        <aside className="login-brand-panel">
+          <div className="login-brand-lockup">
+            <span className="login-brand-mark">
+              <img src={`${apiBasePath}/logo/logo.png`} alt="" />
+            </span>
+            <span className="login-brand-name">Saleh Gareeb <strong>POS</strong></span>
           </div>
-          <h1>Welcome Back</h1>
-          <p>Sign in to continue to Saleh Gareeb POS</p>
-        </div>
+          <div className="login-brand-copy">
+            <span className="login-brand-overline">RETAIL OPERATIONS</span>
+            <h1>Everything in your shop, in one place.</h1>
+            <p>Sign in to manage orders, customers, payments, and daily work from your shop workspace.</p>
+          </div>
+          <div className="login-brand-bottom">
+            <span className="login-brand-shield"><FiShield /></span>
+            <span><strong>Private shop access</strong><small>Only authorized team members can sign in.</small></span>
+          </div>
+          <div className="login-brand-orbit login-brand-orbit--one" />
+          <div className="login-brand-orbit login-brand-orbit--two" />
+        </aside>
 
-        <form onSubmit={handleSubmit} className="login-form">
+        <section className="login-card">
+          <div className="login-header">
+            <span className="login-form-kicker">STAFF SIGN IN</span>
+            <h2>Welcome back</h2>
+            <p>Enter your account details to continue.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="login-form">
           {error && (
-            <div className="error-message">
+            <div className="error-message" role="alert">
               {error}
             </div>
           )}
@@ -125,17 +145,22 @@ function Login() {
               <FiLock className="input-icon" />
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              required
-              autoComplete="current-password"
-              disabled={loading}
-            />
+            <div className="login-password-wrap">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                required
+                autoComplete="current-password"
+                disabled={loading}
+              />
+              <button type="button" className="login-password-toggle" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
+            </div>
           </div>
 
           <button
@@ -155,12 +180,15 @@ function Login() {
               </>
             )}
           </button>
-        </form>
+          </form>
 
-        <div className="login-footer">
-          <p>Need help? Contact your administrator</p>
-        </div>
-      </div>
+          <div className="login-footer">
+            <span className="login-footer-line" />
+            <p>Need help accessing your shop?</p>
+            <small>Contact your administrator</small>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

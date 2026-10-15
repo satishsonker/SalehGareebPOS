@@ -1,0 +1,101 @@
+.admin-home {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: min(100%, 1320px);
+  margin: 0 auto;
+  color: var(--text-primary);
+}
+
+.admin-home-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 150px;
+  padding: 25px 28px;
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--brand-primary);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.admin-home-welcome__copy { min-width: 0; }
+.admin-home-eyebrow { display: flex; align-items: center; gap: 7px; color: var(--brand-primary); font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+.admin-home-eyebrow svg { font-size: 13px; }
+.admin-home-welcome h2 { margin: 9px 0 5px; color: var(--text-primary); font-size: clamp(23px, 3vw, 30px); line-height: 1.15; }
+.admin-home-welcome p { margin: 0; color: var(--text-secondary); font-size: 13px; }
+
+.admin-home-shop {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 190px;
+  max-width: 270px;
+  padding: 13px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--surface-muted);
+}
+
+.admin-home-shop__label { color: var(--text-secondary); font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+.admin-home-shop strong { overflow: hidden; color: var(--text-primary); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.admin-home-shop small { color: var(--text-secondary); font-size: 10px; }
+.admin-home-sections { display: flex; flex-direction: column; gap: 22px; }
+
+.admin-home-section {
+  padding: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.admin-home-section__header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.admin-home-section__header h3 { margin: 0; color: var(--text-primary); font-size: 15px; }
+.admin-home-section__header p { margin: 4px 0 0; color: var(--text-secondary); font-size: 11px; }
+.admin-home-section__header > span { flex: 0 0 auto; color: var(--text-tertiary); font-size: 10px; font-weight: 700; }
+.admin-home-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
+
+.admin-tool-card {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+  min-height: 82px;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .15s ease, background-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+
+.admin-tool-card:hover { transform: translateY(-1px); border-color: var(--brand-primary); background: var(--surface-muted); box-shadow: 0 4px 12px var(--shadow); }
+.admin-tool-card__icon { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 40px; border-radius: 10px; font-size: 17px; }
+.admin-tool-card__icon--blue { background: var(--info-soft); color: var(--brand-primary); }
+.admin-tool-card__icon--teal { background: #e8f7f5; color: #087e78; }
+.admin-tool-card__icon--amber { background: var(--warning-soft); color: #a46208; }
+.admin-tool-card__icon--violet { background: #f2edff; color: #7047b5; }
+.admin-tool-card__icon--slate { background: var(--surface-muted); color: var(--text-secondary); }
+.admin-tool-card__copy { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; }
+.admin-tool-card__copy strong { color: var(--text-primary); font-size: 12px; }
+.admin-tool-card__copy small { color: var(--text-secondary); font-size: 10px; line-height: 1.4; }
+.admin-tool-card__arrow { flex: 0 0 auto; color: var(--text-tertiary); font-size: 15px; }
+.admin-tool-card:hover .admin-tool-card__arrow { color: var(--brand-primary); }
+
+@media (max-width: 900px) {
+  .admin-home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 600px) {
+  .admin-home { gap: 14px; }
+  .admin-home-welcome { align-items: flex-start; flex-direction: column; gap: 15px; padding: 19px; }
+  .admin-home-shop { box-sizing: border-box; width: 100%; max-width: none; }
+  .admin-home-sections { gap: 14px; }
+  .admin-home-section { padding: 14px; }
+  .admin-home-grid { grid-template-columns: 1fr; gap: 8px; }
+  .admin-tool-card { min-height: 72px; }
+}

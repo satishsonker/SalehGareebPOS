@@ -292,19 +292,15 @@ export default function WorkTypeSelector({ options }) {
                                 })}
                             </div>
                         </section>
-                        {/* <div className="wt-panel-header">
+                        <div className="wt-description-header">
                             <div>
-                                <div className="wt-panel-title">SELECT WORK DESCRIPTIONS</div>
-                                <div className="wt-panel-subtitle">
-                                    {currentClickedWorkType
-                                        ? commonLogic.workTypeCodesAbbr(currentClickedWorkType)
-                                        : "Click a work type first"}
-                                </div>
+                                <strong>Work details</strong>
+                                <span>{currentClickedWorkType ? commonLogic.workTypeCodesAbbr(currentClickedWorkType) : "Choose a work type"}</span>
                             </div>
-                            <div className="wt-count">
-                                {selectedSubOrder?.workDescriptions?.length || 0} SELECTED
-                            </div>
-                        </div> */}
+                            <span className="wt-description-count">
+                                {selectedSubOrder?.workTypes?.find(item => String(item?.code ?? item?.workTypeCode) === String(currentClickedWorkType))?.workDescriptions?.length || 0} selected
+                            </span>
+                        </div>
                         <div className="wt-description-list">
                             {isWorkTypeSelected(currentClickedWorkType) ? (
                                 filteredWorkDescByWorkCode?.length > 0 ? (

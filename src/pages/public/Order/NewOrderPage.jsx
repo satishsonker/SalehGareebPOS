@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './NewOrderPage.css'
 import OrderPriceSelector from './OrderPriceSelector';
-import { FiSave, FiClock, FiAlertCircle, FiAlertTriangle, FiTruck, FiFeather, FiMinus, FiRefreshCw, FiPrinter } from 'react-icons/fi';
+import { FiSave, FiClock, FiAlertCircle, FiAlertTriangle, FiTruck, FiFeather, FiMinus, FiRefreshCw, FiPrinter, FiShoppingBag, FiUser, FiLayers, FiPlus, FiDollarSign } from 'react-icons/fi';
 import WorkTypeSelector from './WorkTypeSelector';
 import OrderSummary from './OrderSummary';
 import { getEmirates, getMasterDataByTypes } from '../../../services/api/masterDataApi';
@@ -175,9 +175,10 @@ export default function NewOrderPage() {
     setOrder(pre=>({...pre,["advanceAmount"]:value}));
   }
   const onNumericPadChangeHandler = ({ name, value }) => {
-    var model = order;
-    model[name] = value;
-    if (name !== 'mobile') return;
+    if (name !== 'mobile') {
+      setOrder(previous => ({ ...previous, [name]: value }));
+      return;
+    }
 
     const customer = customerList.find(
       ({ isdCode, mobile }) =>
@@ -185,19 +186,19 @@ export default function NewOrderPage() {
     );
 
     if (!customer) {
-      model.customerId = 0;
-      model.customerName = '';
-      model.customerClass = '';
-      model.emirateId = 0;
+      setOrder(previous => ({ ...previous, mobile: value, customerId: 0, customerName: '', customerClass: 'Regular', emirateId: 0 }));
       setAddCustomerModalOpen(true);
       return;
     }
 
-    model.customerId = customer.id;
-    model.emirateId = customer.emirateId;
-    model.customerName = `${customer.firstName} ${customer.lastName}`;
-    model.customerClass = customer.customerClass;
-    setOrder({ ...model });
+    setOrder(previous => ({ ...previous, mobile: value, customerId: customer.id, emirateId: customer.emirateId, customerName: `${customer.firstName} ${customer.lastName}`.trim(), customerClass: customer.customerClass || 'Regular' }));
+    setAddCustomerModalOpen(false);
+  };
+  const resetOrder = () => {
+    setOrder(EMPTY_CREATE_ORDER());
+    setPhone('');
+    setAdvanceAmount(0);
+    setAdvancePercent(0);
     setAddCustomerModalOpen(false);
   };
   const handleAdvanceChange = (e,percentObj) => {
@@ -213,21 +214,33 @@ export default function NewOrderPage() {
   }
   return (
     <>
-      <div className='wrap'>
+      <div className='new-order-page'>
+        <header className="create-order-heading">
+          <div className="create-order-title-icon"><FiShoppingBag /></div>
+          <div>
+            <h1>Create order</h1>
+            <p className="create-order-subtitle">New sale · enter customer and garment details</p>
+          </div>
+          <div className="pos-order-ref">{order?.orderId ? `Order #${order.orderNo}` : 'NEW ORDER'}</div>
+        </header>
         <div className="panel customer-row">
+          <div className="create-section-heading">
+            <span className="create-section-icon"><FiUser /></span>
+            <div><h2>Customer &amp; delivery</h2><p>Customer details and promised delivery date</p></div>
+          </div>
           <div className="field-grid">
             <div className="field">
               <label>Phone Number</label>
-              <input type="text" onClick={openPhoneKeypad} placeholder="+971 · Enter phone" value={order?.isd + order?.mobile} />
+              <input type="text" onClick={openPhoneKeypad} placeholder="+971 · Enter phone" value={order?.isd + order?.mobile} readOnly aria-label="Customer phone number" />
             </div>
             <div className="field">
               <label>Customer Name</label>
-              <input type="text" value={order?.customerName} placeholder="Enter customer name" />
+              <input type="text" value={order?.customerName || ''} placeholder="Enter phone to find customer" readOnly />
             </div>
             <div className="field">
               <label>Emirate</label>
               <select value={order?.emirateId} disabled={order?.customerId > 0} name='emirateId' onChange={e => { setOrder(pre => ({ ...pre, ["emirateId"]: e.target.value })) }}>
-                <option>Select a Emirate</option>
+                <option value="0">Select emirate</option>
                 {emirateList?.map((ele, index) => {
                   return <option key={index} value={ele?.id}>{ele?.displayValue}</option>
                 })}
@@ -235,17 +248,17 @@ export default function NewOrderPage() {
             </div>
             <div className="field">
               <label>Order Date</label>
-              <input type="text" value={commonLogic.formatDate(new Date())} />
+              <input type="text" value={commonLogic.formatDate(new Date())} readOnly />
             </div>
             <div className="field">
               <label>Delivery Date</label>
-              <input type="text" placeholder="Select date" value={commonLogic.formatDate(order?.deliveryDate)} readOnly
+              <input type="text" placeholder="Select date" value={order?.deliveryDate ? commonLogic.formatDate(order.deliveryDate) : ''} readOnly
                 onClick={() => setIsDatePickerOpen(true)} />
             </div>
             <div className="field">
               <label>Price</label>
-              <button className="rate-btn" id="openRateModal" onClick={e => setOpenPriceModel(true)} style={{ width: '100%' }}>
-                <span>Select Price</span>
+              <button type="button" className="rate-btn" id="openRateModal" onClick={() => setOpenPriceModel(true)} style={{ width: '100%' }}>
+                <span>{order?.price ? `${order.price} AED · ${order.priceGragde || 'Selected rate'}` : 'Select price'}</span>
                 <span className="arrow">›</span>
               </button>
             </div>
@@ -253,7 +266,7 @@ export default function NewOrderPage() {
               <label>Customer Type</label>
               <div className="customer-type">
                 {['Regular', 'VIP', 'VVIP'].map((ele, index) => {
-                  return <button key={index} className={`pill-btn ${order?.customerClass?.toLocaleLowerCase() === ele.toLocaleLowerCase() ? 'active' : ''}`}>{ele}</button>
+                  return <button type="button" key={index} onClick={() => setOrder(previous => ({ ...previous, customerClass: ele }))} className={`pill-btn ${order?.customerClass?.toLocaleLowerCase() === ele.toLocaleLowerCase() ? 'active' : ''}`}>{ele}</button>
                 })}
               </div>
             </div>
@@ -261,41 +274,37 @@ export default function NewOrderPage() {
           {/* <SubOrderList order={order} setOrder={setOrder} /> */}
 
         </div>
-        <div className='order-details'>
-          <div className="panel">
+        <div className='order-details pos-workspace'>
+          <div className="panel order-entry-panel">
             <div className="panel-header">
-              <div>Total SubOrder : {order?.orderDetails?.length}</div>
+              <div className="create-section-heading compact">
+                <span className="create-section-icon"><FiLayers /></span>
+                <div><h2>Garments</h2><p>Items and work requested</p></div>
+              </div>
+              <div className="pos-item-toolbar">
+                <span className="create-order-count">{order?.orderDetails?.length || 0} items</span>
+                <button type="button" className="pos-add-item" onClick={() => setOpenPriceModel(true)}><FiPlus /> Add garment</button>
+              </div>
             </div>
             <div className="subconfig-panel" style={{ paddingBottom: '0' }}>
-              <SubOrderDetailList order={order} workTypeList={workTypeList} setOrder={setOrder} setWorkTypeSelectorModalOpen={setWorkTypeSelectorModalOpen} workTypeList={workTypeList} />
+              {order?.orderDetails?.length === 0 && (
+                <div className="pos-empty-items">
+                  <span><FiShoppingBag /></span>
+                  <strong>No garments added</strong>
+                  <p>Select a price and quantity to start this order.</p>
+                  <button type="button" onClick={() => setOpenPriceModel(true)}><FiPlus /> Add first garment</button>
+                </div>
+              )}
+              <SubOrderDetailList order={order} workTypeList={workTypeList} setOrder={setOrder} setWorkTypeSelectorModalOpen={setWorkTypeSelectorModalOpen} />
               <WorkTypeSelector options={{ order, setOrder, workTypeList, workTypeSelectorModalOpen, setWorkTypeSelectorModalOpen, neckLineList, lengthList, sleeveList }} />
             </div>
           </div>
-          <div>
-            <div className="panel order-summary-panel">
-              <div className="payment-column actionButtons-container">
-                <button type="button" className="btn btn-danger actionButtons" onClick={() => { }}>
-                  <FiRefreshCw />
-                  Reset
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-info actionButtons"
-                  onClick={handlePrint}
-                  disabled={!order?.orderId}
-                >
-                  <FiPrinter />
-                  Print Invoice
-                </button>
-                <button type="button" className="btn btn-success actionButtons" onClick={handleSave}>
-                  <FiSave />
-                  Save Order
-                </button>
-
-              </div>
-            </div>
-            <div className='panel'>
-              {/* <WorkDescriptionSelector order={order} setOrder={setOrder} /> */}
+          <aside className="pos-checkout">
+            <section className="pos-summary-card">
+              <div className="pos-checkout-heading"><FiDollarSign /><span>Checkout summary</span></div>
+              <OrderSummary order={order} setOrder={setOrder} paymentModalOpen={paymentModalOpen} setPaymentModalOpen={setPaymentModalOpen} />
+            </section>
+            <section className="panel pos-payment-card">
               <div className="payment-column">
                 <div className="payment-section-title">
                   Payment Mode
@@ -392,11 +401,20 @@ export default function NewOrderPage() {
                   ))}
 
                 </div>
-                <OrderSummary order={order} setOrder={setOrder} paymentModalOpen={paymentModalOpen} setPaymentModalOpen={setPaymentModalOpen} />
               </div>
+            </section>
+            <div className="pos-checkout-actions">
+              <button type="button" className="pos-reset-button" onClick={resetOrder} disabled={!order?.customerId && !order?.orderDetails?.length}>
+                <FiRefreshCw /> Reset
+              </button>
+              <button type="button" className="pos-print-button" onClick={handlePrint} disabled={!order?.orderId}>
+                <FiPrinter /> Print
+              </button>
+              <button type="button" className="pos-save-button" onClick={handleSave}>
+                <FiSave /> Save order
+              </button>
             </div>
-
-          </div>
+          </aside>
 
           {/* <div className="invoice-strip">
             <div className="selected-rate-chip">

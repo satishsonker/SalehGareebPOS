@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  FiMenu, FiX, FiGrid, FiDatabase, FiPackage, FiShoppingCart,
-  FiSettings, FiLogOut, FiSun, FiMoon, FiCode,
+  FiMenu, FiX, FiGrid, FiDatabase,
+  FiSettings, FiLogOut, FiSun, FiMoon,
   FiUser, FiMail, FiPhone, FiShield,
-  FiShoppingBag, FiMapPin, FiTag, FiChevronDown, FiHome, FiDollarSign, FiBell, FiServer, FiBox
+  FiShoppingBag, FiMapPin, FiTag, FiChevronDown, FiHome, FiDollarSign, FiBell, FiServer
 } from 'react-icons/fi';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,12 +17,8 @@ const menuItems = [
   { path: '/admin/customers',         icon: FiUser,         label: 'Customers' },
   { path: '/admin/order-prices',      icon: FiDollarSign,   label: 'Order Prices' },
   { path: '/admin/notifications',     icon: FiBell,         label: 'Notifications' },
-  { path: '/admin/design-models',     icon: FiBox,          label: 'Design Models' },
   { path: '/admin/cache',             icon: FiServer,       label: 'Cache' },
-  { path: '/admin/products',          icon: FiPackage,      label: 'Products' },
-  { path: '/admin/orders',            icon: FiShoppingCart, label: 'Orders' },
   { path: '/admin/settings',          icon: FiSettings,     label: 'Settings' },
-  { path: '/admin/components-example',icon: FiCode,         label: 'Components' },
 ];
 
 function AdminLayout() {

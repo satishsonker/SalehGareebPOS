@@ -291,3 +291,169 @@
         grid-template-columns: 1fr
     }
 }
+
+/* Work type and description POS selector */
+.modal-container:has(.worktype-selector) {
+    width: min(1120px, calc(100vw - 32px));
+    max-width: 1120px;
+    max-height: min(90dvh, 860px);
+    border-radius: 14px;
+    background: var(--surface);
+}
+
+.modal-container:has(.worktype-selector) .modal-header {
+    min-height: 58px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--surface);
+}
+
+.modal-container:has(.worktype-selector) .modal-content {
+    padding: 14px;
+    background: var(--bg-secondary);
+}
+
+.modal-container:has(.worktype-selector) .modal-footer {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border-color);
+    background: var(--surface);
+}
+
+.worktype-selector { color: var(--text-primary); }
+.wt-bottom-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(270px, 310px);
+    gap: 12px;
+    margin: 0;
+    align-items: stretch;
+}
+
+.wt-panel {
+    border-color: var(--border-color);
+    border-radius: 10px;
+    background: var(--surface);
+}
+
+.wt-description-panel { overflow: hidden; }
+.wt-description-panel > .wt-work-panel { border: 0; border-bottom: 1px solid var(--border-color); border-radius: 0; }
+.wt-panel-header {
+    min-height: 48px;
+    padding: 8px 12px;
+    border-bottom-color: var(--border-color);
+    background: var(--surface);
+}
+.wt-panel-title { color: var(--text-secondary); font-size: 10px; letter-spacing: .08em; }
+.wt-panel-subtitle { color: var(--text-secondary); font-size: 10px; }
+.wt-count { background: var(--brand-primary-soft); color: var(--brand-primary-deep); }
+
+.wt-work-list {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    padding: 9px;
+    background: var(--bg-secondary);
+}
+
+.wt-work-card {
+    min-height: 54px;
+    padding: 7px 9px;
+    border-color: var(--border-color);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-primary);
+}
+.wt-work-card:hover { border-color: var(--brand-primary); }
+.wt-work-card.selected { border-color: var(--brand-primary); background: var(--brand-primary-soft); }
+.wt-work-card.selected.current { box-shadow: inset 0 0 0 1px var(--brand-primary); }
+.wt-work-card.selected.configured { border-color: var(--success); background: var(--success-soft); }
+.wt-work-card.selected.current.configured { border-color: var(--success); background: var(--success-soft); }
+.wt-work-card.current { box-shadow: inset 0 0 0 1px var(--brand-primary); }
+.wt-work-short { color: var(--brand-primary); font-size: 10px; }
+.wt-work-name,
+.wt-work-card.selected.configured .wt-work-name { color: var(--text-primary); font-size: 11px; }
+.wt-work-check { color: var(--brand-primary); }
+.wt-work-check svg { width: 17px; height: 17px; }
+.wt-work-card.selected.configured .wt-work-check { color: var(--success); }
+
+.wt-description-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px 0;
+}
+.wt-description-header > div { display: flex; flex-direction: column; gap: 2px; }
+.wt-description-header strong { color: var(--text-primary); font-size: 12px; }
+.wt-description-header span { color: var(--text-secondary); font-size: 10px; }
+.wt-description-count { padding: 4px 8px; border-radius: 999px; background: var(--surface-muted); white-space: nowrap; }
+
+.wt-description-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    padding: 9px;
+}
+.wt-description-item {
+    min-height: 42px;
+    padding: 8px 10px;
+    border-color: var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-muted);
+    color: var(--text-primary);
+    font-size: 11px;
+    text-align: left;
+}
+.wt-description-item:hover { border-color: var(--brand-primary); background: var(--brand-primary-soft); }
+.wt-description-item.active { border-color: var(--success); background: var(--success-soft); color: var(--success); }
+.wt-description-item svg { width: 15px; height: 15px; color: var(--success); }
+.wt-empty { padding: 25px 12px; color: var(--text-secondary); }
+
+.wt-options-panel {
+    gap: 8px;
+    padding: 10px;
+    border-color: var(--border-color);
+    background: var(--surface);
+}
+.wt-option-section { padding: 9px; border-color: var(--border-color); border-radius: 8px; }
+.wt-option-title {
+    min-height: auto;
+    margin: 0 0 8px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 10px;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+.wt-option-list { gap: 6px; }
+.wt-option-btn {
+    min-height: 36px;
+    padding: 6px 10px;
+    border-color: var(--border-color);
+    border-radius: 7px;
+    background: var(--surface-muted);
+    color: var(--text-primary);
+    font-size: 11px;
+}
+.wt-option-btn:hover { border-color: var(--brand-primary); }
+.wt-option-btn.active { border-color: var(--brand-primary); background: var(--brand-primary); color: var(--text-inverse); }
+
+.review-order-footer { display: flex; justify-content: flex-end; }
+.review-order-footer .op-footer__right { display: flex; gap: 8px; }
+.review-order-footer .op-btn { min-width: 108px; height: 42px; border-radius: 8px; font-size: 12px; }
+
+@media (max-width: 800px) {
+    .wt-bottom-layout { grid-template-columns: 1fr; }
+    .wt-options-panel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+    .wt-work-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+    .modal-container:has(.worktype-selector) { width: calc(100vw - 16px); max-height: 94dvh; }
+    .modal-container:has(.worktype-selector) .modal-content { padding: 8px; }
+    .wt-work-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .wt-description-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .wt-options-panel { grid-template-columns: 1fr; }
+    .wt-option-btn { min-height: 40px; }
+    .review-order-footer .op-footer__right { width: 100%; }
+    .review-order-footer .op-btn { flex: 1; }
+}

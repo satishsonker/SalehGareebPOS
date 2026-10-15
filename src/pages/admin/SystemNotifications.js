@@ -21,11 +21,11 @@ import { mergeValidationErrorsFromApi, parseApiValidationErrors } from '../../ut
 import './SystemNotifications.css';
 
 const NOTIFICATION_TYPES = [
-  { value: 'Info',         label: 'Info' },
-  { value: 'Warning',      label: 'Warning' },
-  { value: 'Success',      label: 'Success' },
-  { value: 'Error',        label: 'Error' },
-  { value: 'Announcement', label: 'Announcement' },
+  { value: '1',         label: 'Info' },
+  { value: '2',      label: 'Warning' },
+  { value: '3',      label: 'Success' },
+  { value: '4',        label: 'Error' },
+  { value: '5', label: 'Announcement' },
 ];
 
 const AUDIENCE_OPTIONS = [
@@ -37,7 +37,7 @@ const AUDIENCE_OPTIONS = [
 const EMPTY_FORM = {
   title: '',
   message: '',
-  notificationType: 'Info',
+  notificationType: '1',
   targetAudience: 'All',
   scheduledAt: '',
   isActive: true,
@@ -117,7 +117,7 @@ function SystemNotifications() {
         setEditForm({
           title:            d.title || '',
           message:          d.message || '',
-          notificationType: d.notificationType || 'Info',
+          notificationType: d.notificationType || 1,
           targetAudience:   d.targetAudience || 'All',
           scheduledAt:      d.scheduledAt ? d.scheduledAt.substring(0, 16) : '',
           isActive:         d.isActive ?? true,
@@ -297,9 +297,9 @@ function SystemNotifications() {
         {selected && (
           <div className="modal-form">
             <div className="sn-type-row">
-              <span className={`sn-type-badge sn-type-badge--${(selected.notificationType || 'info').toLowerCase()}`}>
+              <span className={`sn-type-badge sn-type-badge--${(selected.notificationType || 1 ).toLowerCase()}`}>
                 {TYPE_ICON[selected.notificationType] || <FiBell />}
-                {selected.notificationType || 'Info'}
+                {selected.notificationType || 1 }
               </span>
               <span className={`sn-status-badge ${selected.isSent ? 'sn-status-badge--sent' : selected.scheduledAt ? 'sn-status-badge--scheduled' : 'sn-status-badge--draft'}`}>
                 {selected.isSent ? 'Sent' : selected.scheduledAt ? 'Scheduled' : 'Draft'}
