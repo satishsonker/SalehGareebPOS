@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FiArrowLeft, FiSearch, FiPlus, FiUser, FiPhone, FiMapPin,
-  FiChevronRight, FiEdit2, FiTrash2, FiLock, FiUnlock, FiX, FiCheck,
+  FiChevronLeft, FiChevronRight, FiEdit2, FiTrash2, FiLock, FiUnlock, FiX, FiCheck,
 } from 'react-icons/fi';
 import Modal from '../../../components/Modal/Modal';
 import TextBox from '../../../components/TextBox/TextBox';
@@ -10,7 +10,7 @@ import CountrySelect from '../../../components/CountrySelect/CountrySelect';
 import { useNotification } from '../../../components/Notification';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
-  searchCustomers, getCustomerById, createCustomer, updateCustomer,
+  getCustomers, searchCustomers, getCustomerById, createCustomer, updateCustomer,
   getCustomerAddresses, addCustomerAddress, updateCustomerAddress, deleteCustomerAddress,
 } from '../../../services/api/customersApi';
 import { commonLogic } from '../../../utils/commonLogic';
@@ -71,7 +71,9 @@ function Customers() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
+  const [pageNo, setPageNo] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const pageSize = 10;
   const debounceRef = useRef(null);
 
   // Selected customer
@@ -97,25 +99,46 @@ function Customers() {
   const [saving, setSaving] = useState(false);
 
   // ── Search ────────────────────────────────────────────────────
-  const doSearch = useCallback(async (q) => {
-    if (!q.trim()) { setResults([]); setSearched(false); return; }
+  const fetchCustomers = useCallback(async (q, page) => {
     setLoading(true);
-    setSearched(true);
     try {
-      const res = await searchCustomers(q);
-      setResults(Array.isArray(res.data) ? res.data : (res.data?.data ?? []));
-    } catch {
+      const res = q.trim()
+        ? await searchCustomers(q, page, pageSize)
+        : await getCustomers(page, pageSize);
+      const payload = res?.data ?? {};
+      const customers = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload)
+          ? payload
+          : Array.isArray(res?.data)
+            ? res.data
+            : [];
+      setResults(customers);
+      setTotalRecords(Number(payload?.totalRecords ?? customers.length));
+    } catch (e) {
       setResults([]);
+      setTotalRecords(0);
+      showError(e.message || 'Failed to load customers');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [pageSize, showError]);
 
   useEffect(() => {
     clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => doSearch(query), 350);
+    debounceRef.current = setTimeout(() => fetchCustomers(query, pageNo), query ? 350 : 0);
     return () => clearTimeout(debounceRef.current);
-  }, [query, doSearch]);
+  }, [query, pageNo, fetchCustomers]);
+
+  const handleQueryChange = (value) => {
+    setQuery(value);
+    setPageNo(1);
+  };
+
+  const handlePageChange = (nextPage) => {
+    const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
+    setPageNo(Math.min(totalPages, Math.max(1, nextPage)));
+  };
 
   // ── Select customer ───────────────────────────────────────────
   const handleSelect = async (cust) => {
@@ -138,7 +161,11 @@ function Customers() {
     if (Object.keys(errors).length) return;
     setSaving(true);
     try {
-      const res = await createCustomer({ ...addForm, primaryShopId: selectedShop?.id || 0 });
+      const res = await createCustomer({
+        ...addForm,
+        primaryShopId: selectedShop?.id || 0,
+        customerClass: 'Regular',
+      });
       if (res.success) {
         success('Customer created');
         setAddOpen(false);
@@ -146,7 +173,8 @@ function Customers() {
         setAddErrors({});
         // Auto-open the new customer
         if (res.data?.id) await handleSelect(res.data);
-        doSearch(query);
+        setPageNo(1);
+        fetchCustomers(query, 1);
       } else {
         showError(res.message || 'Create failed');
       }
@@ -184,7 +212,7 @@ function Customers() {
         success('Customer updated');
         setEditOpen(false);
         setSelected(res.data || { ...selected, ...editForm });
-        doSearch(query);
+        fetchCustomers(query, pageNo);
       } else {
         showError(res.message || 'Update failed');
       }
@@ -359,21 +387,21 @@ function Customers() {
             className="pub-cust-search"
             placeholder="Search by name, mobile, city..."
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={e => handleQueryChange(e.target.value)}
           />
           {query && (
-            <button className="pub-cust-search-clear" onClick={() => setQuery('')}><FiX size={14} /></button>
+            <button className="pub-cust-search-clear" onClick={() => handleQueryChange('')}><FiX size={14} /></button>
           )}
         </div>
 
         {/* Results */}
         <div className="pub-cust-list">
           {loading && (
-            <div className="pub-cust-state">
-              <div className="pub-cust-spinner" /> Searching...
+              <div className="pub-cust-state">
+              <div className="pub-cust-spinner" /> Loading customers...
             </div>
           )}
-          {!loading && searched && results.length === 0 && (
+          {!loading && query.trim() && results.length === 0 && (
             <div className="pub-cust-state">
               <p>No customers found for "<strong>{query}</strong>"</p>
               <button className="pub-cust-add-inline" onClick={() => { setAddForm({ ...EMPTY_CUSTOMER, firstName: query }); setAddErrors({}); setAddOpen(true); }}>
@@ -384,13 +412,30 @@ function Customers() {
           {!loading && results.map(c => (
             <CustomerCard key={c.id} customer={c} onClick={handleSelect} />
           ))}
-          {!loading && !searched && (
+          {!loading && !query.trim() && results.length === 0 && (
             <div className="pub-cust-state pub-cust-state--hint">
-              <FiSearch size={32} style={{ opacity: 0.3 }} />
-              <p>Type a name or mobile number to search</p>
+              <FiUser size={32} style={{ opacity: 0.3 }} />
+              <p>No customers yet. Add a customer to get started.</p>
             </div>
           )}
         </div>
+
+        {!loading && totalRecords > 0 && (
+          <div className="pub-cust-pagination">
+            <span>
+              Showing {((pageNo - 1) * pageSize) + 1}-{Math.min(pageNo * pageSize, totalRecords)} of {totalRecords}
+            </span>
+            <div className="pub-cust-pagination__controls">
+              <button type="button" aria-label="Previous page" disabled={pageNo <= 1} onClick={() => handlePageChange(pageNo - 1)}>
+                <FiChevronLeft size={14} />
+              </button>
+              <span>{pageNo} / {Math.max(1, Math.ceil(totalRecords / pageSize))}</span>
+              <button type="button" aria-label="Next page" disabled={pageNo >= Math.ceil(totalRecords / pageSize)} onClick={() => handlePageChange(pageNo + 1)}>
+                <FiChevronRight size={14} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Add Customer Modal */}

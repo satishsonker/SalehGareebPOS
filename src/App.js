@@ -16,6 +16,9 @@ import About from './pages/public/About';
 import NewOrderPage from './pages/public/Order/NewOrderPage';
 import SearchOrders from './pages/public/SearchOrders';
 import Customers from './pages/public/Customer/Customers';
+import Advances from './pages/public/Advances/Advances';
+import OrderAlerts from './pages/public/OrderAlerts/OrderAlerts';
+import CancelOrders from './pages/public/CancelOrders/CancelOrders';
 import CustomersMasterData from './pages/admin/masterData/CustomersMasterData';
 import OrderPriceMasterData from './pages/admin/masterData/OrderPriceMasterData';
 import SystemNotifications from './pages/admin/SystemNotifications';
@@ -91,6 +94,9 @@ function App() {
                       <Route path="orders/create" element={<NewOrderPage />} />
                       <Route path="orders/search" element={<SearchOrders />} />
                       <Route path="customers" element={<Customers />} />
+                      <Route path="/orders/advance" element={<Advances />} />
+                      <Route path="orders/alerts" element={<OrderAlerts />} />
+                      <Route path="orders/cancel" element={<CancelOrders />} />
                     </Route>
 
                     {/* Admin Routes - Protected with Admin Check */}

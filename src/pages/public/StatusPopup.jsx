@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { FiActivity, FiLayers, FiLoader, FiSave, FiX } from 'react-icons/fi';
 import { getOrderById, updateOrder, updateItemStatus } from '../../services/api/ordersApi';
 
 const statusOptions = ['pending', 'in-progress', 'done'];
@@ -95,9 +96,9 @@ export default function StatusPopup({ order, onClose, onSaved }) {
   if (!currentOrder) return null;
 
   return (
-    <div className="so-modal__content">
+    <div className="so-modal__content payment-popup so-edit-popup so-edit-popup--status">
       <div className="so-modal__section">
-        <h3>Select Suborder</h3>
+        <h3><FiLayers /> Select Suborder</h3>
         <div className="so-modal__tags">
           {subOrders.map((item, index) => (
             <button
@@ -106,7 +107,7 @@ export default function StatusPopup({ order, onClose, onSaved }) {
               className={`so-modal__chip ${selectedIndex === index ? 'active' : ''}`}
               onClick={() => setSelectedIndex(index)}
             >
-              {item.orderNo || `Suborder ${index + 1}`}
+              <FiLayers /> {item.orderNo || `Suborder ${index + 1}`}
             </button>
           ))}
         </div>
@@ -114,7 +115,7 @@ export default function StatusPopup({ order, onClose, onSaved }) {
 
       {selectedSubOrder ? (
         <div className="so-modal__section">
-          <h3>{selectedSubOrder.description || `Suborder ${selectedIndex + 1}`}</h3>
+          <h3><FiActivity /> {selectedSubOrder.description || `Suborder ${selectedIndex + 1}`}</h3>
           <div className="so-modal__grid so-modal__grid--compact">
             <div>
               <span>Suborder Status</span>
@@ -165,9 +166,9 @@ export default function StatusPopup({ order, onClose, onSaved }) {
 
       <div className="so-modal__actions">
         <button type="button" className="so-modal__primary" onClick={handleSave} disabled={saving || loading}>
-          {saving ? 'Saving...' : 'Save Status'}
+          {saving ? <FiLoader className="so-button-spinner" /> : <FiSave />} {saving ? 'Saving...' : 'Save Status'}
         </button>
-        <button type="button" className="so-modal__secondary" onClick={onClose}>Close</button>
+        <button type="button" className="so-modal__secondary" onClick={onClose}><FiX /> Close</button>
       </div>
     </div>
   );

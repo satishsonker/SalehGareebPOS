@@ -2,9 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useReactToPrint } from 'react-to-print';
 import { commonLogic } from '../../../utils/commonLogic';
 import ButtonBox from '../../../components/BottonBox/ButtonBox';
-import Dropdown from '../../../components/Dropdown/Dropdown';
 import InvoicePrintLayout from '../Print/InvoicePrintLayout';
-import {getOrderById} from '../../../services/api/ordersApi'
+import { getOrderById } from '../../../services/api/ordersApi';
 import './PrintOrderReceiptPopup.css';
 
 export default function PrintOrderReceiptPopup({
@@ -19,13 +18,13 @@ export default function PrintOrderReceiptPopup({
     var printRef = useRef();
     const [finalOrder, setFinalOrder] = useState([]);
     const [mainData, setMainData] = useState({ id: orderId, orderNo: '000' });
-    const [orderNos, setOrderNos] = useState([]);
-    const [selectOrderId, setSelectOrderId] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [printError, setPrintError] = useState('');
 
     const handlePrint = useReactToPrint({
         contentRef: printRef,
         documentTitle: `Invoice-${mainData?.orderNo || 'Order'}`,
-        pageStyle: '@page { size: A4; margin: 10mm; } body { -webkit-print-color-adjust: exact; }'
+        pageStyle: '@page { size: A4 portrait; margin: 10mm; } html, body { margin: 0; padding: 0; background: #fff; } body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }'
     });
 
     useEffect(() => {
@@ -33,77 +32,37 @@ export default function PrintOrderReceiptPopup({
             setPrintReceiptHandler(printRef.current);
         }
     }, [setPrintReceiptHandler, orderId]);
-    const vat = parseFloat(process.env.REACT_APP_VAT?? '5');
-    let cancelledOrDeletedSubTotal = 0;
-    let cancelledOrDeletedTotal = 0;
-    let cancelledOrDeletedVatTotal = 0;
-    let cancelledOrDeletedOrderDetails = mainData?.orderDetails?.filter(x => x.isCancelled || x.isDeleted);
-    if (cancelledOrDeletedOrderDetails?.length > 0) {
-        cancelledOrDeletedSubTotal = 0;
-        cancelledOrDeletedVatTotal = 0;
-        cancelledOrDeletedTotal = 0;
-        cancelledOrDeletedOrderDetails?.forEach(element => {
-            cancelledOrDeletedSubTotal += element.subtotalAmount;
-            cancelledOrDeletedVatTotal += (element.totalAmount - element.subtotalAmount);
-            cancelledOrDeletedTotal += element.totalAmount;
-        });
-    }
-
     useEffect(() => {
-        if (mainData?.contact1 !== undefined && mainData?.contact1 !== "") {
-            // Api.Get(apiUrls.orderController.getByOrderNoByContact + mainData?.contact1?.replace('+', ""))
-            //     .then(res => {
-            //         setOrderNos(res.data);
-            //     })
-        }
-    }, [mainData.contact1]);
+        if (orderId === undefined || orderId < 1) return undefined;
+        let active = true;
+        setLoading(true);
+        setPrintError('');
+        setFinalOrder([]);
 
+        getOrderById(orderId)
+            .then(response => {
+                const data = response?.data?.data ?? response?.data;
+                if (!active || !data) return;
+                setMainData(data);
+                const vatRate = parseFloat(process.env.REACT_APP_VAT || '5');
+                const rows = (data.orderDetails || [])
+                    .filter(item => !item.isCancelled && !item.isDeleted && !['cancelled', 'canceled'].includes(String(item.status || '').toLowerCase()))
+                    .map(item => ({
+                        ...item,
+                        qty: 1,
+                        vatAmount: Number(item.vatAmount ?? commonLogic.calculateVAT(Number(item.subtotalAmount || 0), vatRate).vatAmount),
+                    }));
+                setFinalOrder(rows);
+            })
+            .catch(error => {
+                if (active) setPrintError(error.message || 'Unable to load the invoice.');
+            })
+            .finally(() => { if (active) setLoading(false); });
 
-    useEffect(() => {
-        if (orderId === undefined || orderId < 1)
-            return;
-
-       getOrderById(orderId)
-            .then(res => {
-                setMainData(res.data);
-                let activeOrderDetails = res.data?.orderDetails?.filter(x => !x.isCancelled && !x.isDeleted);
-                if (activeOrderDetails === undefined || activeOrderDetails.length === 0)
-                    return;
-                //Filter cancelled and deleted order details
-                const orderChecker = [];
-                const orders = [];
-                activeOrderDetails?.forEach(res => {
-                    var orderindex = orderChecker.indexOf(res.workType + res.totalInvoiced);
-                    res.vatAmount = 0;
-                    res.vat=vat;
-                    res.vatAmount += commonLogic.calculateVAT(res.subtotalAmount, vat).vatAmount;
-                    if (orderindex === -1) {
-                        res.qty = 1;
-                        orders.push(res);
-                        orderChecker.push(res.workType + res.totalAmount);
-                    }
-                    else {
-                        orders[orderindex].qty += 1;
-                        orders[orderindex].subtotalAmount += res.subtotalAmount;
-                        orders[orderindex].totalAmount += res.totalAmount;
-                        orders[orderindex].vatAmount += res.vatAmount;
-                    }
-                });
-                for (let i = 0; i < 10; i++) {
-                    if ((orders?.length % 8) !== 0)
-                        orders.push({});
-                }
-                setFinalOrder(orders);
-            });
-
-
-    }, [orderId, selectOrderId])
+        return () => { active = false; };
+    }, [orderId]);
     if (orderId === undefined || mainData === undefined)
         return null;
-
-    const SetSelectedOrderNo = (e) => {
-        setSelectOrderId(e.target.value);
-    }
 
     if (orderId < 1)
         return null;
@@ -118,18 +77,12 @@ export default function PrintOrderReceiptPopup({
                             <button type="button" onClick={() => onClosePrintOrderReceiptPopup?.()} className="receipt-popup-close" aria-label="Close">×</button>
                         </div>
                         <div className="receipt-popup-body">
-                            <div className='row'>
-                                <div className='col-3 fw-bold'>
-                                    Print for another order
-                                </div>
-                                <div className='col-9'>
-                                    <Dropdown className="form-control-sm" data={orderNos} onChange={SetSelectedOrderNo} text="orderNo" value={selectOrderId} elementKey="id" searchable={true} />
-                                </div>
-                            </div>
-                            <InvoicePrintLayout mainData={mainData} printRef={printRef} finalOrder={finalOrder}></InvoicePrintLayout>
+                            {loading && <div className="receipt-popup-state">Preparing invoice…</div>}
+                            {printError && <div className="receipt-popup-state receipt-popup-state--error">{printError}</div>}
+                            {!loading && !printError && <InvoicePrintLayout mainData={mainData} printRef={printRef} finalOrder={finalOrder} />}
                         </div>
                         <div className="receipt-popup-footer">
-                            <button type="button" className="btn btn-sm btn-success" onClick={handlePrint}>
+                            <button type="button" className="receipt-popup-print" onClick={handlePrint} disabled={loading || Boolean(printError)}>
                                 <i className='bi bi-printer'></i> Print Invoice
                             </button>
                             <ButtonBox type="cancel" modelDismiss={true} className="btn-sm" onClickHandler={() => onClosePrintOrderReceiptPopup?.()}></ButtonBox>

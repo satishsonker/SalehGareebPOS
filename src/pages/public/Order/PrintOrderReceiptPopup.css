@@ -63,9 +63,38 @@
   background: var(--surface);
 }
 
-.receipt-popup-body .row {
+.receipt-popup-state {
+  padding: 28px 16px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+.receipt-popup-state--error {
+  color: var(--danger);
+}
+
+.receipt-popup-print {
+  display: inline-flex;
   align-items: center;
-  margin-bottom: 12px;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--brand-primary);
+  color: var(--btn-primary-text);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.receipt-popup-print:hover:not(:disabled) { background: var(--brand-primary-hover); }
+.receipt-popup-print:disabled { opacity: 0.55; cursor: not-allowed; }
+
+@media print {
+  .receipt-popup-backdrop,
+  .receipt-popup-dialog,
+  .receipt-popup-header,
+  .receipt-popup-footer { display: none !important; }
 }
 
 .receipt-popup-footer {

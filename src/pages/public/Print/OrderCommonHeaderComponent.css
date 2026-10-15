@@ -1,0 +1,24 @@
+.invoice-print__order-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0 14px;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #f8fafc;
+  color: #111827;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.invoice-order-meta__item { display: flex; flex-direction: column; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
+.invoice-order-meta__item strong { font-size: 10px; }
+.invoice-order-meta__label { margin-top: 3px; color: #4b5563; font-size: 8px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.invoice-order-meta__order-number { font-size: 15px !important; }
+
+@media (max-width: 650px) {
+  .invoice-print__order-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media print {
+  .invoice-print__order-meta { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 10px 0; padding: 9px; break-inside: avoid; page-break-inside: avoid; }
+}

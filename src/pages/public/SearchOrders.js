@@ -13,7 +13,14 @@ import {
     FiDollarSign,
     FiPackage,
     FiRefreshCw,
-    FiX
+    FiX,
+    FiCreditCard,
+    FiScissors,
+    FiActivity,
+    FiPrinter,
+    FiEye,
+    FiClipboard,
+    FiMapPin,
 } from "react-icons/fi";
 import { getOrders, getOrderById } from "../../services/api/ordersApi";
 import Modal from "../../components/Modal/Modal";
@@ -351,7 +358,7 @@ function OrderCard({ order, onViewClick, onActionClick }) {
                             onActionClick(order, 'payment');
                         }}
                     >
-                        Payment
+                        <FiCreditCard size={15} /> Payment
                     </button>
                     <button
                         type="button"
@@ -361,7 +368,7 @@ function OrderCard({ order, onViewClick, onActionClick }) {
                             onActionClick(order, 'measurement');
                         }}
                     >
-                        Measurement
+                        <FiScissors size={15} /> Measurement
                     </button>
                     <button
                         type="button"
@@ -371,7 +378,7 @@ function OrderCard({ order, onViewClick, onActionClick }) {
                             onActionClick(order, 'status');
                         }}
                     >
-                        Status
+                        <FiActivity size={15} /> Status
                     </button>
                     <button
                         type="button"
@@ -381,7 +388,7 @@ function OrderCard({ order, onViewClick, onActionClick }) {
                             onActionClick(order, 'print');
                         }}
                     >
-                        Print
+                        <FiPrinter size={15} /> Print
                     </button>
                     <button
                         type="button"
@@ -391,7 +398,7 @@ function OrderCard({ order, onViewClick, onActionClick }) {
                             onViewClick(order);
                         }}
                     >
-                        View
+                        <FiEye size={15} /> View
                         <FiChevronRight size={15} />
                     </button>
                 </div>
@@ -572,47 +579,55 @@ function SearchOrders() {
         }
 
         return (
-            <div className="so-modal__content">
+            <div className="so-modal__content payment-popup so-order-detail-popup">
                 <div className="so-modal__summary">
-                    <div className="so-modal__group">
+                    <div className="so-modal__group pp-summary-item pp-summary-item--customer">
+                        <FiUser className="pp-summary-item__icon" />
                         <span>Customer</span>
                         <strong>{selectedOrder.customerName || "-"}</strong>
                     </div>
-                    <div className="so-modal__group">
+                    <div className="so-modal__group pp-summary-item pp-summary-item--customer">
+                        <FiPhone className="pp-summary-item__icon" />
                         <span>Phone</span>
                         <strong>{selectedOrder.customerNumber || selectedOrder.phone || "-"}</strong>
                     </div>
-                    <div className="so-modal__group">
+                    <div className="so-modal__group pp-summary-item pp-summary-item--customer">
+                        <FiActivity className="pp-summary-item__icon" />
                         <span>Status</span>
                         <strong>{getStatusLabel(selectedOrder.status)}</strong>
                     </div>
-                    <div className="so-modal__group">
+                    <div className="so-modal__group pp-summary-item pp-summary-item--customer">
+                        <FiMapPin className="pp-summary-item__icon" />
                         <span>City</span>
                         <strong>{selectedOrder.city || "-"}</strong>
                     </div>
                 </div>
 
                 <div className="so-modal__metrics">
-                    <div className="so-modal__metric">
+                    <div className="so-modal__metric pp-summary-item pp-summary-item--total">
+                        <FiDollarSign className="pp-summary-item__icon" />
                         <span>Total Amount</span>
                         <strong>₹{formatAmount(selectedOrder.totalAmount ?? selectedOrder.totalInvoiced)}</strong>
                     </div>
-                    <div className="so-modal__metric">
+                    <div className="so-modal__metric pp-summary-item pp-summary-item--settled">
+                        <FiCreditCard className="pp-summary-item__icon" />
                         <span>Advance</span>
                         <strong>₹{formatAmount(selectedOrder.advanceAmount)}</strong>
                     </div>
-                    <div className="so-modal__metric">
+                    <div className="so-modal__metric pp-summary-item pp-summary-item--due">
+                        <FiDollarSign className="pp-summary-item__icon" />
                         <span>Balance</span>
                         <strong>₹{formatAmount(selectedOrder.balanceAmount)}</strong>
                     </div>
-                    <div className="so-modal__metric">
+                    <div className="so-modal__metric pp-summary-item pp-summary-item--order">
+                        <FiClipboard className="pp-summary-item__icon" />
                         <span>Booking Type</span>
                         <strong>{selectedOrder.bookingType || "-"}</strong>
                     </div>
                 </div>
 
                 <div className="so-modal__section">
-                    <h3>Order Information</h3>
+                    <h3><FiClipboard /> Order Information</h3>
                     <div className="so-modal__grid">
                         <div><span>Order No</span><strong>{selectedOrder.orderNo || selectedOrder.id || "-"}</strong></div>
                         <div><span>Order Date</span><strong>{formatDate(selectedOrder.orderDate)}</strong></div>
@@ -624,7 +639,7 @@ function SearchOrders() {
                 </div>
 
                 <div className="so-modal__section">
-                    <h3>Order Items</h3>
+                    <h3><FiPackage /> Order Items</h3>
                     {(selectedOrder.orderDetails || []).length > 0 ? (
                         <div className="so-modal__items">
                             {selectedOrder.orderDetails.map((item) => (

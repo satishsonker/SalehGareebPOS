@@ -1,7 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { FiCalendar, FiCreditCard, FiDollarSign, FiFileText, FiClock, FiPlusCircle, FiPrinter, FiUser } from 'react-icons/fi';
+import { useReactToPrint } from 'react-to-print';
 import { getOrderById, getOrders, updateOrder, addOrderPayment, getOrderPayments } from '../../services/api/ordersApi';
 import { getpaymentByCustomer,addPayment } from '../../services/api/paymentApi';
 import { getMasterDataByTypes } from '../../services/api/masterDataApi';
+import PaymentReceiptPrintLayout from './Print/PaymentReceiptPrintLayout';
+import './PaymentPopup.css';
 const formatDate = (value) => {
     if (!value) return '-';
     const date = new Date(value);
@@ -33,6 +37,18 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
     const [customerPaymentsLoading, setCustomerPaymentsLoading] = useState(false);
     const [form, setForm] = useState({ amount: '', method: 'Cash', note: '' });
     const [paymentModeList, setPaymentModeList] = useState([])
+    const [receiptPayment, setReceiptPayment] = useState(null);
+    const paymentPrintRef = useRef(null);
+    const handlePrintReceipt = useReactToPrint({
+        contentRef: paymentPrintRef,
+        documentTitle: `Payment-Receipt-${currentOrder?.orderNo || currentOrder?.id || 'Order'}`,
+        pageStyle: '@page { size: A4; margin: 10mm; } body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }',
+        onAfterPrint: () => setReceiptPayment(null),
+    });
+
+    useEffect(() => {
+        if (receiptPayment) handlePrintReceipt();
+    }, [receiptPayment, handlePrintReceipt]);
     useEffect(() => {
         const loadOrder = async () => {
             if (!order?.id) return;
@@ -87,15 +103,7 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
         }
     };
 
-    const printPayment = (payment) => {
-        const html = `<html><head><title>Payment Receipt</title></head><body><div style="font-family: Arial; padding:20px;"><h2>Payment Receipt</h2><p><strong>Order:</strong> ${payment.orderNo || payment.orderId || '-'}</p><p><strong>Amount:</strong> ₹${formatMoney(payment.amount)}</p><p><strong>Method:</strong> ${payment.method || payment.entryType || payment.type || 'Payment'}</p><p><strong>Date:</strong> ${formatDate(payment.transactionDate || payment.transactionDate || payment.date)}</p><p><strong>Note:</strong> ${payment.remarks || payment.note || ''}</p></div></body></html>`;
-        const w = window.open('', '_blank', 'width=400,height=600');
-        if (!w) return;
-        w.document.write(html);
-        w.document.close();
-        w.focus();
-        setTimeout(() => { w.print(); }, 250);
-    };
+    const printPayment = payment => setReceiptPayment(payment);
 
     const totalBalance = useMemo(() => {
         if (!currentOrder) return 0;
@@ -190,32 +198,37 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
     if (!currentOrder) return null;
 
     return (
-        <div className="so-modal__content">
+        <>
+        <div className="so-modal__content payment-popup">
             <div className="so-modal__tabs" role="tablist">
-                <button role="tab" aria-selected={activeTab === 'current'} type="button" className={`so-modal__tab ${activeTab === 'current' ? 'active' : ''}`} onClick={() => setActiveTab('current')}>Current Order</button>
-                <button role="tab" aria-selected={activeTab === 'customer'} type="button" className={`so-modal__tab ${activeTab === 'customer' ? 'active' : ''}`} onClick={() => setActiveTab('customer')}>Payment History</button>
-                <button role="tab" aria-selected={activeTab === 'add'} type="button" className={`so-modal__tab ${activeTab === 'add' ? 'active' : ''}`} onClick={() => setActiveTab('add')}>Add Payment</button>
+                <button role="tab" aria-selected={activeTab === 'current'} type="button" className={`so-modal__tab ${activeTab === 'current' ? 'active' : ''}`} onClick={() => setActiveTab('current')}><FiFileText /> Current Order</button>
+                <button role="tab" aria-selected={activeTab === 'customer'} type="button" className={`so-modal__tab ${activeTab === 'customer' ? 'active' : ''}`} onClick={() => setActiveTab('customer')}><FiClock /> Payment History</button>
+                <button role="tab" aria-selected={activeTab === 'add'} type="button" className={`so-modal__tab ${activeTab === 'add' ? 'active' : ''}`} onClick={() => setActiveTab('add')}><FiPlusCircle /> Add Payment</button>
             </div>
 
             <div className="so-modal__panel">
                 {activeTab === 'current' && (
                     <>
                         <div className="so-modal__section">
-                            <h3>Current Order Balance</h3>
+                            <h3><FiDollarSign /> Current Order Balance</h3>
                             <div className="so-modal__summary">
-                                <div className="so-modal__group">
+                                <div className="so-modal__group pp-summary-item pp-summary-item--order">
+                                    <FiFileText className="pp-summary-item__icon" />
                                     <span>Order</span>
                                     <strong>{currentOrder.orderNo || currentOrder.id}</strong>
                                 </div>
-                                <div className="so-modal__group">
+                                <div className="so-modal__group pp-summary-item pp-summary-item--customer">
+                                    <FiUser className="pp-summary-item__icon" />
                                     <span>Customer</span>
                                     <strong>{currentOrder.customerName || '-'}</strong>
                                 </div>
-                                <div className="so-modal__group">
+                                <div className="so-modal__group pp-summary-item pp-summary-item--total">
+                                    <FiDollarSign className="pp-summary-item__icon" />
                                     <span>Total</span>
                                     <strong>₹{formatMoney(currentOrder.totalAmount ?? currentOrder.totalInvoiced ?? 0)}</strong>
                                 </div>
-                                <div className="so-modal__group">
+                                <div className={`so-modal__group pp-summary-item ${totalBalance > 0 ? 'pp-summary-item--due' : 'pp-summary-item--settled'}`}>
+                                    <FiCreditCard className="pp-summary-item__icon" />
                                     <span>Balance Due</span>
                                     <strong>₹{formatMoney(totalBalance)}</strong>
                                 </div>
@@ -223,18 +236,19 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
                         </div>
 
                         <div className="so-modal__section">
-                            <h3>Current Order Payment History</h3>
+                            <h3><FiClock /> Current Order Payment History</h3>
                             <div className="so-modal__items">
                                 {paymentHistory.length > 0 ? (
                                     paymentHistory.map((payment, index) => (
                                         <div key={payment.id || `${payment.date || index}-${payment.amount}`} className="so-modal__item">
-                                            <div className="so-modal__item-header">
+                                            <div className="so-modal__item-header pp-payment-entry">
+                                                <span className="pp-payment-entry__icon"><FiCreditCard /></span>
                                                 <strong>{payment.method || 'Cash'}</strong>
-                                                <span>₹{formatMoney(payment.amount)}</span>
+                                                <span className="pp-payment-entry__amount">₹{formatMoney(payment.amount)}</span>
                                             </div>
-                                            <p>{formatDate(payment.transactionDate)} • {payment.entryType || 'Payment entry'}</p>
+                                            <p className="pp-payment-entry__date"><FiCalendar /> {formatDate(payment.transactionDate)} • {payment.entryType || 'Payment entry'}</p>
                                             <div className="so-modal__actions">
-                                                <button type="button" className="so-modal__secondary" onClick={() => printPayment(payment)}>Print Slip</button>
+                                                <button type="button" className="so-modal__secondary pp-print-btn" onClick={() => printPayment(payment)}><FiPrinter /> Print Slip</button>
                                             </div>
                                         </div>
                                     ))
@@ -248,7 +262,7 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
 
                 {activeTab === 'customer' && (
                     <div className="so-modal__section">
-                        <h3>Customer Payment History (All Orders)</h3>
+                        <h3><FiUser /> Customer Payment History (All Orders)</h3>
                         {customerPaymentsLoading ? (
                             <div>Loading...</div>
                         ) : (
@@ -256,16 +270,17 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
                                 {customerPayments.filter(p => p.orderId !== currentOrder.id).length > 0 ? (
                                     customerPayments.filter(p => p.orderId !== currentOrder.id).map((payment, idx) => (
                                         <div key={payment.id || idx} className="so-modal__item">
-                                            <div className="so-modal__item-header">
+                                            <div className="so-modal__item-header pp-payment-entry">
+                                                <span className="pp-payment-entry__icon"><FiCreditCard /></span>
                                                 <strong>{payment.method || payment.entryType || payment.type || 'Payment'} • {formatDate(payment.paymentMode)}</strong>
-                                                <span>₹{formatMoney(payment.amount)}</span>
+                                                <span className="pp-payment-entry__amount">₹{formatMoney(payment.amount)}</span>
                                             </div>
                                             <p>
                                                 <strong>Order:</strong> {payment.orderNo  || '-'} • {formatDate(payment.transactionDate || payment.date)}
                                             </p>
                                             <p>{payment.remarks || payment.note || ''}</p>
                                             <div className="so-modal__actions">
-                                                <button type="button" className="so-modal__secondary" onClick={() => printPayment(payment)}>Print Slip</button>
+                                                <button type="button" className="so-modal__secondary pp-print-btn" onClick={() => printPayment(payment)}><FiPrinter /> Print Slip</button>
                                             </div>
                                         </div>
                                     ))
@@ -279,41 +294,55 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
 
                 {activeTab === 'add' && (
                     <div className="so-modal__section">
-                        <h3>Add Payment</h3>
+                        <h3><FiPlusCircle /> Add Payment</h3>
                         <div className="so-modal__grid so-modal__grid--compact">
-                            <div>
-                                <span>Amount</span>
-                                <input type="number" value={form.amount} onChange={(event) => setForm((prev) => ({ ...prev, amount: event.target.value }))} placeholder="0.00" />
-                            </div>
-                            <div>
-                                <span>Method</span>
-                                <select value={form.method} onChange={(event) => setForm((prev) => ({ ...prev, method: event.target.value }))}>
-                                    {paymentModeList.length > 0 ? (
-                                        paymentModeList.map((mode) => (
-                                            <option key={mode.id || mode.value} value={mode.code}>{mode.displayValue || mode.value}</option>  
-                                        ))
-                                    ) : (
-                                        <>
-                                            <option value="Cash">Cash</option>
-                                            <option value="Card">Card</option>
-                                            <option value="Bank Transfer">Bank Transfer</option>
-                                            <option value="Cheque">Cheque</option>
-                                            <option value="App">App</option>
-                                        </>
-                                    )}
-                                </select>
-                            </div>
-                            <div className="so-modal__span-2">
-                                <span>Note</span>
-                                <input type="text" value={form.note} onChange={(event) => setForm((prev) => ({ ...prev, note: event.target.value }))} placeholder="Payment note" />
-                            </div>
+                            <label className="pp-form-field">
+                                <span className="pp-form-field__label"><FiDollarSign /> Amount</span>
+                                <span className="pp-input-wrap">
+                                    <FiDollarSign />
+                                    <input type="number" min="0.01" step="0.01" value={form.amount} onChange={(event) => setForm((prev) => ({ ...prev, amount: event.target.value }))} placeholder="0.00" />
+                                </span>
+                            </label>
+                            <label className="pp-form-field">
+                                <span className="pp-form-field__label"><FiCreditCard /> Method</span>
+                                <span className="pp-input-wrap pp-select-wrap">
+                                    <FiCreditCard />
+                                    <select value={form.method} onChange={(event) => setForm((prev) => ({ ...prev, method: event.target.value }))}>
+                                        {paymentModeList.length > 0 ? (
+                                            paymentModeList.map((mode) => (
+                                                <option key={mode.id || mode.value} value={mode.code}>{mode.displayValue || mode.value}</option>
+                                            ))
+                                        ) : (
+                                            <>
+                                                <option value="Cash">Cash</option>
+                                                <option value="Card">Card</option>
+                                                <option value="Bank Transfer">Bank Transfer</option>
+                                                <option value="Cheque">Cheque</option>
+                                                <option value="App">App</option>
+                                            </>
+                                        )}
+                                    </select>
+                                </span>
+                            </label>
+                            {/* Note */}
+                            <label className="pp-form-field so-modal__span-2">
+                                <span className="pp-form-field__label"><FiFileText /> Note</span>
+                                <span className="pp-input-wrap">
+                                    <FiFileText />
+                                    <input type="text" value={form.note} onChange={(event) => setForm((prev) => ({ ...prev, note: event.target.value }))} placeholder="Payment note" />
+                                </span>
+                            </label>
                         </div>
                         <div className="so-modal__actions">
-                            <button type="button" className="so-modal__primary" onClick={handleSubmit} disabled={saving}>{saving ? 'Saving...' : 'Add Payment'}</button>
+                            <button type="button" className="so-modal__primary pp-submit-btn" onClick={handleSubmit} disabled={saving}><FiPlusCircle /> {saving ? 'Saving...' : 'Add Payment'}</button>
                         </div>
                     </div>
                 )}
             </div>
         </div>
+        <div className="payment-receipt-print-host" aria-hidden="true">
+            <PaymentReceiptPrintLayout printRef={paymentPrintRef} order={currentOrder} payment={receiptPayment || {}} />
+        </div>
+        </>
     );
 }

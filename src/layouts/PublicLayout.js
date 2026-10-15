@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import {
   FiLogOut, FiShoppingBag, FiShield,
   FiUser, FiMail, FiPhone, FiMapPin, FiTag,
-  FiChevronDown, FiHome
+  FiChevronDown, FiHome, FiDollarSign, FiAlertTriangle, FiSlash
 } from 'react-icons/fi';
 import config from '../config';
 import './PublicLayout.css';
@@ -57,7 +57,7 @@ function PublicLayout() {
             <img src={`${apiBasePath}/logo/logo.png`} alt="Logo" className="ph-logo" />
             <div className="ph-shop-info">
               <span className="ph-shop-name">
-                {selectedShop?.name || 'No Shop Selected'}
+                {selectedShop?.shopName || selectedShop?.name || 'No Shop Selected'}
               </span>
               {selectedShop?.code && (
                 <span className="ph-shop-code">{selectedShop.code}</span>
@@ -73,6 +73,7 @@ function PublicLayout() {
               className="ph-icon-btn"
               onClick={() => navigate('/shop/selection')}
               title="Change Shop"
+              aria-label="Change shop"
             >
               <FiShoppingBag />
             </button>
@@ -83,6 +84,7 @@ function PublicLayout() {
                 className={`ph-icon-btn${location.pathname.startsWith('/admin') ? ' ph-icon-btn--active' : ''}`}
                 onClick={() => navigate('/admin')}
                 title="Admin Panel"
+                aria-label="Admin panel"
               >
                 <FiShield />
               </button>
@@ -93,8 +95,37 @@ function PublicLayout() {
               className={`ph-icon-btn${location.pathname === '/' ? ' ph-icon-btn--active' : ''}`}
               onClick={() => navigate('/')}
               title="Home"
+              aria-label="Home"
             >
               <FiHome />
+            </button>
+
+            {/* Order advances */}
+            <button
+              className={`ph-icon-btn${location.pathname.startsWith('/orders/advance') ? ' ph-icon-btn--active' : ''}`}
+              onClick={() => navigate('/orders/advance')}
+              title="Order Advances"
+              aria-label="Order advances"
+            >
+              <FiDollarSign />
+            </button>
+
+            <button
+              className={`ph-icon-btn${location.pathname.startsWith('/orders/alerts') ? ' ph-icon-btn--active' : ''}`}
+              onClick={() => navigate('/orders/alerts')}
+              title="Order Alerts"
+              aria-label="Order alerts"
+            >
+              <FiAlertTriangle />
+            </button>
+
+            <button
+              className={`ph-icon-btn${location.pathname.startsWith('/orders/cancel') ? ' ph-icon-btn--active' : ''}`}
+              onClick={() => navigate('/orders/cancel')}
+              title="Cancel Order"
+              aria-label="Cancel order"
+            >
+              <FiSlash />
             </button>
 
             {/* Notifications */}
@@ -106,6 +137,8 @@ function PublicLayout() {
                 className={`ph-avatar-btn${userMenuOpen ? ' ph-avatar-btn--open' : ''}`}
                 onClick={() => setUserMenuOpen((o) => !o)}
                 title="Account"
+                aria-label="Open account menu"
+                aria-expanded={userMenuOpen}
               >
                 <span className="ph-avatar">{userInitials}</span>
                 <FiChevronDown className="ph-avatar-chevron" />

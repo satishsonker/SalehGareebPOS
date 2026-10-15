@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { FiLayers, FiLoader, FiSave, FiScissors, FiX } from 'react-icons/fi';
 import { getOrderById, updateOrder, updateItemMeasurement } from '../../services/api/ordersApi';
 
 const measurementFields = ['neckline', 'length', 'sleeve', 'chest', 'waist', 'hip', 'shoulder', 'notes'];
@@ -72,9 +73,9 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
   if (!currentOrder) return null;
 
   return (
-    <div className="so-modal__content">
+    <div className="so-modal__content payment-popup so-edit-popup so-edit-popup--measurement">
       <div className="so-modal__section">
-        <h3>Select Suborder</h3>
+        <h3><FiLayers /> Select Suborder</h3>
         <div className="so-modal__tags">
           {subOrders.map((item, index) => (
             <button
@@ -83,7 +84,7 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
               className={`so-modal__chip ${selectedIndex === index ? 'active' : ''}`}
               onClick={() => setSelectedIndex(index)}
             >
-              {item.orderNo || `Suborder ${index + 1}`}
+              <FiLayers /> {item.orderNo || `Suborder ${index + 1}`}
             </button>
           ))}
         </div>
@@ -91,7 +92,7 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
 
       {selectedSubOrder ? (
         <div className="so-modal__section">
-          <h3>{selectedSubOrder.description || `Suborder ${selectedIndex + 1}`}</h3>
+          <h3><FiScissors /> {selectedSubOrder.description || `Suborder ${selectedIndex + 1}`}</h3>
           <div className="so-modal__grid so-modal__grid--compact">
             {measurementFields.map((field) => (
               <div key={field}>
@@ -111,9 +112,9 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
 
       <div className="so-modal__actions">
         <button type="button" className="so-modal__primary" onClick={handleSave} disabled={saving || loading}>
-          {saving ? 'Saving...' : 'Save Measurement'}
+          {saving ? <FiLoader className="so-button-spinner" /> : <FiSave />} {saving ? 'Saving...' : 'Save Measurement'}
         </button>
-        <button type="button" className="so-modal__secondary" onClick={onClose}>Close</button>
+        <button type="button" className="so-modal__secondary" onClick={onClose}><FiX /> Close</button>
       </div>
     </div>
   );

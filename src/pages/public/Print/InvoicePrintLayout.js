@@ -1,172 +1,121 @@
-import React, { memo, useMemo, useCallback } from 'react';
-import { commonLogic } from '../../../utils/commonLogic';
+import React, { memo, useMemo } from 'react';
 import InvoiceHead from './InvoiceHead';
 import ReceiptFooter from './ReceiptFooter';
-import DirhamSymbol from '../../../components/Symbols/DirhamSymbol';
 import OrderCommonHeaderComponent from './OrderCommonHeaderComponent';
+import DirhamSymbol from '../../../components/Symbols/DirhamSymbol';
+import './InvoicePrintLayout.css';
 
-const InvoicePrintLayout = memo(({ printRef, mainData, finalOrder }) => {
-    const vat = 5;//parseFloat(process.env.REACT_APP_VAT);
-    
+const formatAmount = value => Number(value || 0).toLocaleString('en-AE', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+});
+
+const InvoicePrintLayout = memo(({ printRef, mainData = {}, finalOrder = [] }) => {
+    const vatRate = Number(process.env.REACT_APP_VAT || 5);
+    const rows = useMemo(() => (Array.isArray(finalOrder) ? finalOrder : []).filter(Boolean), [finalOrder]);
+
     const totals = useMemo(() => {
-        const cancelledOrDeletedTotal = 0;
-        const cancelledOrDeletedSubTotal = 0;
-        const totalVat = commonLogic.calculatePercent(mainData?.subtotalAmount - cancelledOrDeletedSubTotal, vat);
-        const firstAdvanceCredit = mainData?.ledgers?.find(x => x.isFirstAdvance)?.amount ?? 0;
-        const totalBalance = mainData?.totalAmount - cancelledOrDeletedTotal - firstAdvanceCredit;
-        
+        const subtotal = Number(mainData.subtotalAmount ?? rows.reduce((sum, row) => sum + Number(row.subtotalAmount || 0), 0));
+        const vatAmount = Number(mainData.vatAmount ?? (Number(mainData.totalAmount || 0) - subtotal));
+        const total = Number(mainData.totalAmount ?? subtotal + vatAmount);
+        const ledgerEntries = Array.isArray(mainData.ledgers) ? mainData.ledgers : [];
+        const paid = ledgerEntries.length
+            ? ledgerEntries.filter(entry => entry.isCredit).reduce((sum, entry) => sum + Number(entry.amount || 0), 0)
+            : Number(mainData.advanceAmount || 0);
+        const advances = ledgerEntries.length
+            ? ledgerEntries.filter(entry => String(entry.entryType || '').toLowerCase() === 'advance')
+                .reduce((sum, entry) => sum + Number(entry.amount || 0), 0)
+            : Number(mainData.advanceAmount || 0);
+
         return {
-            cancelledOrDeletedTotal,
-            totalVat,
-            firstAdvanceCredit,
-            totalBalance,
-            activeOrderCount: mainData?.orderDetails?.filter(x => !x.isDeleted && !x.isCancelled)?.length || 0
+            subtotal,
+            vatAmount,
+            total,
+            advances,
+            balance: Number(mainData.balanceAmount ?? Math.max(total - paid, 0)),
+            itemCount: rows.reduce((sum, row) => sum + Number(row.qty || 1), 0),
         };
-    }, [mainData, vat]);
+    }, [mainData, rows]);
 
-    const getWorkOrderTypes = useCallback((workType) => {
-        if (!workType) return '';
-        
-     return  workType
-    ?.map(ele => ele?.name)
-    ?.join('-');
-        // const types = ['', 'Designing', 'Cutting', 'M. Emb', 'Hot Fix', 'H. Emb', 'Apliq', 'Stitching'];
-        // return workType.split('')
-        //     .map(ele => types[parseInt(ele)])
-        //     .filter(Boolean)
-        //     .join(', ');
-    }, []);
-
-    const getModel = useCallback((ele) => {
-        const res = `${commonLogic.defaultIfEmpty(ele.designCategory, "")} - ${commonLogic.defaultIfEmpty(ele.designModel, '')}`;
-        return res?.trim() === '-' ? "" : res;
-    }, []);
-
-    const hasKeys = useCallback((obj) => {
-        return Object.keys(obj).length > 0;
-    }, []);
-
-    const getClassName = useCallback((ele, index) => {
-        if (finalOrder?.length - 1 === index) {
-            return " onlyDownBorder";
-        }
-        return !hasKeys(ele) ? " noUpDownBorder" : "";
-    }, [finalOrder?.length, hasKeys]);
-
-    const renderOrderRows = useMemo(() => (
-        finalOrder?.map((ele, index) => (
-            <tr key={ele.id} className='print-table-height'>
-                <td className={"text-center border border-secondary" + getClassName(ele, index)} width="1%" style={{ width: 'max-content !important' }}>
-                    {hasKeys(ele) ? `${index + 1}.` : ""}
-                </td>
-                <td style={{paddingRight:'0',paddingLeft:'1px'}} className={"text-center border border-secondary text-wrap" + getClassName(ele, index)} width="25%">
-                    {getWorkOrderTypes(ele.workTypes)}
-                </td>
-                <td className={"text-center border border-secondary" + getClassName(ele, index)} width="1%">
-                    {getModel(ele)}
-                </td>
-                <td className={"text-center border border-secondary" + getClassName(ele, index)} width="5%">
-                    {commonLogic.printDecimal(ele.qty, true)}
-                </td>
-                <td className={"text-center border border-secondary" + getClassName(ele, index)} width="10%">
-                    <DirhamSymbol amount={commonLogic.printDecimal((ele.subtotalAmount / ele.qty), true)} />
-                </td>
-                <td className={"text-center border border-secondary" + getClassName(ele, index)} width="10%">
-                    <DirhamSymbol amount={commonLogic.printDecimal(ele.subtotalAmount, true)} />
-                </td>
-                <td className={"text-center border border-secondary" + getClassName(ele, index)} width="10%">
-                    <DirhamSymbol amount={commonLogic.printDecimal(ele.vatAmount, true)} />
-                </td>
-                <td className={"text-center border border-secondary" + getClassName(ele, index)} width="10%">
-                    <DirhamSymbol amount={commonLogic.printDecimal(ele.totalAmount, true)} />
-                </td>
-            </tr>
-        ))
-    ), [finalOrder, getClassName, getModel, getWorkOrderTypes, hasKeys]);
+    const getDescription = row => {
+        const workTypes = Array.isArray(row.workTypes)
+            ? row.workTypes.map(workType => workType?.name).filter(Boolean).join(', ')
+            : row.workType || '';
+        const model = [row.designCategory, row.designModel].filter(Boolean).join(' · ');
+        return [workTypes, model].filter(Boolean).join(' — ') || row.description || 'Order item';
+    };
 
     return (
-        <div ref={printRef} style={{paddingTop:'10px'}} className="row px-3">
-            <div className="col col-lg-12 mx-auto">
-                <div className="card border shadow-none">
-                    <div className="card-header py-3">
-                        <div className="row align-items-center g-3">
-                            <InvoiceHead receiptType='TAX INVOICE' />
-                        </div>
-                    </div>
-                    <OrderCommonHeaderComponent
-                        orderNo={mainData?.orderNo}
-                        customerName={mainData?.customerName}
-                        orderDate={mainData?.orderDate}
-                        contact={mainData?.customerNumber}
-                        orderDeliveryDate={mainData?.deliveryDate}
-                        salesman={mainData?.employeeName}
-                    />
-                    <div className="card-body pb-0">
-                        <div className="table-responsive1">
-                            <table className="table table-invoice" style={{ fontSize: '12px' }}>
-                                <thead>
-                                    <tr>
-                                        <th className='text-center all-border' width="1%" style={{ width: 'max-content !important' }}>S.</th>
-                                        <th className="text-center all-border" style={{paddingRight:'0',paddingLeft:'1px'}} width="25%">DESCRIPTION</th>
-                                        <th className="text-center all-border" width="1%">Model</th>
-                                        <th className="text-center all-border" width="5%">Qty.</th>
-                                        <th className="text-center all-border" width="10%">Item Price</th>
-                                        <th className="text-center all-border" width="10%">Unit Price</th>
-                                        <th className="text-center all-border" width="10%">Vat {vat}%</th>
-                                        <th className="text-center all-border" width="10%">Total Dhs.</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {renderOrderRows}
-                                </tbody>
-                            </table>
-                            <table className='table table-bordered'>
-                                <tbody>
-                                    <tr>
-                                        <td colSpan={3} className="text-start">
-                                            <i className='bi bi-call' />{process.env.REACT_APP_COMPANY_MOBILE} <i className='bi bi-whatsapp text-success' />
-                                        </td>
-                                        <td colSpan={1} className="text-end">Total Quantity</td>
-                                        <td colSpan={2} className="text-center">VAT {vat}%</td>
-                                        <td colSpan={1} className="fs-6 fw-bold text-center">Total Amount</td>
-                                        <td colSpan={1} className="text-end">
-                                            <DirhamSymbol amount={commonLogic.printDecimal(mainData?.subtotalAmount)} />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colSpan={3} className="text-start">
-                                            <i className='bi bi-mail' /> {process.env.REACT_APP_COMPANY_EMAIL}<i className='bi bi-envelope text-success' />
-                                        </td>
-                                        <td colSpan={1} className="text-center">{totals.activeOrderCount}</td>
-                                        <td className="fs-6 fw-bold text-center">Total VAT</td>
-                                        <td className="text-end">
-                                            <DirhamSymbol amount={commonLogic.printDecimal(totals.totalVat)} />
-                                        </td>
-                                        <td className="fs-6 fw-bold text-center">Gross Amount</td>
-                                        <td className="text-end">
-                                            <DirhamSymbol amount={commonLogic.printDecimal((mainData?.totalAmount - totals.cancelledOrDeletedTotal))} />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colSpan={6} className="text-start">Received by.................................</td>
-                                        <td className="fs-6 fw-bold text-center">Total Advance</td>
-                                        <td className="text-end">
-                                            <DirhamSymbol amount={commonLogic.printDecimal(totals.firstAdvanceCredit)} />
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colSpan={6} className="text-start"></td>
-                                        <td className="fs-6 fw-bold text-center">Total Balance</td>
-                                        <td className="text-end">
-                                            <DirhamSymbol amount={commonLogic.printDecimal(totals.totalBalance)} />
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <ReceiptFooter></ReceiptFooter>
+        <div ref={printRef} className="invoice-print">
+            <div className="invoice-print__sheet">
+                <div className="invoice-print__brand">
+                    <InvoiceHead receiptType="TAX INVOICE" />
                 </div>
+
+                <OrderCommonHeaderComponent
+                    orderNo={mainData.orderNo}
+                    customerName={mainData.customerName}
+                    orderDate={mainData.orderDate}
+                    contact={mainData.customerNumber || mainData.contact1}
+                    orderDeliveryDate={mainData.deliveryDate}
+                    salesman={mainData.employeeName}
+                />
+
+                <main className="invoice-print__body">
+                    <table className="invoice-lines">
+                        <thead>
+                            <tr>
+                                <th className="invoice-lines__number">#</th>
+                                <th>Description</th>
+                                <th className="invoice-lines__qty">Qty</th>
+                                <th className="invoice-lines__money">Unit price</th>
+                                <th className="invoice-lines__money">Subtotal</th>
+                                <th className="invoice-lines__money">VAT ({vatRate}%)</th>
+                                <th className="invoice-lines__money">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows.length ? rows.map((row, index) => {
+                                const quantity = Number(row.qty || 1);
+                                const subtotal = Number(row.subtotalAmount || 0);
+                                const lineVat = Number(row.vatAmount ?? (Number(row.totalAmount || 0) - subtotal));
+                                const lineTotal = Number(row.totalAmount ?? subtotal + lineVat);
+                                return (
+                                    <tr key={row.id || `${getDescription(row)}-${index}`}>
+                                        <td className="invoice-lines__number">{index + 1}</td>
+                                        <td className="invoice-lines__description">{getDescription(row)}</td>
+                                        <td className="invoice-lines__qty">{formatAmount(quantity).replace(/\.00$/, '')}</td>
+                                        <td className="invoice-lines__money"><DirhamSymbol amount={formatAmount(subtotal / quantity)} /></td>
+                                        <td className="invoice-lines__money"><DirhamSymbol amount={formatAmount(subtotal)} /></td>
+                                        <td className="invoice-lines__money"><DirhamSymbol amount={formatAmount(lineVat)} /></td>
+                                        <td className="invoice-lines__money"><DirhamSymbol amount={formatAmount(lineTotal)} /></td>
+                                    </tr>
+                                );
+                            }) : (
+                                <tr><td colSpan={7} className="invoice-print__empty">No active items on this order.</td></tr>
+                            )}
+                        </tbody>
+                    </table>
+
+                    <section className="invoice-totals" aria-label="Invoice totals">
+                        <div className="invoice-totals__contact">
+                            <strong>Thank you for choosing us</strong>
+                            <span>{process.env.REACT_APP_COMPANY_MOBILE || ''}</span>
+                            <span>{process.env.REACT_APP_COMPANY_EMAIL || ''}</span>
+                        </div>
+                        <div className="invoice-totals__values">
+                            <div><span>Items</span><strong>{totals.itemCount}</strong></div>
+                            <div><span>Subtotal</span><strong><DirhamSymbol amount={formatAmount(totals.subtotal)} /></strong></div>
+                            <div><span>VAT ({vatRate}%)</span><strong><DirhamSymbol amount={formatAmount(totals.vatAmount)} /></strong></div>
+                            <div className="invoice-totals__grand"><span>Grand total</span><strong><DirhamSymbol amount={formatAmount(totals.total)} /></strong></div>
+                            <div><span>Advance paid</span><strong><DirhamSymbol amount={formatAmount(totals.advances)} /></strong></div>
+                            <div className="invoice-totals__balance"><span>Balance due</span><strong><DirhamSymbol amount={formatAmount(totals.balance)} /></strong></div>
+                        </div>
+                    </section>
+
+                    <div className="invoice-print__signature">Received by: __________________________________________</div>
+                </main>
+                <ReceiptFooter />
             </div>
         </div>
     );
