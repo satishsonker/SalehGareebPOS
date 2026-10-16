@@ -1,10 +1,27 @@
 /* ── Search Orders Page ───────────────────────────────────────── */
 
 .so-root {
+  --color-background: var(--app-bg);
+  --color-bg-subtle: var(--surface-muted);
+  --color-surface: var(--surface);
+  --color-border: var(--border-color);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
   min-height: 100vh;
-  background: var(--color-background, #f1f5f9);
+  background: var(--app-bg);
   display: flex;
   flex-direction: column;
+}
+
+.so-modal {
+  --color-background: var(--app-bg);
+  --color-bg-subtle: var(--surface-muted);
+  --color-surface: var(--surface);
+  --color-border: var(--border-color);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  background: var(--surface);
+  color: var(--text-primary);
 }
 
 .so-header {
@@ -32,15 +49,15 @@
 }
 
 .so-back-btn:hover {
-  background: #e2e8f0;
+  background: var(--surface-soft);
 }
 
 .so-header__icon {
   width: 38px;
   height: 38px;
   border-radius: 9px;
-  background: var(--brand-primary-deep, #e6f0ff);
-  color: var(--accent-color, #2d6cdf);
+  background: var(--brand-primary-soft);
+  color: var(--brand-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,9 +154,9 @@
 }
 
 .so-action-icon-btn--primary {
-  background: var(--color-text-secondary #e6f0ff);
-  border-color: var(--color-text-secondary, #e6f0ff);
-  color: var(--accent-color, #2d6cdf);
+  background: var(--brand-primary-soft);
+  border-color: var(--border-strong);
+  color: var(--brand-primary);
 }
 
 .so-toolbar {
@@ -179,9 +196,9 @@
 }
 
 .so-filter-btn--active {
-  background: var(--brand-primary-deep, #e6f0ff);
-  border-color: var(--brand-primary-deep, #e6f0ff);
-  color: var(--accent-color, #2d6cdf);
+  background: var(--brand-primary-soft);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
 }
 
 .so-pagination {
@@ -270,8 +287,8 @@
   justify-content: space-between;
   gap: 12px;
   padding: 9px 13px;
-  background: #074126e3;
-  border-bottom: 1px solid #074126e3;
+  background: var(--brand-primary);
+  border-bottom: 1px solid var(--brand-primary);
 }
 
 .so-card__order {
@@ -282,7 +299,7 @@
 }
 
 .so-card__order span {
-  color: var(--color-text-primary, white);
+  color: var(--btn-primary-text);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.7px;
@@ -290,7 +307,7 @@
 }
 
 .so-card__order strong {
-  color: white;
+  color: var(--btn-primary-text);
   font-size: 20px;
   font-weight: 800;
   white-space: nowrap;
@@ -300,7 +317,7 @@
   padding: 4px 9px;
   border: 1px solid var(--success, #16a34a);
   border-radius: 20px;
-  background: rgba(22, 163, 74, 0.12);
+  background: var(--surface);
   color: var(--success, #16a34a);
   font-size: 12px;
   font-weight: 800;
@@ -520,9 +537,9 @@
   cursor: pointer;
 }
 .so-modal__tab.active {
-  background: var(--brand-primary-deep, #e6f0ff);
-  border-color: var(--accent-color, #2d6cdf);
-  color: white;
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: var(--btn-primary-text);
 }
 
 /* Make modal tabs sticky and non-scrolling */
@@ -599,15 +616,15 @@
 }
 
 .so-view-btn {
-  border-color: #0dcaf0;
-  background: #0dcaf0;
-  color: var(--accent-color, #2d6cdf);
+  border-color: var(--brand-primary);
+  background: var(--brand-primary);
+  color: var(--btn-primary-text);
   font-size: 0.9rem;
 }
 
 .so-view-btn:hover {
-  background: var(--accent-color, #2d6cdf);
-  color: var(--color-surface, #ffffff);
+  background: var(--brand-primary-hover);
+  color: var(--btn-primary-text);
 }
 
 .so-state {
@@ -733,12 +750,12 @@
 
 .so-modal__section h3 {
      margin: 0;
-    color: var(--color-text-primary, #1e293b);
+    color: var(--brand-primary);
     font-size: 1rem;
-    border: 1px solid #8080804a;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     padding-left: 5px;
-    background: antiquewhite;
+    background: var(--surface-soft);
 }
 
 .so-modal__grid {
