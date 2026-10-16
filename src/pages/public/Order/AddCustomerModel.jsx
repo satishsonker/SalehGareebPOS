@@ -4,7 +4,6 @@ import { createCustomerBasic } from '../../../services/api/customersApi';
 import {
     FiUser,
     FiPhone,
-    FiMail,
     FiX,
     FiSave,
     FiFlag
@@ -67,7 +66,7 @@ export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen
         }
         if (!customerModel?.emirateId?.trim()) {
             setCustomerError({
-                message: 'Mobile number is required.'
+                message: 'Please select an emirate.'
             });
             return;
         }
@@ -107,8 +106,9 @@ export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen
                 isOpen={addCustomerModalOpen}
                 onClose={() => setAddCustomerModalOpen(false)}
                 title="Add Customer"
-                size="mid"
+                size="medium"
                 type="default"
+                className="customer-modal-dialog"
                 showCloseButton
                 closeOnOverlayClick
                 footer={
@@ -159,7 +159,7 @@ export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen
                                     <input
                                         type="text"
                                         name="firstName"
-                                        value={customerModel?.customerName}
+                                        value={customerModel?.firstName || ''}
                                         onChange={handleCustomerChange}
                                         placeholder="Enter first name"
                                     />
@@ -185,7 +185,7 @@ export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen
                             <div className="customer-field">
                                 <label>Mobile<span>*</span></label>
                                 <div className="customer-input">
-                                    <span className="customer-country-code">+971</span>
+                                    <span className="customer-country-code">{customerModel?.isdCode || '+971'}</span>
                                     <FiPhone size={14} />
                                     <input
                                         type="tel"
@@ -200,18 +200,17 @@ export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen
                             {/* Emirate */}
                             <div className="customer-field">
                                 <label>Emirate <span>*</span></label>
-                                <vic className="customer-input">
-                                    <div className="customer-select">
-                                        <select name='emirateId'
-                                            onChange={handleCustomerChange}
-                                            value={customerModel?.emirateId}>
-                                            <option>Select a Emirate</option>
-                                            {emirateList?.map((ele, index) => {
-                                                return <option key={index} value={ele?.id}>{ele?.displayValue}</option>
-                                            })}
-                                        </select>
-                                    </div>
-                                </vic>
+                                <div className="customer-input customer-input--select">
+                                    <FiFlag size={14} aria-hidden="true" />
+                                    <select name="emirateId"
+                                        onChange={handleCustomerChange}
+                                        value={customerModel?.emirateId || ''}>
+                                        <option value="">Select an emirate</option>
+                                        {emirateList?.map((ele) => (
+                                            <option key={ele?.id} value={ele?.id}>{ele?.displayValue}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import {
   FiLogOut, FiShoppingBag, FiShield,
   FiUser, FiMail, FiPhone, FiMapPin, FiTag,
-  FiChevronDown, FiHome, FiDollarSign, FiAlertTriangle, FiSlash
+  FiChevronDown, FiHome, FiDollarSign, FiAlertTriangle, FiSlash, FiSun, FiMoon
 } from 'react-icons/fi';
 import config from '../config';
 import './PublicLayout.css';
@@ -16,6 +17,7 @@ function PublicLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout, user, selectedShop } = useAuth();
+  const { toggleTheme, isDark } = useTheme();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
 
@@ -67,6 +69,14 @@ function PublicLayout() {
 
           {/* Right — icon actions */}
           <nav className="ph-nav">
+            <button
+              className="ph-icon-btn"
+              onClick={toggleTheme}
+              title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+              aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+            >
+              {isDark ? <FiSun /> : <FiMoon />}
+            </button>
 
             {/* Change Shop */}
             <button

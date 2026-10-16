@@ -1,261 +1,172 @@
-/* =========================================================
-   ADD CUSTOMER MODAL
-   ========================================================= */
+.customer-modal-dialog {
+  width: min(92vw, 640px);
+  border-color: var(--border-color);
+  background: var(--surface);
+}
+
+.customer-modal-dialog .modal-header,
+.customer-modal-dialog .modal-footer {
+  padding: 14px 18px;
+  border-color: var(--border-color);
+  background: var(--surface-alt);
+}
+
+.customer-modal-dialog .modal-title {
+  color: var(--text-primary);
+  font-size: 1.1rem;
+}
+
+.customer-modal-dialog .modal-content {
+  padding: 18px;
+  background: var(--surface);
+}
 
 .customer-modal {
-    width: 100%;
+  width: 100%;
+  color: var(--text-primary);
 }
-
-
-/* =========================================================
-   ERROR
-   ========================================================= */
 
 .customer-error {
-    display: flex;
-    align-items: center;
-    margin-bottom: 14px;
-    padding: 9px 11px;
-    border: 1px solid var(--alert-border);
-    border-radius: 7px;
-    background: var(--alert-bg);
-    color: var(--alert-color);
-    font-size: 14px;
-    font-weight: 600;
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--danger) 28%, transparent);
+  border-radius: 8px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 14px;
+  font-weight: 650;
 }
-
-
-/* =========================================================
-   SECTION
-   ========================================================= */
 
 .customer-section {
-    margin-bottom: 16px;
-
-    padding: 14px;
-
-    border: 1px solid var(--line);
-    border-radius: 10px;
-
-    background: #fbfaf7;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 11px;
+  background: var(--surface-alt);
 }
-
-.customer-section:last-child {
-    margin-bottom: 0;
-}
-
-
-/* =========================================================
-   SECTION TITLE
-   ========================================================= */
 
 .customer-section-title {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    margin-bottom: 13px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--line);
-    color: var(--navy);
-    font-family: 'Zilla Slab', serif;
-    font-size: 15px;
-    font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--brand-primary);
+  font-size: 0.9rem;
+  font-weight: 750;
 }
 
-.customer-section-title svg {
-    color: var(--gold);
-}
-
-
-/* =========================================================
-   FORM GRID
-   ========================================================= */
+.customer-section-title svg { color: var(--brand-accent); }
 
 .customer-form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
 }
-
-
-/* =========================================================
-   FIELD
-   ========================================================= */
 
 .customer-field {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.customer-field--full {
-    grid-column: 1 / -1;
-}
+.customer-field--full { grid-column: 1 / -1; }
 
 .customer-field label {
-    font-size: 17px;
-    font-weight: 700;
-    color: black;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
-.customer-field label span {
-    margin-left: 3px;
-    color: #c0392b;
-}
-
-
-/* =========================================================
-   INPUT
-   ========================================================= */
+.customer-field label span { margin-left: 3px; color: var(--danger); }
 
 .customer-field input,
-.customer-field textarea {
-    width: 100%;
-    box-sizing: border-box;
-    border: 1px solid var(--line);
-    border-radius: 7px;
-    outline: none;
-    background: var(--surface);
-    color: var(--ink);
-    font-family: inherit;
-    font-size: 14px;
-
-    transition:
-        border-color .15s ease,
-        box-shadow .15s ease;
+.customer-field textarea,
+.customer-input select {
+  box-sizing: border-box;
+  min-width: 0;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.84rem;
 }
-
-.customer-field input {
-    height: 40px;
-
-    padding: 0 10px;
-}
-
-.customer-field textarea {
-    min-height: 70px;
-
-    padding: 9px 10px;
-
-    resize: vertical;
-}
-
-.customer-field input::placeholder,
-.customer-field textarea::placeholder {
-    color: #aaa;
-}
-
-.customer-field input:focus,
-.customer-field textarea:focus {
-    border-color: var(--navy-soft);
-
-    box-shadow:
-        0 0 0 2px rgba(31, 42, 68, .06);
-}
-
-
-/* =========================================================
-   INPUT WITH ICON
-   ========================================================= */
 
 .customer-input {
-    display: flex;
-    align-items: center;
-
-    height: 40px;
-
-    border: 1px solid var(--line);
-    border-radius: 7px;
-
-    background: var(--surface);
-
-    overflow: hidden;
-
-    transition:
-        border-color .15s ease,
-        box-shadow .15s ease;
+  display: flex;
+  min-width: 0;
+  height: 42px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
 
 .customer-input:focus-within {
-    border-color: var(--navy-soft);
-
-    box-shadow:
-        0 0 0 2px rgba(31, 42, 68, .06);
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-primary) 13%, transparent);
 }
 
-.customer-input>svg {
-    flex-shrink: 0;
-
-    margin-left: 10px;
-
-    color: var(--ink-soft);
+.customer-input > svg {
+  flex: 0 0 auto;
+  margin-left: 11px;
+  color: var(--text-secondary);
 }
 
-.customer-input input {
-    flex: 1;
-
-    width: auto;
-
-    height: 100%;
-
-    border: 0 !important;
-
-    border-radius: 0;
-
-    box-shadow: none !important;
-
-    outline: none;
-
-    background: transparent;
-
-    padding: 0 10px;
+.customer-input input,
+.customer-input select {
+  width: 100%;
+  height: 100%;
+  padding: 0 10px;
+  border: 0;
+  outline: 0;
+  background: transparent;
 }
 
-
-/* =========================================================
-   COUNTRY CODE
-   ========================================================= */
+.customer-input input::placeholder { color: var(--text-muted); }
+.customer-input input:focus,
+.customer-input select:focus { box-shadow: none; }
 
 .customer-country-code {
-    display: flex;
-    align-items: center;
-
-    height: 100%;
-
-    padding: 0 8px;
-
-    border-right: 1px solid var(--line);
-
-    background: var(--gold-soft);
-
-    color: #7a5a1a;
-
-    font-size: 10px;
-
-    font-weight: 700;
+  display: flex;
+  height: 100%;
+  flex: 0 0 auto;
+  align-items: center;
+  padding: 0 9px;
+  border-right: 1px solid var(--border-color);
+  background: var(--brand-primary-soft);
+  color: var(--brand-primary);
+  font-size: 0.72rem;
+  font-weight: 750;
 }
 
-
-/* =========================================================
-   FOOTER
-   ========================================================= */
-
-.customer-modal+.op-footer {
-    width: 100%;
+.customer-input--select select {
+  appearance: none;
+  cursor: pointer;
 }
 
+.customer-modal-dialog .op-footer {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
 
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
+.customer-modal-dialog .op-footer__right {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+}
 
-@media (max-width: 600px) {
-
-    .customer-form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .customer-field--full {
-        grid-column: auto;
-    }
+@media (max-width: 560px) {
+  .customer-modal-dialog .modal-content { padding: 12px; }
+  .customer-section { padding: 12px; }
+  .customer-form-grid { grid-template-columns: 1fr; gap: 11px; }
+  .customer-field--full { grid-column: auto; }
+  .customer-modal-dialog .op-footer__right { width: 100%; }
+  .customer-modal-dialog .op-footer__right .op-btn { flex: 1; justify-content: center; }
 }

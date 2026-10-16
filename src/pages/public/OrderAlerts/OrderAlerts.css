@@ -142,7 +142,8 @@
 }
 
 @media print {
-  @page { size: landscape; margin: 8mm; }
+  @page order-alerts { size: landscape; margin: 8mm; }
+  .oa-page { page: order-alerts; }
   .public-header, .public-footer, .system-notification-banner, .oa-back, .oa-filter-card, .oa-header__total, .oa-table-toolbar, .oa-row-action, .oa-pagination { display: none !important; }
   .oa-page, .oa-table-card { background: #fff; box-shadow: none; border: 0; }
   .public-main { padding: 0 !important; background: #fff !important; }

@@ -1,12 +1,15 @@
 .invoice-print {
   width: 100%;
+  box-sizing: border-box;
   color: #111827;
   background: #fff;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 11px;
 }
 .invoice-print__sheet {
-  width: min(100%, 190mm);
+  width: 100%;
+  max-width: 190mm;
+  box-sizing: border-box;
   margin: 0 auto;
   background: #fff;
 }
@@ -47,10 +50,10 @@
 }
 
 @media print {
-  @page { size: A4 portrait; margin: 10mm; }
-  html, body { width: 190mm; margin: 0 !important; padding: 0 !important; background: #fff !important; }
-  .invoice-print { width: 190mm !important; margin: 0 !important; padding: 0 !important; color: #111827 !important; background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .invoice-print__sheet { width: 190mm !important; max-width: none !important; margin: 0 !important; }
+  @page order-invoice { size: A4 portrait; margin: 8mm; }
+  html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  .invoice-print { page: order-invoice; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; color: #111827 !important; background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .invoice-print__sheet { width: 100% !important; max-width: none !important; margin: 0 !important; }
   .invoice-lines { width: 100% !important; }
   .invoice-lines thead { display: table-header-group; }
   .invoice-lines tr, .invoice-totals, .invoice-print__signature { break-inside: avoid; page-break-inside: avoid; }

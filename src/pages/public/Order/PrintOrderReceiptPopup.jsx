@@ -24,7 +24,7 @@ export default function PrintOrderReceiptPopup({
     const handlePrint = useReactToPrint({
         contentRef: printRef,
         documentTitle: `Invoice-${mainData?.orderNo || 'Order'}`,
-        pageStyle: '@page { size: A4 portrait; margin: 10mm; } html, body { margin: 0; padding: 0; background: #fff; } body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }'
+        pageStyle: '@page order-invoice { size: A4 portrait; margin: 8mm; } html, body { margin: 0; padding: 0; background: #fff; } body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }'
     });
 
     useEffect(() => {

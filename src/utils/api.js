@@ -33,6 +33,7 @@ const getSelectedShop = () => {
  * @returns {Promise} - Fetch promise
  */
 export const apiRequest = async (endpoint, options = {}) => {
+  const { skipLoader = false, ...requestOptions } = options;
   // Ensure endpoint starts with /api
   const apiEndpoint = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
   const url = `${config.api.url}${apiEndpoint}`;
@@ -63,15 +64,15 @@ const base64String = btoa(String.fromCharCode(...byteArray));
 
   const mergedOptions = {
     ...defaultOptions,
-    ...options,
+    ...requestOptions,
     headers: {
       ...defaultOptions.headers,
-      ...options.headers,
+      ...requestOptions.headers,
     },
   };
 
   // Remove Content-Type header for FormData requests
-  if (options.body instanceof FormData) {
+  if (requestOptions.body instanceof FormData) {
     delete mergedOptions.headers['Content-Type'];
   }
 
@@ -79,7 +80,7 @@ const base64String = btoa(String.fromCharCode(...byteArray));
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), config.api.timeout);
 
-  notifyApiRequestStart();
+  if (!skipLoader) notifyApiRequestStart();
 
   try {
     const response = await fetch(url, {
@@ -123,7 +124,7 @@ const base64String = btoa(String.fromCharCode(...byteArray));
 
     throw error;
   } finally {
-    notifyApiRequestEnd();
+    if (!skipLoader) notifyApiRequestEnd();
   }
 };
 
