@@ -73,6 +73,15 @@ const isCancelled = status => {
     return normalized === "cancel" || normalized === "cancelled";
 };
 
+const isPartialCancelled = order => {
+    const normalized = normalizeStatus(order?.statusStr || order?.status);
+    if (["partialcancelled", "partial cancelled", "partial-cancelled"].includes(normalized)) return true;
+
+    const details = Array.isArray(order?.orderDetails) ? order.orderDetails : [];
+    const cancelledCount = details.filter(detail => isCancelled(detail?.statusStr || detail?.status)).length;
+    return cancelledCount > 0 && cancelledCount < details.length;
+};
+
 const isPartialDelivered = status => {
     const normalized = normalizeStatus(status);
     return (
@@ -107,6 +116,7 @@ const getStatusLabel = status => {
     const normalized = normalizeStatus(status);
 
     if (isPartialDelivered(normalized)) return "Partial Delivered";
+    if (["partialcancelled", "partial cancelled", "partial-cancelled"].includes(normalized)) return "Partial Cancelled";
     if (isCancelled(normalized)) return "Cancelled";
     if (normalized === "active") return "Active";
     if (normalized === "processing") return "Processing";
@@ -184,14 +194,29 @@ function Pagination({ currentPage, totalPages, totalRecords, pageSize, onPageCha
     );
 }
 
-function OrderStatusTimeline({ status }) {
-    const currentIndex = getStatusIndex(status);
+function getOrderStatusDate(history, status, orderDate) {
+    const normalizedStatus = normalizeStatus(status);
+    const statusHistory = Array.isArray(history) ? history : [];
+    const match = statusHistory
+        .filter(entry => normalizeStatus(entry?.newStatusStr || entry?.newStatus) === normalizedStatus)
+        .sort((a, b) => new Date(a.changedOnUtc) - new Date(b.changedOnUtc))[0];
+
+    if (match?.changedOnUtc) return formatDate(match.changedOnUtc);
+    if (normalizedStatus === "active" && orderDate) return formatDate(orderDate);
+    return "—";
+}
+
+function OrderStatusTimeline({ status, history, orderDate }) {
     const cancelled = isCancelled(status);
+    const timelineSteps = cancelled
+        ? [{ key: "active", label: "Active" }, { key: "cancelled", label: "Cancelled" }]
+        : ORDER_STEPS;
+    const currentIndex = cancelled ? 1 : getStatusIndex(status);
     const partialDelivered = isPartialDelivered(status);
 
     return (
         <div className="so-timeline">
-            {ORDER_STEPS.map((step, index) => {
+            {timelineSteps.map((step, index) => {
                 const isCurrent = index === currentIndex;
                 const isCompleted = index < currentIndex;
 
@@ -213,12 +238,17 @@ function OrderStatusTimeline({ status }) {
                                 {isCompleted ? "✓" : index + 1}
                             </div>
 
-                            <span>{step.label}</span>
+                            <span className="so-timeline__label">{step.label}</span>
+                            <span className="so-timeline__date">
+                                {getOrderStatusDate(history, step.key, orderDate)}
+                            </span>
                         </div>
 
-                        {index < ORDER_STEPS.length - 1 && (
+                        {index < timelineSteps.length - 1 && (
                             <div
-                                className={`so-timeline__line ${index < currentIndex
+                                className={`so-timeline__line ${cancelled
+                                        ? "so-timeline__line--cancelled"
+                                        : index < currentIndex
                                         ? "so-timeline__line--completed"
                                         : ""
                                     }`}
@@ -227,12 +257,6 @@ function OrderStatusTimeline({ status }) {
                     </React.Fragment>
                 );
             })}
-
-            {cancelled && (
-                <div className="so-timeline__branch so-timeline__branch--cancelled">
-                    Cancelled
-                </div>
-            )}
 
             {partialDelivered && (
                 <div className="so-timeline__branch so-timeline__branch--partial">
@@ -244,15 +268,17 @@ function OrderStatusTimeline({ status }) {
 }
 
 function OrderCard({ order, onViewClick, onActionClick }) {
-    const status = normalizeStatus(order?.status);
-    const statusLabel = getStatusLabel(order?.status);
+    const orderStatus = order?.statusStr || order?.status;
+    const status = normalizeStatus(orderStatus);
+    const statusLabel = getStatusLabel(orderStatus);
+    const partialCancelled = isPartialCancelled(order);
 
     return (
         <div
             className="so-card"
             onClick={() => onViewClick(order)}
         >
-            <div className="so-card__header">
+            <div className={`so-card__header ${partialCancelled ? "so-card__header--partial-cancelled" : ""}`}>
                 <div className="so-card__order">
                     <span>ORDER NO.</span>
                     <strong>
@@ -264,7 +290,7 @@ function OrderCard({ order, onViewClick, onActionClick }) {
                     className={`so-card__status so-card__status--${status.replace(
                         /\s+/g,
                         "-"
-                    )}`}
+                    )} ${partialCancelled ? "so-card__status--partialcancelled" : ""}`}
                 >
                     {statusLabel}
                 </div>
@@ -347,7 +373,11 @@ function OrderCard({ order, onViewClick, onActionClick }) {
             </div>
 
             <div className="so-card__footer">
-                <OrderStatusTimeline status={status} />
+                <OrderStatusTimeline
+                    status={orderStatus}
+                    history={order?.orderStatusHistory}
+                    orderDate={order?.orderDate}
+                />
 
                 <div className="so-card__actions">
                     <button

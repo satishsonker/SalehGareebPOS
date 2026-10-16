@@ -291,6 +291,11 @@
   border-bottom: 1px solid var(--brand-primary);
 }
 
+.so-card__header--partial-cancelled {
+  background: #ea580c;
+  border-bottom-color: #ea580c;
+}
+
 .so-card__order {
   display: flex;
   align-items: center;
@@ -349,6 +354,11 @@
 .so-card__status--cancelled,
 .so-card__status--cancel {
   color: var(--danger, #dc2626);
+}
+
+.so-card__status--partialcancelled {
+  color: #c2410c;
+  border-color: #fb923c;
 }
 
 .so-card__details {
@@ -470,9 +480,15 @@
 }
 
 .so-timeline__step--completed .so-timeline__dot {
-  border-color: var(--accent-color, #2d6cdf);
-  background: rgba(45, 108, 223, 0.08);
-  color: var(--accent-color, #2d6cdf);
+  border-color: var(--success, #16a34a);
+  background: rgba(22, 163, 74, 0.1);
+  color: var(--success, #16a34a);
+}
+
+.so-timeline__date {
+  color: var(--color-text-secondary, #64748b);
+  font-size: 10px;
+  font-weight: 500;
 }
 
 .so-timeline__step--current {
@@ -504,7 +520,11 @@
 }
 
 .so-timeline__line--completed {
-  background: var(--accent-color, #2d6cdf);
+  background: var(--success, #16a34a);
+}
+
+.so-timeline__line--cancelled {
+  background: var(--danger, #dc2626);
 }
 
 .so-timeline__branch {

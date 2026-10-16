@@ -1,5 +1,5 @@
-const CACHE_NAME = 'saleh-gareeb-pos-v1';
-const APP_SHELL = ['./', './index.html', './manifest.json', './icons/icon-192.svg', './icons/icon-512.svg'];
+const CACHE_NAME = 'saleh-gareeb-pos-v2';
+const APP_SHELL = ['./', './index.html', './manifest.json', './icons/favicon.png', './icons/logo-192.png', './icons/logo-512.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
