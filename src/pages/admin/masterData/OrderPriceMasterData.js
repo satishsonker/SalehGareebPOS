@@ -260,7 +260,7 @@ function OrderPriceMasterData() {
         isOpen={editOpen}
         onClose={() => { setEditOpen(false); setSelected(null); }}
         title="Edit Order Price"
-        size="small"
+        size="medium"
         loading={saving}
         closeOnOverlayClick={!saving}
         actions={[
@@ -297,7 +297,7 @@ function PriceForm({ form, setForm, errors, setErrors }) {
           label="Price" required type="tel"
           leftIcon={<FiDollarSign />}
           value={form.price}
-          onChange={e => set('price', e.target.value)}
+          onChange={e => { set('price', e.target.value);set('grade', commonLogic.calculateGradeAndMaxCrystalPacket(form.price).grade); }}
           placeholder="0.00"
           error={errors.price}
         />
@@ -306,7 +306,7 @@ function PriceForm({ form, setForm, errors, setErrors }) {
           leftIcon={<FiPaperclip />}
           value={commonLogic.calculateGradeAndMaxCrystalPacket(form.price).grade}
           disabled={true}
-          onChange={e => set('price', e.target.value)}
+          onChange={e =>{}}
           placeholder="0.00"
           error={errors.price}
         />
@@ -336,8 +336,8 @@ function PriceForm({ form, setForm, errors, setErrors }) {
           required
           type="number"
           leftIcon={<FaGem />}
-          value={Math.min(form.crystalPackets, commonLogic.calculateGradeAndMaxCrystalPacket(form.price).maxCrystalPackets)}
-          onChange={e => set('crystalPackets', Math.min(Number(e.target.value),commonLogic.calculateGradeAndMaxCrystalPacket(form.price).maxCrystalPackets))}
+          value={Math.max(0, Math.min(form.crystalPackets, commonLogic.calculateGradeAndMaxCrystalPacket(form.price).maxCrystalPackets))}
+          onChange={e => set('crystalPackets', Math.max(0, Math.min(Number(e.target.value),commonLogic.calculateGradeAndMaxCrystalPacket(form.price).maxCrystalPackets)))}
           error={errors.crystalPackets}
         />
       </div>

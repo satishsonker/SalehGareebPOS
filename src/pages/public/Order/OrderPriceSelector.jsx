@@ -29,7 +29,7 @@ const CUSTOM_PRICE_OPTION = {
     isCustom: true
 };
 
-const PRESET_SUBORDER_QTY = [1, 2, 3, 5, 10, -1];
+// const PRESET_SUBORDER_QTY = [1, 2, 3, 5, 10, -1];
 
 const getPriceGradeColor = (grade = "") => {
     const value = String(grade).toUpperCase();
@@ -653,7 +653,7 @@ export default function OrderPriceSelector({
                                     </button>
                                 </div>
 
-                                <div className="ops-quick-actions">
+                                {/* <div className="ops-quick-actions">
                                     {PRESET_SUBORDER_QTY.map(
                                         (qty, index) => (
                                             <button
@@ -672,7 +672,7 @@ export default function OrderPriceSelector({
                                             </button>
                                         )
                                     )}
-                                </div>
+                                </div> */}
                             </div>
 
                             <div className="ops-control">
