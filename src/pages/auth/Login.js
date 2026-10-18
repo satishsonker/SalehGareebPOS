@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { FiUser, FiLock, FiLogIn, FiEye, FiEyeOff, FiShield } from 'react-icons/fi';
 import { apiBasePath } from '../../services/api/commonApi';
@@ -21,8 +21,7 @@ function Login() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const from = location.state?.from?.pathname || '/admin';
-      navigate(from, { replace: true });
+      navigate('/shop/selection', { replace: true });
     }
   }, [isAuthenticated, navigate, location]);
 
@@ -71,7 +70,6 @@ function Login() {
               username: result.data?.username,
               firstname: result.data?.firstname,
               lastname: result.data?.lastname,
-              otp: result.data?.otp // For testing purposes, remove in production
             }
           });
         }
@@ -183,6 +181,7 @@ function Login() {
           </form>
 
           <div className="login-footer">
+            <Link to="/password/forgot">Forgot password?</Link>
             <span className="login-footer-line" />
             <p>Need help accessing your shop?</p>
             <small>Contact your administrator</small>

@@ -1,121 +1,286 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { FiLayers, FiLoader, FiSave, FiScissors, FiX } from 'react-icons/fi';
-import { getOrderById, updateOrder, updateItemMeasurement } from '../../services/api/ordersApi';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  FiCheck, FiDownload, FiEye, FiImage, FiLoader, FiSave, FiScissors, FiUpload, FiX
+} from 'react-icons/fi';
+import { getOrderById, getCustomerMeasurements, updateItemMeasurement } from '../../services/api/ordersApi';
+import { getMasterDataByType } from '../../services/api/masterDataApi';
+import { apiRequest } from '../../utils/api';
+import { apiBasePath } from '../../services/api/commonApi';
+import './MeasurementPopup.css';
 
-const measurementFields = ['neckline', 'length', 'sleeve', 'chest', 'waist', 'hip', 'shoulder', 'notes'];
+const measurementFields = [
+  ['length', 'Length'], ['chest', 'Chest'], ['waist', 'Waist'], ['hip', 'Hips'],
+  ['bottom', 'Bottom'], ['sleeve', 'Sleeve'], ['sleeveLoose', 'Sleeve Loose'], ['shoulder', 'Shoulder'],
+  ['neck', 'Neck'], ['deep', 'Deep'], ['backDown', 'Back Down'], ['extra', 'Extra']
+];
+
+function unwrapData(response) {
+  let value = response?.data ?? response;
+  if (value?.data !== undefined) value = value.data;
+  if (value?.data !== undefined && !Array.isArray(value)) value = value.data;
+  return value;
+}
+
+function imageUrl(path) {
+  if (!path) return '';
+  return /^https?:\/\//i.test(path) ? path : `${apiBasePath}${path.startsWith('/') ? '' : '/'}${path}`;
+}
+
+function initialMeasurement(item) {
+  const data = item?.measurement || {};
+  return {
+    ...data,
+    customerRefName: data.customerRefName || '',
+    shape: data.shape || '',
+    modelNo: data.modelNo || '',
+    modelImageUrl: data.modelImageUrl || '',
+    notes: data.notes || ''
+  };
+}
 
 export default function MeasurementPopup({ order, onClose, onSaved }) {
   const [currentOrder, setCurrentOrder] = useState(order || null);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [measurement, setMeasurement] = useState(() => initialMeasurement(order?.orderDetails?.[0]));
+  const [history, setHistory] = useState([]);
+  const [shapes, setShapes] = useState([]);
+  const [models, setModels] = useState([]);
+  const [selectedHistoryId, setSelectedHistoryId] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [zoomOpen, setZoomOpen] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [error, setError] = useState('');
+  const imageInput = useRef(null);
 
   useEffect(() => {
     if (!order?.id) return;
-
+    let active = true;
     const loadOrder = async () => {
       setLoading(true);
       try {
         const response = await getOrderById(order.id);
-        const detail = response?.data?.data ?? response?.data ?? order;
+        const detail = unwrapData(response) || order;
+        if (!active) return;
         setCurrentOrder(detail);
         setSelectedIndex(0);
-      } catch (error) {
-        setCurrentOrder(order);
+        setMeasurement(initialMeasurement(detail?.orderDetails?.[0]));
+      } catch {
+        if (active) {
+          setCurrentOrder(order);
+          setMeasurement(initialMeasurement(order?.orderDetails?.[0]));
+        }
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
-
     loadOrder();
+    return () => { active = false; };
   }, [order]);
 
+  useEffect(() => {
+    if (!currentOrder?.customerId) return;
+    let active = true;
+    Promise.allSettled([
+      getCustomerMeasurements(currentOrder.customerId),
+      getMasterDataByType('shape'),
+      apiRequest('/DesignModels?pageNo=1&pageSize=100')
+    ]).then(([historyResult, shapeResult, modelResult]) => {
+      if (!active) return;
+      if (historyResult.status === 'fulfilled') setHistory(unwrapData(historyResult.value) || []);
+      if (shapeResult.status === 'fulfilled') setShapes(unwrapData(shapeResult.value) || []);
+      if (modelResult.status === 'fulfilled') setModels(unwrapData(modelResult.value) || []);
+    });
+    return () => { active = false; };
+  }, [currentOrder?.customerId]);
+
   const subOrders = useMemo(() => currentOrder?.orderDetails || [], [currentOrder]);
+  const savedSizes = useMemo(() => [...new Set(history.map(entry => entry.size).filter(Boolean))], [history]);
   const selectedSubOrder = subOrders[selectedIndex] || null;
 
-  const updateMeasurement = (field, value) => {
-    if (!currentOrder || !selectedSubOrder) return;
+  useEffect(() => {
+    setMeasurement(initialMeasurement(selectedSubOrder));
+    setSelectedHistoryId('');
+    setNotice('');
+    setError('');
+  }, [selectedIndex, selectedSubOrder?.id]);
 
-    setCurrentOrder((prev) => ({
-      ...prev,
-      orderDetails: (prev.orderDetails || []).map((item, index) => {
-        if (index !== selectedIndex) return item;
-        const measurement = { ...(item.measurement || {}) };
-        measurement[field] = value;
-        return { ...item, measurement };
-      })
+  const updateMeasurement = (field, value) => {
+    setMeasurement(previous => ({ ...previous, [field]: value }));
+  };
+
+  const applyHistoryMeasurement = () => {
+    const previousMeasurement = history.find(entry => String(entry.id) === String(selectedHistoryId));
+    if (!previousMeasurement) return;
+    setMeasurement(current => ({ ...current, ...previousMeasurement, notes: current.notes || previousMeasurement.notes || '' }));
+    setNotice('Saved customer measurement loaded. Save to apply it to this suborder.');
+    setError('');
+  };
+
+  const selectModel = modelId => {
+    const model = models.find(entry => String(entry.id) === String(modelId));
+    if (!model) return;
+    const media = [...(model.medias || [])].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))[0];
+    setMeasurement(current => ({
+      ...current,
+      modelNo: model.code || model.name || '',
+      modelImageUrl: media?.relativePath || current.modelImageUrl
     }));
   };
 
-  const handleSave = async () => {
-    if (!currentOrder) return;
-    setSaving(true);
+  const uploadImage = async file => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Choose an image file.');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('File', file);
+    formData.append('Module', 'measurements');
+    setUploading(true);
+    setError('');
     try {
-      // Prefer suborder measurement endpoint for the selected suborder
-      if (selectedSubOrder && selectedSubOrder.id) {
-        const res = await updateItemMeasurement(selectedSubOrder.id, selectedSubOrder.measurement || {});
-        const savedOrder = res?.data?.data ?? res?.data ?? currentOrder;
-        setCurrentOrder(savedOrder);
-        onSaved?.(savedOrder);
-      } else {
-        const result = await updateOrder(currentOrder.id, currentOrder);
-        const savedOrder = result?.data?.data ?? result?.data ?? currentOrder;
-        setCurrentOrder(savedOrder);
-        onSaved?.(savedOrder);
-      }
-    } catch (error) {
-      console.error('Measurement save failed', error);
+      const response = await apiRequest('/media/upload', { method: 'POST', body: formData });
+      const uploaded = unwrapData(response);
+      if (!uploaded?.relativePath) throw new Error('The image upload did not return a path.');
+      updateMeasurement('modelImageUrl', uploaded.relativePath);
+      setNotice('Reference image uploaded. Save the measurement to keep it.');
+    } catch (uploadError) {
+      setError(uploadError.message || 'Could not upload the reference image.');
+    } finally {
+      setUploading(false);
+      if (imageInput.current) imageInput.current.value = '';
+    }
+  };
+
+  const handleSave = async () => {
+    if (!currentOrder || !selectedSubOrder?.id) return;
+    setSaving(true);
+    setError('');
+    setNotice('');
+    try {
+      await updateItemMeasurement(selectedSubOrder.id, measurement);
+      const response = await getOrderById(currentOrder.id);
+      const savedOrder = unwrapData(response) || currentOrder;
+      setCurrentOrder(savedOrder);
+      setMeasurement(initialMeasurement(savedOrder.orderDetails?.[selectedIndex]));
+      onSaved?.(savedOrder);
+      setNotice('Measurement saved successfully.');
+    } catch (saveError) {
+      setError(saveError.message || 'Could not save this measurement.');
     } finally {
       setSaving(false);
     }
   };
 
   if (!currentOrder) return null;
+  const imageSrc = imageUrl(measurement.modelImageUrl);
 
   return (
-    <div className="so-modal__content payment-popup so-edit-popup so-edit-popup--measurement">
-      <div className="so-modal__section">
-        <h3><FiLayers /> Select Suborder</h3>
-        <div className="so-modal__tags">
-          {subOrders.map((item, index) => (
-            <button
-              key={item.id || `${currentOrder.id}-${index}`}
-              type="button"
-              className={`so-modal__chip ${selectedIndex === index ? 'active' : ''}`}
-              onClick={() => setSelectedIndex(index)}
-            >
-              <FiLayers /> {item.orderNo || `Suborder ${index + 1}`}
-            </button>
-          ))}
+    <div className="measurement-popup so-modal__content">
+      <div className="measurement-popup__toolbar">
+        <div className="measurement-popup__order-ref">
+          <span>Suborder</span>
+          <strong>{selectedSubOrder?.orderNo || `Item ${selectedIndex + 1}`}</strong>
+          <span className="measurement-popup__divider" />
+          <span>Quantity</span><strong>{selectedSubOrder?.quantity || 1}</strong>
+          {selectedSubOrder?.grade && <><span className="measurement-popup__divider" /><span>Grade</span><strong>{selectedSubOrder.grade}</strong></>}
+        </div>
+        <div className="measurement-popup__tools">
+          <label className="measurement-popup__select-wrap"><span>Already Used Model</span>
+            <select defaultValue="" onChange={event => selectModel(event.target.value)}>
+              <option value="">Select model</option>
+              {models.map(model => <option key={model.id} value={model.id}>{model.code} · {model.name}</option>)}
+            </select>
+          </label>
+          <label className="measurement-popup__select-wrap"><span>Pre Measurement</span>
+            <select value={selectedHistoryId} onChange={event => setSelectedHistoryId(event.target.value)}>
+              <option value="">Select saved measurement</option>
+              {history.map((entry, index) => <option key={entry.id || index} value={entry.id}>{entry.customerRefName || entry.size || `Measurement ${index + 1}`}</option>)}
+            </select>
+          </label>
+          <button className="measurement-popup__get-button" type="button" onClick={applyHistoryMeasurement} disabled={!selectedHistoryId}>
+            <FiDownload /> Get Measurement
+          </button>
         </div>
       </div>
 
-      {selectedSubOrder ? (
-        <div className="so-modal__section">
-          <h3><FiScissors /> {selectedSubOrder.description || `Suborder ${selectedIndex + 1}`}</h3>
-          <div className="so-modal__grid so-modal__grid--compact">
-            {measurementFields.map((field) => (
-              <div key={field}>
-                <span>{field}</span>
-                <input
-                  type="text"
-                  value={selectedSubOrder.measurement?.[field] ?? ''}
-                  onChange={(event) => updateMeasurement(field, event.target.value)}
-                />
-              </div>
-            ))}
+      {subOrders.length > 1 && <div className="measurement-popup__suborders" role="tablist" aria-label="Order suborders">
+        {subOrders.map((item, index) => <button key={item.id || index} type="button" role="tab" aria-selected={index === selectedIndex} className={index === selectedIndex ? 'is-active' : ''} onClick={() => setSelectedIndex(index)}>
+          {item.orderNo || `Suborder ${index + 1}`}
+        </button>)}
+      </div>}
+
+      {loading ? <div className="measurement-popup__loading"><FiLoader className="so-button-spinner" /> Loading measurement…</div> : selectedSubOrder ? <>
+        <div className="measurement-popup__main">
+          <div className="measurement-popup__fields">
+            {measurementFields.map(([field, label]) => <label className="measurement-popup__field" key={field}>
+              <span>{label}</span>
+              <input type="text" inputMode="decimal" value={measurement[field] ?? ''} onChange={event => updateMeasurement(field, event.target.value)} />
+            </label>)}
+            <label className="measurement-popup__field measurement-popup__field--size">
+              <span>Size</span><input type="text" value={measurement.size ?? ''} onChange={event => updateMeasurement('size', event.target.value)} />
+            </label>
+            <label className="measurement-popup__field measurement-popup__field--description">
+              <span>Description</span><textarea rows="1" value={measurement.notes ?? ''} onChange={event => updateMeasurement('notes', event.target.value)} />
+            </label>
+            <label className="measurement-popup__field measurement-popup__field--customer-ref">
+              <span>Customer Name</span><input type="text" value={measurement.customerRefName ?? ''} onChange={event => updateMeasurement('customerRefName', event.target.value)} />
+            </label>
+            <label className="measurement-popup__field measurement-popup__field--model-no">
+              <span>Model No</span><input type="text" value={measurement.modelNo ?? ''} onChange={event => updateMeasurement('modelNo', event.target.value)} />
+            </label>
+          </div>
+
+          <div className="measurement-popup__reference">
+            <span className="measurement-popup__hint">Click image to zoom</span>
+            <button className={`measurement-popup__image ${imageSrc ? 'has-image' : ''}`} type="button" onClick={() => imageSrc && setZoomOpen(true)} aria-label={imageSrc ? 'Zoom reference image' : 'No reference image selected'}>
+              {imageSrc ? <img src={imageSrc} alt="Measurement model reference" /> : <span><FiImage /><small>Model reference image</small></span>}
+            </button>
+            <div className="measurement-popup__image-actions">
+              <input ref={imageInput} type="file" accept="image/*" hidden onChange={event => uploadImage(event.target.files?.[0])} />
+              <button type="button" onClick={() => imageInput.current?.click()} disabled={uploading}>{uploading ? <FiLoader className="so-button-spinner" /> : <FiUpload />} {uploading ? 'Uploading…' : 'Upload image'}</button>
+              {imageSrc && <a href={imageSrc} download target="_blank" rel="noreferrer" aria-label="Open reference image"><FiEye /></a>}
+            </div>
           </div>
         </div>
-      ) : (
-        <div className="so-modal__empty">No measurements available.</div>
-      )}
 
-      <div className="so-modal__actions">
-        <button type="button" className="so-modal__primary" onClick={handleSave} disabled={saving || loading}>
-          {saving ? <FiLoader className="so-button-spinner" /> : <FiSave />} {saving ? 'Saving...' : 'Save Measurement'}
-        </button>
-        <button type="button" className="so-modal__secondary" onClick={onClose}><FiX /> Close</button>
+        <div className="measurement-popup__options">
+          <label className="measurement-popup__field"><span>Shape</span>
+            <select value={measurement.shape ?? ''} onChange={event => updateMeasurement('shape', event.target.value)}>
+              <option value="">Select shape</option>
+              {shapes.map((shape, index) => <option key={shape.id || index} value={shape.code || shape.displayValue}>{shape.displayValue || shape.name || shape.code}</option>)}
+            </select>
+          </label>
+          <label className="measurement-popup__field"><span>Saved Size</span>
+            <select value={savedSizes.includes(measurement.size) ? measurement.size : ''} onChange={event => event.target.value && updateMeasurement('size', event.target.value)}>
+              <option value="">Choose a saved size</option>
+              {savedSizes.map(size => <option key={size} value={size}>{size}</option>)}
+            </select>
+          </label>
+        </div>
+
+        <div className="measurement-popup__worktypes">
+          {(selectedSubOrder.workTypes || []).map((workType, index) => <section className="measurement-popup__work-card" key={workType.workTypeId || workType.id || index}>
+            <h3><FiCheck /> {workType.name || workType.code || 'Work type'}</h3>
+            <div className="measurement-popup__chips">{(workType.workDescriptions || []).map((description, descriptionIndex) => <span key={description.id || descriptionIndex}>{description.name}</span>)}</div>
+          </section>)}
+          {!selectedSubOrder.workTypes?.length && <div className="measurement-popup__empty">No work types assigned to this suborder.</div>}
+        </div>
+      </> : <div className="measurement-popup__empty">No suborders found.</div>}
+
+      {(error || notice) && <div className={`measurement-popup__message ${error ? 'is-error' : 'is-success'}`} role={error ? 'alert' : 'status'}>{error || notice}</div>}
+      <div className="measurement-popup__footer">
+        <span>Order #{currentOrder.orderNo || currentOrder.id}</span>
+        <div><button className="measurement-popup__close" type="button" onClick={onClose} disabled={saving}>Close</button>
+          <button className="measurement-popup__save" type="button" onClick={handleSave} disabled={saving || loading || uploading || !selectedSubOrder}>
+            {saving ? <FiLoader className="so-button-spinner" /> : <FiSave />} {saving ? 'Saving…' : 'Save Measurement'}
+          </button>
+        </div>
       </div>
+
+      {zoomOpen && <button className="measurement-popup__zoom" type="button" onClick={() => setZoomOpen(false)} aria-label="Close image zoom"><span><FiX /></span><img src={imageSrc} alt="Zoomed measurement reference" /></button>}
     </div>
   );
 }

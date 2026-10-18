@@ -252,6 +252,14 @@ function CancelOrders() {
             <span className={`cancel-status ${isCancelled(selectedOrder) ? 'cancel-status--cancelled' : statusCode(selectedOrder) === 10 ? 'cancel-status--partial' : orderIsActive ? 'cancel-status--active' : 'cancel-status--inactive'}`}>{selectedOrder.status || selectedOrder.statusStr || 'Unknown'}</span>
           </div>
 
+          {(selectedOrder.cancellationDate || selectedOrder.cancellationReason) && <div className="cancel-order-cancellation">
+            <strong>{isCancelled(selectedOrder) ? 'Order cancellation' : 'Suborder cancellation summary'}</strong>
+            <dl>
+              {selectedOrder.cancellationDate && <div><dt>Cancelled on</dt><dd>{formatDate(selectedOrder.cancellationDate)}</dd></div>}
+              {selectedOrder.cancellationReason && <div><dt>Reason</dt><dd>{selectedOrder.cancellationReason}</dd></div>}
+            </dl>
+          </div>}
+
           {!orderIsActive && <div className="cancel-notice cancel-notice--blocked"><FiAlertCircle /><span>This order is not active, so it cannot be cancelled.</span></div>}
           {orderIsActive && activeSuborders.length === 0 && <div className="cancel-notice cancel-notice--blocked"><FiAlertCircle /><span>This order has no active suborders to cancel.</span></div>}
 
@@ -287,6 +295,7 @@ function CancelOrders() {
                 {expanded && <div className="cancel-suborder-details">
                   <dl><div><dt>Suborder</dt><dd>{item.orderNo || '—'}</dd></div><div><dt>Status</dt><dd>{item.status || item.statusStr || 'Unknown'}</dd></div><div><dt>Delivery</dt><dd>{formatDate(item.deliveryDate)}</dd></div><div><dt>Subtotal</dt><dd>AED {money(item.subtotalAmount)}</dd></div><div><dt>VAT</dt><dd>AED {money(item.vatAmount)}</dd></div><div><dt>Total</dt><dd>AED {money(item.totalAmount)}</dd></div><div><dt>Crystal packets</dt><dd>{item.crystalPackets ?? 0}</dd></div><div><dt>Note</dt><dd>{item.note || '—'}</dd></div></dl>
                   {workTypes.length > 0 && <div className="cancel-suborder-details__section"><strong>Work types</strong><ul>{workTypes.map((work, workIndex) => <li key={work.id || workIndex}>{work.workTypeName || work.name || work.workType || 'Work type'}{work.status ? ` · ${work.status}` : ''}</li>)}</ul></div>}
+                  {cancelled && <dl className="cancel-suborder-details__cancellation">{item.cancelledDate && <div><dt>Cancelled on</dt><dd>{formatDate(item.cancelledDate)}</dd></div>}{item.cancelledReason && <div><dt>Cancellation reason</dt><dd>{item.cancelledReason}</dd></div>}</dl>}
                   {item.measurement && <div className="cancel-suborder-details__section"><strong>Measurement</strong><dl>{Object.entries(item.measurement).filter(([, value]) => value !== null && value !== '' && typeof value !== 'object').map(([key, value]) => <div key={key}><dt>{key.replace(/([A-Z])/g, ' $1')}</dt><dd>{String(value)}</dd></div>)}</dl></div>}
                   {history.length > 0 && <div className="cancel-suborder-details__section"><strong>Status history</strong><ul>{history.map((entry, historyIndex) => <li key={entry.id || historyIndex}>{entry.status || entry.statusStr || 'Status updated'}{entry.createdAt || entry.changedAt ? ` · ${formatDate(entry.createdAt || entry.changedAt)}` : ''}{entry.note || entry.reason ? ` · ${entry.note || entry.reason}` : ''}</li>)}</ul></div>}
                 </div>}

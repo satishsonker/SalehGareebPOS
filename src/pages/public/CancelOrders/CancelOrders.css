@@ -90,6 +90,13 @@
 .cancel-suborder-details { padding: 12px; border-top: 1px solid var(--border-color); background: var(--surface-muted); }
 .cancel-suborder-details dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 14px; margin: 0; }
 .cancel-suborder-details dl > div { min-width: 0; }
+.cancel-order-cancellation { margin: 12px 0; padding: 11px 12px; border: 1px solid var(--border-color); border-radius: 9px; background: var(--surface-muted); color: var(--text-primary); font-size: 0.72rem; }
+.cancel-order-cancellation > strong { display: block; margin-bottom: 7px; }
+.cancel-order-cancellation dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 14px; margin: 0; }
+.cancel-order-cancellation dl > div { min-width: 0; }
+.cancel-order-cancellation dt { margin-bottom: 2px; color: var(--text-secondary); font-size: 0.62rem; }
+.cancel-order-cancellation dd { margin: 0; overflow-wrap: anywhere; }
+.cancel-suborder-details__cancellation { margin-top: 10px !important; padding-top: 9px; border-top: 1px solid var(--border-color); }
 .cancel-suborder-details dt { margin-bottom: 2px; color: var(--text-secondary); font-size: 0.62rem; }
 .cancel-suborder-details dd { margin: 0; color: var(--text-primary); font-size: 0.71rem; overflow-wrap: anywhere; }
 .cancel-suborder-details__section { margin-top: 12px; color: var(--text-primary); font-size: 0.7rem; }

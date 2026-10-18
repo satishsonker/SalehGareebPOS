@@ -27,6 +27,7 @@ import Dashboard from './pages/admin/Dashboard';
 import SystemData from './pages/admin/SystemData';
 import AdminSettings from './pages/admin/AdminSettings';
 import ShopSelection from './pages/auth/ShopSelection';
+import PasswordRecovery from './pages/auth/PasswordRecovery';
 import {
     KeyboardProvider,
     VirtualKeyboard
@@ -75,6 +76,8 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/otp/verify" element={<OtpVerification />} />
                     <Route path="/shop/selection" element={<ShopSelection />} />
+                    <Route path="/password/forgot" element={<PasswordRecovery />} />
+                    <Route path="/password/reset" element={<PasswordRecovery />} />
 
                     {/* Public Routes - Protected */}
                     <Route

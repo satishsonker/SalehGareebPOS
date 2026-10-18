@@ -6,6 +6,7 @@ import {
   validateOtp as validateOtpApi,
   forgotPassword as forgotPasswordApi,
   forgotUsername as forgotUsernameApi,
+  resetPassword as resetPasswordApi,
 } from '../services/api/authApi';
 
 import { jwtDecode } from "jwt-decode";
@@ -33,6 +34,12 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         const parsedUser = getUserData(token);
+        const tokenClaims = jwtDecode(token);
+        if (!tokenClaims.exp || tokenClaims.exp * 1000 <= Date.now()) {
+          clearAuth();
+          setLoading(false);
+          return;
+        }
         setUser(parsedUser);
         setIsAuthenticated(true);
         if (selectedShopData) {
@@ -49,6 +56,7 @@ export const AuthProvider = ({ children }) => {
 
   const clearAuth = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('user');
     localStorage.removeItem('user');
@@ -64,12 +72,11 @@ export const AuthProvider = ({ children }) => {
   const validateOtp = async ({ otp, sessionId }) => {
     const response = await validateOtpApi({ otp, sessionId });
     if (response.success && response.data) {
-      const { accessToken, refreshToken } = response.data;
+      const { accessToken } = response.data;
       const userData = localStorage.getItem('user');
 
       // Store token and user data
       localStorage.setItem('token', accessToken);
-      localStorage.setItem('refreshToken', JSON.stringify(refreshToken));
 
       if (userData && accessToken) {
         const parsedUser = JSON.parse(userData);
@@ -97,9 +104,16 @@ export const AuthProvider = ({ children }) => {
       const response = await loginApi(credentials);
 
       if (response.success && response.data) {
-        const { sessionId } = response.data;
+        const { sessionId, accessToken } = response.data;
 
-        // Store token and user data
+        if (accessToken) {
+          localStorage.setItem('token', accessToken);
+          localStorage.setItem('user', JSON.stringify(response.data));
+          const parsedUser = getUserData(accessToken);
+          setUser(parsedUser);
+          setIsAuthenticated(true);
+          return { success: true, data: response.data };
+        }
         localStorage.setItem('sessionId', sessionId);
         localStorage.setItem('user', JSON.stringify(response.data));
         return { success: true, data: response.data };
@@ -158,15 +172,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const forgetPassword = async (username) => {
-    try {
-      await logoutApi();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      clearAuth();
-    }
-  };
+  const forgotPassword = (email) => forgotPasswordApi({ email });
+  const forgotUsername = (data) => forgotUsernameApi(data);
+  const resetPassword = (data) => resetPasswordApi(data);
 
   const getUserData = (token) => {
     if (token) {
@@ -192,6 +200,9 @@ export const AuthProvider = ({ children }) => {
     validateOtp,
     resendOtp,
     logout,
+    forgotPassword,
+    forgotUsername,
+    resetPassword,
     clearAuth,
     selectedShop,
     setSelectedShop,

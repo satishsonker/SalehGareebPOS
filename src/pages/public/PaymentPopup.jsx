@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FiCalendar, FiCreditCard, FiDollarSign, FiFileText, FiClock, FiPlusCircle, FiPrinter, FiUser } from 'react-icons/fi';
 import { useReactToPrint } from 'react-to-print';
-import { getOrderById, getOrders, updateOrder, addOrderPayment, getOrderPayments } from '../../services/api/ordersApi';
-import { getpaymentByCustomer,addPayment } from '../../services/api/paymentApi';
+import { getOrderById, addOrderPayment, getOrderPayments } from '../../services/api/ordersApi';
+import { getpaymentByCustomer } from '../../services/api/paymentApi';
 import { getMasterDataByTypes } from '../../services/api/masterDataApi';
 import PaymentReceiptPrintLayout from './Print/PaymentReceiptPrintLayout';
 import './PaymentPopup.css';
@@ -26,6 +26,10 @@ const formatMoney = (value) => {
 };
 
 const normalizeCustomerKey = (value) => String(value || '').trim().toLowerCase();
+const isOrderCancelled = order => {
+    const status = String(order?.statusStr ?? order?.status ?? '').trim().toLowerCase();
+    return ['cancelled', 'canceled', 'deleted'].includes(status) || [8, 9].includes(Number(order?.status));
+};
 
 export default function PaymentPopup({ order, onClose, onSaved }) {
     const [currentOrder, setCurrentOrder] = useState(order || null);
@@ -105,12 +109,15 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
 
     const printPayment = payment => setReceiptPayment(payment);
 
-    const totalBalance = useMemo(() => {
+    const rawBalance = useMemo(() => {
         if (!currentOrder) return 0;
+        if (Number.isFinite(Number(currentOrder.balanceAmount))) return Number(currentOrder.balanceAmount);
         const total = Number(currentOrder.totalAmount ?? currentOrder.totalInvoiced ?? 0);
         const paid = Number(currentOrder.advanceAmount ?? 0);
-        return Math.max(total - paid, 0);
+        return total - paid;
     }, [currentOrder]);
+    const totalBalance = Math.max(rawBalance, 0);
+    const customerCredit = Math.max(-rawBalance, 0);
 
     const customerOutstanding = useMemo(() => {
         return customerOrders.reduce((sum, candidate) => {
@@ -119,6 +126,7 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
             return sum + Math.max(total - paid, 0);
         }, 0);
     }, [customerOrders]);
+    const paymentBlocked = isOrderCancelled(currentOrder) || totalBalance <= 0;
 
     const handleSubmit = async () => {
         if (!currentOrder || !form.amount || Number(form.amount) <= 0) return;
@@ -126,42 +134,11 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
         setSaving(true);
 
         try {
-            const nextEntry = {
-                id: 0,
+            await addOrderPayment(currentOrder.id, {
                 amount: Number(form.amount),
-                method: form.method || 'Cash',
-                date: new Date().toISOString(),
-                entryType: 'Payment',
-                transactionDate: new Date().toISOString(),
+                paymentMode: form.method || 'Cash',
                 remarks: form.note || 'Manual payment from POS',
-                orderId: currentOrder.id,
-                orderNo: currentOrder.orderNo || currentOrder.id,
-                customerId: currentOrder.customerId,
-                customerName: currentOrder.customerName || '',
-            };
-            // Try to persist the payment via dedicated endpoint first
-            try {
-                await addPayment(nextEntry);
-            } catch (err) {
-                // fallback to updating the order record if payments endpoint isn't available
-                const nextPaymentHistory = [...paymentHistory, nextEntry];
-                const nextAdvance = Number(currentOrder.advanceAmount || 0) + Number(form.amount);
-                const nextOrder = {
-                    ...currentOrder,
-                    paymentHistory: nextPaymentHistory,
-                    payments: nextPaymentHistory,
-                    advanceAmount: nextAdvance,
-                    balanceAmount: Math.max((Number(currentOrder.totalAmount ?? currentOrder.totalInvoiced ?? 0) - nextAdvance), 0)
-                };
-
-                const result = await updateOrder(currentOrder.id, nextOrder);
-                const savedOrder = result?.data?.data ?? result?.data ?? nextOrder;
-                setCurrentOrder(savedOrder);
-                setForm({ amount: '', method: 'Cash', note: '' });
-                onSaved?.(savedOrder);
-                setSaving(false);
-                return;
-            }
+            });
 
             // reload order and payments after successful add
             let finalSavedOrder = currentOrder;
@@ -229,8 +206,8 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
                                 </div>
                                 <div className={`so-modal__group pp-summary-item ${totalBalance > 0 ? 'pp-summary-item--due' : 'pp-summary-item--settled'}`}>
                                     <FiCreditCard className="pp-summary-item__icon" />
-                                    <span>Balance Due</span>
-                                    <strong>₹{formatMoney(totalBalance)}</strong>
+                                    <span>{customerCredit > 0 ? 'Customer Credit' : 'Balance Due'}</span>
+                                    <strong>₹{formatMoney(customerCredit || totalBalance)}</strong>
                                 </div>
                             </div>
                         </div>
@@ -295,6 +272,7 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
                 {activeTab === 'add' && (
                     <div className="so-modal__section">
                         <h3><FiPlusCircle /> Add Payment</h3>
+                        {paymentBlocked && <div className="so-modal__empty">This order is cancelled or has no balance due.</div>}
                         <div className="so-modal__grid so-modal__grid--compact">
                             <label className="pp-form-field">
                                 <span className="pp-form-field__label"><FiDollarSign /> Amount</span>
@@ -334,7 +312,7 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
                             </label>
                         </div>
                         <div className="so-modal__actions">
-                            <button type="button" className="so-modal__primary pp-submit-btn" onClick={handleSubmit} disabled={saving}><FiPlusCircle /> {saving ? 'Saving...' : 'Add Payment'}</button>
+                            <button type="button" className="so-modal__primary pp-submit-btn" onClick={handleSubmit} disabled={saving || paymentBlocked}><FiPlusCircle /> {saving ? 'Saving...' : 'Add Payment'}</button>
                         </div>
                     </div>
                 )}

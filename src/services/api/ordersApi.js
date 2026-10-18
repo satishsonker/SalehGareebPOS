@@ -36,6 +36,7 @@ export const deleteOrder = (id) => del(`/orders/${id}`);
 // Payments / Ledger
 export const getOrderPayments = (orderId) => get(`/orders/${orderId}/ledger`);
 export const addOrderAdvance = (orderId, advance) => post(`/orders/${orderId}/advance`, advance);
+export const addOrderPayment = (orderId, payment) => post(`/orders/${orderId}/payment`, payment);
 
 // Measurements (per itemId)
 export const updateItemMeasurement = (itemId, measurement) => {
@@ -45,6 +46,8 @@ export const updateItemMeasurement = (itemId, measurement) => {
   };
   return put(`/orders/items/${itemId}/measurements`, payload);
 };
+
+export const getCustomerMeasurements = (customerId) => get(`/orders/customers/${customerId}/measurements`);
 
 // Item status and work type updates (per itemId)
 export const updateItemStatus = (itemId, statusPayload) => put(`/orders/items/${itemId}/status`, statusPayload);

@@ -1,0 +1,134 @@
+.measurement-popup {
+  --mp-surface: var(--surface, #fff);
+  --mp-subtle: var(--surface-muted, #f5f7fb);
+  --mp-border: var(--border-color, #d9e0e8);
+  --mp-text: var(--text-primary, #263445);
+  --mp-muted: var(--text-secondary, #6c7887);
+  --mp-brand: var(--brand-primary, var(--accent-color, #3569bb));
+  --mp-soft: var(--brand-primary-soft, rgba(53, 105, 187, .1));
+  gap: 14px;
+  max-height: min(76vh, 900px);
+  overflow: auto;
+  padding: 2px;
+  color: var(--mp-text);
+}
+
+.measurement-popup__toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 2px 0 14px;
+  border-bottom: 1px solid var(--mp-border);
+}
+
+.measurement-popup__order-ref,
+.measurement-popup__tools,
+.measurement-popup__image-actions,
+.measurement-popup__footer,
+.measurement-popup__footer > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.measurement-popup__order-ref { flex-wrap: wrap; font-size: .82rem; }
+.measurement-popup__order-ref span { color: var(--mp-muted); }
+.measurement-popup__order-ref strong { font-size: .88rem; }
+.measurement-popup__divider { width: 1px; height: 22px; background: var(--mp-border); margin: 0 3px; }
+.measurement-popup__tools { flex: 1 1 680px; justify-content: flex-end; flex-wrap: wrap; }
+.measurement-popup__select-wrap,
+.measurement-popup__field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.measurement-popup__select-wrap { flex: 1 1 175px; max-width: 245px; }
+.measurement-popup__select-wrap > span,
+.measurement-popup__field > span { color: var(--mp-muted); font-size: .78rem; font-weight: 600; }
+.measurement-popup select,
+.measurement-popup input,
+.measurement-popup textarea {
+  width: 100%; min-width: 0; min-height: 38px; box-sizing: border-box;
+  padding: 8px 10px; border: 1px solid var(--mp-border); border-radius: 7px;
+  outline: none; background: var(--mp-surface); color: var(--mp-text);
+  font: inherit; font-size: .88rem; transition: border-color .15s, box-shadow .15s;
+}
+.measurement-popup select:focus,
+.measurement-popup input:focus,
+.measurement-popup textarea:focus { border-color: var(--mp-brand); box-shadow: 0 0 0 3px var(--mp-soft); }
+.measurement-popup textarea { resize: vertical; min-height: 38px; }
+
+.measurement-popup__get-button,
+.measurement-popup__image-actions button,
+.measurement-popup__image-actions a,
+.measurement-popup__close,
+.measurement-popup__save {
+  min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 0 12px; border: 1px solid var(--mp-border); border-radius: 7px;
+  background: var(--mp-surface); color: var(--mp-text); font: inherit; font-size: .82rem;
+  font-weight: 650; text-decoration: none; cursor: pointer;
+}
+.measurement-popup__get-button { background: var(--mp-brand); color: #fff; border-color: var(--mp-brand); }
+.measurement-popup button:disabled { opacity: .55; cursor: not-allowed; }
+.measurement-popup__suborders { display: flex; flex-wrap: wrap; gap: 8px; }
+.measurement-popup__suborders button { padding: 7px 11px; border: 1px solid var(--mp-border); border-radius: 999px; background: var(--mp-surface); color: var(--mp-muted); cursor: pointer; }
+.measurement-popup__suborders button.is-active { background: var(--mp-soft); border-color: var(--mp-brand); color: var(--mp-brand); font-weight: 700; }
+
+.measurement-popup__main { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: 22px; align-items: start; }
+.measurement-popup__fields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 14px; }
+.measurement-popup__field--size { grid-column: span 1; }
+.measurement-popup__field--description { grid-column: span 3; }
+.measurement-popup__field--customer-ref { grid-column: span 2; }
+.measurement-popup__field--model-no { grid-column: span 2; }
+.measurement-popup__reference { display: flex; flex-direction: column; gap: 8px; }
+.measurement-popup__hint { text-align: center; font-size: .76rem; color: var(--mp-brand); }
+.measurement-popup__image { width: 100%; aspect-ratio: 1.16; display: grid; place-items: center; overflow: hidden; padding: 0; border: 2px solid var(--mp-border); border-radius: 10px; background: var(--mp-subtle); color: var(--mp-muted); cursor: pointer; }
+.measurement-popup__image:not(.has-image) { cursor: default; }
+.measurement-popup__image img { width: 100%; height: 100%; object-fit: contain; }
+.measurement-popup__image > span { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.measurement-popup__image > span svg { width: 48px; height: 48px; }
+.measurement-popup__image > span small { font-size: .78rem; }
+.measurement-popup__image-actions { justify-content: center; }
+.measurement-popup__image-actions a { width: 38px; padding: 0; }
+
+.measurement-popup__options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.measurement-popup__worktypes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.measurement-popup__work-card { overflow: hidden; min-width: 0; border: 1px solid var(--mp-border); border-radius: 9px; background: var(--mp-surface); }
+.measurement-popup__work-card h3 { display: flex; align-items: center; gap: 9px; margin: 0; padding: 13px 15px; background: var(--mp-soft); color: var(--mp-brand); font-size: .93rem; }
+.measurement-popup__chips { display: flex; flex-wrap: wrap; gap: 7px; padding: 13px; }
+.measurement-popup__chips span { padding: 5px 8px; border-radius: 5px; background: var(--mp-subtle); color: var(--mp-text); font-size: .75rem; }
+.measurement-popup__empty,
+.measurement-popup__loading { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 100px; color: var(--mp-muted); }
+.measurement-popup__message { padding: 9px 12px; border-radius: 7px; font-size: .84rem; }
+.measurement-popup__message.is-success { background: var(--success-soft, rgba(24, 160, 88, .1)); color: var(--success, #16834a); }
+.measurement-popup__message.is-error { background: var(--danger-soft, rgba(220, 53, 69, .1)); color: var(--danger, #c43b48); }
+.measurement-popup__footer { justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--mp-border); }
+.measurement-popup__footer > span { color: var(--mp-muted); font-size: .8rem; }
+.measurement-popup__save { background: var(--mp-brand); border-color: var(--mp-brand); color: #fff; }
+.measurement-popup__zoom { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; width: 100%; height: 100%; padding: 5vh 5vw; border: 0; background: rgba(0, 0, 0, .82); cursor: zoom-out; }
+.measurement-popup__zoom img { max-width: 90vw; max-height: 90vh; object-fit: contain; }
+.measurement-popup__zoom > span { position: absolute; top: 18px; right: 22px; color: #fff; font-size: 1.5rem; }
+.measurement-popup__zoom svg { width: 30px; height: 30px; }
+.measurement-popup__loading .so-button-spinner { animation: measurement-spin 1s linear infinite; }
+@keyframes measurement-spin { to { transform: rotate(360deg); } }
+
+.modal-container:has(.measurement-popup) { width: min(96vw, 1450px); max-width: 1450px; }
+.modal-container:has(.measurement-popup) .modal-content { padding: 16px 20px; }
+
+@media (max-width: 900px) {
+  .measurement-popup__main { grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr); gap: 14px; }
+  .measurement-popup__fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .measurement-popup__field--description { grid-column: span 1; }
+  .measurement-popup__worktypes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .measurement-popup { max-height: 78vh; }
+  .measurement-popup__main { grid-template-columns: 1fr; }
+  .measurement-popup__reference { max-width: none; }
+  .measurement-popup__image { aspect-ratio: 1.6; }
+  .measurement-popup__tools { justify-content: stretch; }
+  .measurement-popup__select-wrap { max-width: none; flex-basis: 100%; }
+  .measurement-popup__options { grid-template-columns: 1fr; }
+  .measurement-popup__worktypes { grid-template-columns: 1fr; }
+  .measurement-popup__footer { align-items: flex-start; flex-direction: column; }
+  .measurement-popup__footer > div { width: 100%; }
+  .measurement-popup__footer > div > button { flex: 1; }
+}

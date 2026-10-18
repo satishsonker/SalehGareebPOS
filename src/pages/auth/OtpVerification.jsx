@@ -26,8 +26,7 @@ function OtpVerification() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const from = location.state?.from?.pathname || '/admin';
-      navigate(from, { replace: true });
+      navigate('/shop/selection', { replace: true });
     }
 
     const user = localStorage.getItem('user');
@@ -142,7 +141,6 @@ function OtpVerification() {
           <div className='alert alert-primary small' role="alert">
             Please enter the OTP sent to {contactInfo}
           </div>
-          <p>OTP {location.state?.otp}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
