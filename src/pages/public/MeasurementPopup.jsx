@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  FiCheck, FiDownload, FiEye, FiImage, FiLoader, FiSave, FiScissors, FiUpload, FiX
+  FiCheck, FiDownload, FiEye, FiImage, FiLoader, FiSave, FiUpload, FiX
 } from 'react-icons/fi';
-import { getOrderById, getCustomerMeasurements, updateItemMeasurement } from '../../services/api/ordersApi';
+import { getOrderById, getCustomerMeasurements, updateItemMeasurement, uploadSubOrderImage } from '../../services/api/ordersApi';
 import { getMasterDataByType } from '../../services/api/masterDataApi';
+import { getWorkTypeDescriptions } from '../../services/api/workTypeApi';
 import { apiRequest } from '../../utils/api';
 import { apiBasePath } from '../../services/api/commonApi';
 import './MeasurementPopup.css';
@@ -34,7 +35,11 @@ function initialMeasurement(item) {
     shape: data.shape || '',
     modelNo: data.modelNo || '',
     modelImageUrl: data.modelImageUrl || '',
-    notes: data.notes || ''
+    notes: data.notes || '',
+    workTypes: (item?.workTypes || []).map(workType => ({
+      ...workType,
+      workDescriptions: [...(workType.workDescriptions || [])]
+    }))
   };
 }
 
@@ -45,6 +50,7 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
   const [history, setHistory] = useState([]);
   const [shapes, setShapes] = useState([]);
   const [models, setModels] = useState([]);
+  const [workDescriptionList, setWorkDescriptionList] = useState([]);
   const [selectedHistoryId, setSelectedHistoryId] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -85,12 +91,14 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
     Promise.allSettled([
       getCustomerMeasurements(currentOrder.customerId),
       getMasterDataByType('shape'),
-      apiRequest('/DesignModels?pageNo=1&pageSize=100')
-    ]).then(([historyResult, shapeResult, modelResult]) => {
+      apiRequest('/DesignModels?pageNo=1&pageSize=100'),
+      getWorkTypeDescriptions()
+    ]).then(([historyResult, shapeResult, modelResult, descriptionsResult]) => {
       if (!active) return;
       if (historyResult.status === 'fulfilled') setHistory(unwrapData(historyResult.value) || []);
       if (shapeResult.status === 'fulfilled') setShapes(unwrapData(shapeResult.value) || []);
       if (modelResult.status === 'fulfilled') setModels(unwrapData(modelResult.value) || []);
+      if (descriptionsResult.status === 'fulfilled') setWorkDescriptionList(unwrapData(descriptionsResult.value) || []);
     });
     return () => { active = false; };
   }, [currentOrder?.customerId]);
@@ -104,7 +112,7 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
     setSelectedHistoryId('');
     setNotice('');
     setError('');
-  }, [selectedIndex, selectedSubOrder?.id]);
+  }, [selectedIndex, subOrders]);
 
   const updateMeasurement = (field, value) => {
     setMeasurement(previous => ({ ...previous, [field]: value }));
@@ -135,23 +143,38 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
       setError('Choose an image file.');
       return;
     }
-    const formData = new FormData();
-    formData.append('File', file);
-    formData.append('Module', 'measurements');
     setUploading(true);
     setError('');
     try {
-      const response = await apiRequest('/media/upload', { method: 'POST', body: formData });
+      const response = await uploadSubOrderImage(selectedSubOrder.id, file);
       const uploaded = unwrapData(response);
-      if (!uploaded?.relativePath) throw new Error('The image upload did not return a path.');
-      updateMeasurement('modelImageUrl', uploaded.relativePath);
-      setNotice('Reference image uploaded. Save the measurement to keep it.');
+      const uploadedPath = typeof uploaded === 'string' ? uploaded : uploaded?.relativePath;
+      if (!uploadedPath) throw new Error('The image upload did not return a path.');
+      updateMeasurement('modelImageUrl', uploadedPath);
+      setNotice('Suborder image uploaded. Save the measurement to keep it.');
     } catch (uploadError) {
       setError(uploadError.message || 'Could not upload the reference image.');
     } finally {
       setUploading(false);
       if (imageInput.current) imageInput.current.value = '';
     }
+  };
+
+  const toggleWorkDescription = (workTypeId, description) => {
+    setMeasurement(current => ({
+      ...current,
+      workTypes: (current.workTypes || []).map(workType => {
+        if (String(workType.workTypeId ?? workType.id) !== String(workTypeId)) return workType;
+        const descriptions = workType.workDescriptions || [];
+        const exists = descriptions.some(item => String(item.id) === String(description.id));
+        return {
+          ...workType,
+          workDescriptions: exists
+            ? descriptions.filter(item => String(item.id) !== String(description.id))
+            : [...descriptions, description]
+        };
+      })
+    }));
   };
 
   const handleSave = async () => {
@@ -262,9 +285,12 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
         </div>
 
         <div className="measurement-popup__worktypes">
-          {(selectedSubOrder.workTypes || []).map((workType, index) => <section className="measurement-popup__work-card" key={workType.workTypeId || workType.id || index}>
+          {(measurement.workTypes || selectedSubOrder.workTypes || []).map((workType, index) => <section className="measurement-popup__work-card" key={workType.workTypeId || workType.id || index}>
             <h3><FiCheck /> {workType.name || workType.code || 'Work type'}</h3>
-            <div className="measurement-popup__chips">{(workType.workDescriptions || []).map((description, descriptionIndex) => <span key={description.id || descriptionIndex}>{description.name}</span>)}</div>
+            <div className="measurement-popup__chips">{workDescriptionList.filter(description => String(description.workTypeCode) === String(workType.code)).map((description, descriptionIndex) => {
+              const selected = (workType.workDescriptions || []).some(item => String(item.id) === String(description.id));
+              return <button type="button" key={description.id || descriptionIndex} className={selected ? 'is-selected' : ''} aria-pressed={selected} onClick={() => toggleWorkDescription(workType.workTypeId || workType.id, description)}>{description.name}</button>;
+            })}</div>
           </section>)}
           {!selectedSubOrder.workTypes?.length && <div className="measurement-popup__empty">No work types assigned to this suborder.</div>}
         </div>

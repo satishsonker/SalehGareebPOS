@@ -92,6 +92,13 @@ const base64String = btoa(String.fromCharCode(...byteArray));
 
     const responseData = await readResponseBody(response);
 
+    if (response.status === 401) {
+      [localStorage, sessionStorage].forEach(storage => {
+        ['token', 'user', 'selectedShop', 'refreshToken'].forEach(key => storage.removeItem(key));
+      });
+      if (window.location.pathname !== '/login') window.location.replace('/login');
+    }
+
     if (!response.ok) {
       const errorMessage = formatApiErrorMessage(
         responseData,

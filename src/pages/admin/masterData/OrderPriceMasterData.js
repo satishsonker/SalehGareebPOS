@@ -166,7 +166,7 @@ function OrderPriceMasterData() {
         validFrom: editForm.validFrom,
         validTo: editForm.validTo,
         crystalPackets: editForm.crystalPackets,
-        grade: commonLogic.calculateGradeAndMaxCrystalPacket(addForm.price).grade
+        grade: commonLogic.calculateGradeAndMaxCrystalPacket(editForm.price).grade
       });
       if (res.success) {
         success('Order price updated');

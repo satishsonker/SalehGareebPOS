@@ -1,175 +1,178 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FiActivity, FiLayers, FiLoader, FiSave, FiX } from 'react-icons/fi';
-import { getOrderById, updateOrder, updateItemStatus } from '../../services/api/ordersApi';
+import { FiImage, FiLoader, FiMessageCircle, FiSave, FiX } from 'react-icons/fi';
+import { getOrderById, updateItemStatus } from '../../services/api/ordersApi';
+import { apiBasePath } from '../../services/api/commonApi';
+import './StatusPopup.css';
 
-const statusOptions = ['pending', 'in-progress', 'done'];
+function unwrapData(response) {
+  let value = response?.data ?? response;
+  if (value?.data !== undefined) value = value.data;
+  if (value?.data !== undefined && !Array.isArray(value)) value = value.data;
+  return value;
+}
 
-const labelForStatus = (value) => {
-  const normalized = String(value || 'pending').trim().toLowerCase();
-  if (normalized === 'done' || normalized === 'completed' || normalized === 'finished') return 'Done';
-  if (normalized === 'in-progress' || normalized === 'in progress') return 'In Progress';
-  return 'Pending';
-};
+function imageUrl(path) {
+  if (!path) return '';
+  return /^https?:\/\//i.test(path) ? path : `${apiBasePath}${path.startsWith('/') ? '' : '/'}${path}`;
+}
+
+function displayStatus(value) {
+  const status = String(value || 'Active').replaceAll('_', ' ').trim().toLowerCase();
+  if (['completed', 'done', 'finished', 'delivered'].includes(status)) return 'Completed';
+  if (['processing', 'in progress', 'in-progress', 'packing'].includes(status)) return 'In Progress';
+  if (['cancelled', 'canceled'].includes(status)) return 'Cancelled';
+  return 'Not Started';
+}
+
+function apiStatus(value) {
+  const status = String(value || 'Active').trim().toLowerCase();
+  if (['completed', 'done', 'finished'].includes(status)) return 'Completed';
+  if (['processing', 'in progress', 'in-progress'].includes(status)) return 'Processing';
+  if (status === 'packing') return 'Packing';
+  if (status === 'delivered') return 'Delivered';
+  if (status === 'altered') return 'Altered';
+  if (['cancelled', 'canceled'].includes(status)) return 'Cancelled';
+  return 'Active';
+}
 
 export default function StatusPopup({ order, onClose, onSaved }) {
   const [currentOrder, setCurrentOrder] = useState(order || null);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [note, setNote] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [zoomOpen, setZoomOpen] = useState(false);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
 
   useEffect(() => {
-    if (!order?.id) return;
-
-    const loadOrder = async () => {
-      setLoading(true);
-      try {
-        const response = await getOrderById(order.id);
-        const detail = response?.data?.data ?? response?.data ?? order;
-        setCurrentOrder(detail);
-        setSelectedIndex(0);
-      } catch (error) {
-        setCurrentOrder(order);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadOrder();
+    if (!order?.id) return undefined;
+    let active = true;
+    setLoading(true);
+    getOrderById(order.id)
+      .then(response => {
+        if (active) setCurrentOrder(unwrapData(response) || order);
+      })
+      .catch(() => {
+        if (active) setCurrentOrder(order);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
   }, [order]);
 
   const subOrders = useMemo(() => currentOrder?.orderDetails || [], [currentOrder]);
   const selectedSubOrder = subOrders[selectedIndex] || null;
 
-  const updateLocalSubOrderStatus = (status) => {
-    if (!currentOrder || !selectedSubOrder) return;
-    setCurrentOrder((prev) => ({
-      ...prev,
-      orderDetails: (prev.orderDetails || []).map((item, index) =>
-        index === selectedIndex ? { ...item, status } : item
-      )
-    }));
-  };
-
-  const updateWorkTypeStatus = (workTypeIndex, status) => {
-    if (!currentOrder || !selectedSubOrder) return;
-    setCurrentOrder((prev) => ({
-      ...prev,
-      orderDetails: (prev.orderDetails || []).map((item, index) => {
-        if (index !== selectedIndex) return item;
-        const workTypes = Array.isArray(item.workTypes) ? [...item.workTypes] : [];
-        workTypes[workTypeIndex] = { ...workTypes[workTypeIndex], status };
-        return { ...item, workTypes };
-      })
-    }));
-  };
+  useEffect(() => {
+    setNote(selectedSubOrder?.note || '');
+    setError('');
+    setNotice('');
+  }, [selectedSubOrder?.id, selectedSubOrder?.note]);
 
   const handleSave = async () => {
-    if (!currentOrder) return;
+    if (!selectedSubOrder?.id) return;
     setSaving(true);
+    setError('');
+    setNotice('');
     try {
-      if (selectedSubOrder && selectedSubOrder.id) {
-        const mapStatus = (s) => {
-          const v = String(s || '').trim().toLowerCase();
-          if (v === 'done' || v === 'completed' || v === 'finished') return 'Completed';
-          if (v === 'in-progress' || v === 'in progress' || v === 'processing') return 'Processing';
-          return 'Active';
-        };
-
-        const payload = { status: mapStatus(selectedSubOrder.status), note: selectedSubOrder.note || '' };
-        const res = await updateItemStatus(selectedSubOrder.id, payload);
-        const savedOrder = res?.data?.data ?? res?.data ?? currentOrder;
-        setCurrentOrder(savedOrder);
-        onSaved?.(savedOrder);
-      } else {
-        const result = await updateOrder(currentOrder.id, currentOrder);
-        const savedOrder = result?.data?.data ?? result?.data ?? currentOrder;
-        setCurrentOrder(savedOrder);
-        onSaved?.(savedOrder);
-      }
-    } catch (error) {
-      console.error('Status save failed', error);
+      await updateItemStatus(selectedSubOrder.id, {
+        status: apiStatus(selectedSubOrder.status || selectedSubOrder.statusStr),
+        note
+      });
+      const response = await getOrderById(currentOrder.id);
+      const savedOrder = unwrapData(response) || {
+        ...currentOrder,
+        orderDetails: subOrders.map((item, index) => index === selectedIndex ? { ...item, note } : item)
+      };
+      setCurrentOrder(savedOrder);
+      onSaved?.(savedOrder);
+      setNotice('Status note saved.');
+    } catch (saveError) {
+      setError(saveError.message || 'Could not save the status note.');
     } finally {
       setSaving(false);
     }
   };
 
+  const handlePickupMessage = () => {
+    const rawPhone = currentOrder?.customerNumber || `${currentOrder?.customer?.isdCode || currentOrder?.customer?.ISDCode || ''}${currentOrder?.customer?.mobile || currentOrder?.customer?.Mobile || ''}`;
+    const phone = String(rawPhone).replace(/[^\d]/g, '');
+    if (!phone) {
+      setError('No customer phone number is available for the pickup message.');
+      return;
+    }
+    const orderNumber = selectedSubOrder?.orderNo || currentOrder?.orderNo || currentOrder?.id;
+    const message = `Your Kandoora order ${orderNumber} is ready for pickup.`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+    setError('');
+  };
+
   if (!currentOrder) return null;
 
+  const imagePath = selectedSubOrder?.measurement?.modelImageUrl || selectedSubOrder?.imagePath || '';
+  const imageSrc = imageUrl(imagePath);
+  const workTypes = selectedSubOrder?.workTypes || [];
+  const overallStatus = selectedSubOrder?.statusStr || selectedSubOrder?.status || currentOrder.statusStr || currentOrder.status || 'Active';
+
   return (
-    <div className="so-modal__content payment-popup so-edit-popup so-edit-popup--status">
-      <div className="so-modal__section">
-        <h3><FiLayers /> Select Suborder</h3>
-        <div className="so-modal__tags">
-          {subOrders.map((item, index) => (
-            <button
-              key={item.id || `${currentOrder.id}-${index}`}
-              type="button"
-              className={`so-modal__chip ${selectedIndex === index ? 'active' : ''}`}
-              onClick={() => setSelectedIndex(index)}
-            >
-              <FiLayers /> {item.orderNo || `Suborder ${index + 1}`}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="so-modal__content status-popup">
+      <header className="status-popup__header">
+        <h2>Kandoora Delivery Status: {selectedSubOrder?.orderNo || currentOrder.orderNo || currentOrder.id}</h2>
+        <button type="button" className="status-popup__icon-button" onClick={onClose} aria-label="Close status popup"><FiX /></button>
+      </header>
 
-      {selectedSubOrder ? (
-        <div className="so-modal__section">
-          <h3><FiActivity /> {selectedSubOrder.description || `Suborder ${selectedIndex + 1}`}</h3>
-          <div className="so-modal__grid so-modal__grid--compact">
-            <div>
-              <span>Suborder Status</span>
-                      <select value={selectedSubOrder.status || 'pending'} onChange={(event) => updateLocalSubOrderStatus(event.target.value)}>
-                {statusOptions.map((status) => (
-                  <option key={status} value={status}>{labelForStatus(status)}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <span>Completion Date</span>
-              <input type="date" value={selectedSubOrder.completionDate || ''} readOnly />
-            </div>
+      {loading ? <div className="status-popup__loading"><FiLoader className="so-button-spinner" /> Loading order status…</div> : selectedSubOrder ? <>
+        <section className="status-popup__panel">
+          <div className="status-popup__summary">
+            <strong>Kandoora Number: {selectedSubOrder.orderNo || `Suborder ${selectedIndex + 1}`}</strong>
+            <strong>Kandoora Status: {overallStatus}</strong>
           </div>
 
-          <div className="so-modal__items">
-            {(selectedSubOrder.workTypes || []).length > 0 ? (
-              selectedSubOrder.workTypes.map((workType, workTypeIndex) => (
-                <div key={workType.id || `${selectedSubOrder.id}-${workTypeIndex}`} className="so-modal__item">
-                  <div className="so-modal__item-header">
-                    <strong>{workType.name || `Work Type ${workTypeIndex + 1}`}</strong>
-                    <span>{labelForStatus(workType.status || 'pending')}</span>
-                  </div>
-                  <div className="so-modal__grid so-modal__grid--compact">
-                    <div>
-                      <span>Status</span>
-                      <select value={workType.status || 'pending'} onChange={(event) => updateWorkTypeStatus(workTypeIndex, event.target.value)}>
-                        {statusOptions.map((status) => (
-                          <option key={status} value={status}>{labelForStatus(status)}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <span>Completion Date</span>
-                      <input type="date" value={workType.completionDate || ''} readOnly />
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="so-modal__empty">No work type progress available for this suborder.</div>
-            )}
+          <div className="status-popup__table-wrap">
+            <table className="status-popup__table">
+              <thead><tr><th>Work Type</th><th>Completed On</th><th>Completed By</th><th>Image</th><th>Status</th></tr></thead>
+              <tbody>
+                {workTypes.length ? workTypes.map((workType, index) => (
+                  <tr key={workType.id || workType.workTypeId || `${selectedSubOrder.id}-${index}`}>
+                    <td>{workType.name || workType.code || `Work Type ${index + 1}`}</td>
+                    <td>{workType.completedOn || '—'}</td>
+                    <td>{workType.completedByName || workType.completedBy || '—'}</td>
+                    {index === 0 && <td className="status-popup__image-cell" rowSpan={workTypes.length}>
+                      <button type="button" className={`status-popup__image ${imageSrc ? 'has-image' : ''}`} onClick={() => imageSrc && setZoomOpen(true)} disabled={!imageSrc} aria-label={imageSrc ? 'Zoom suborder image' : 'No suborder image'}>
+                        {imageSrc ? <img src={imageSrc} alt="Suborder reference" /> : <FiImage />}
+                      </button>
+                      <span>Click on image to zoom</span>
+                    </td>}
+                    <td><span className={`status-popup__badge status-popup__badge--${displayStatus(workType.isSaved ? 'completed' : workType.status).toLowerCase().replace(' ', '-')}`}>{displayStatus(workType.isSaved ? 'completed' : workType.status)}</span></td>
+                  </tr>
+                )) : <tr><td colSpan="5" className="status-popup__empty">No work types assigned to this suborder.</td></tr>}
+              </tbody>
+            </table>
           </div>
-        </div>
-      ) : (
-        <div className="so-modal__empty">No status details available.</div>
-      )}
 
-      <div className="so-modal__actions">
-        <button type="button" className="so-modal__primary" onClick={handleSave} disabled={saving || loading}>
-          {saving ? <FiLoader className="so-button-spinner" /> : <FiSave />} {saving ? 'Saving...' : 'Save Status'}
-        </button>
-        <button type="button" className="so-modal__secondary" onClick={onClose}><FiX /> Close</button>
-      </div>
+          <div className="status-popup__note">
+            <label htmlFor="status-popup-note">Note</label>
+            <div><textarea id="status-popup-note" rows="1" value={note} onChange={event => setNote(event.target.value)} />
+              <button type="button" onClick={handleSave} disabled={saving || loading}>{saving ? <FiLoader className="so-button-spinner" /> : <FiSave />} Save</button></div>
+          </div>
+
+          {(error || notice) && <div className={`status-popup__message ${error ? 'is-error' : 'is-success'}`} role={error ? 'alert' : 'status'}>{error || notice}</div>}
+
+          <div className="status-popup__panel-footer">
+            <button type="button" className="status-popup__pickup" onClick={handlePickupMessage}><FiMessageCircle /> Send Pickup Message</button>
+            <nav className="status-popup__pagination" aria-label="Suborder pages">
+              <button type="button" onClick={() => setSelectedIndex(index => Math.max(0, index - 1))} disabled={selectedIndex === 0}>Prev</button>
+              {subOrders.map((item, index) => <button type="button" key={item.id || index} className={index === selectedIndex ? 'is-active' : ''} aria-current={index === selectedIndex ? 'page' : undefined} onClick={() => setSelectedIndex(index)}>{index + 1}</button>)}
+              <button type="button" onClick={() => setSelectedIndex(index => Math.min(subOrders.length - 1, index + 1))} disabled={selectedIndex >= subOrders.length - 1}>Next</button>
+            </nav>
+          </div>
+        </section>
+      </> : <div className="status-popup__empty">No suborders found.</div>}
+
+      <footer className="status-popup__footer"><button type="button" onClick={onClose} disabled={saving}><FiX /> Cancel</button></footer>
+      {zoomOpen && <button className="status-popup__zoom" type="button" onClick={() => setZoomOpen(false)} aria-label="Close image zoom"><img src={imageSrc} alt="Zoomed suborder reference" /><span><FiX /></span></button>}
     </div>
   );
 }

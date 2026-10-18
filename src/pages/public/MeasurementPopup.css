@@ -94,7 +94,8 @@
 .measurement-popup__work-card { overflow: hidden; min-width: 0; border: 1px solid var(--mp-border); border-radius: 9px; background: var(--mp-surface); }
 .measurement-popup__work-card h3 { display: flex; align-items: center; gap: 9px; margin: 0; padding: 13px 15px; background: var(--mp-soft); color: var(--mp-brand); font-size: .93rem; }
 .measurement-popup__chips { display: flex; flex-wrap: wrap; gap: 7px; padding: 13px; }
-.measurement-popup__chips span { padding: 5px 8px; border-radius: 5px; background: var(--mp-subtle); color: var(--mp-text); font-size: .75rem; }
+.measurement-popup__chips button { padding: 5px 8px; border: 0; border-radius: 5px; background: var(--mp-subtle); color: var(--mp-text); font: inherit; font-size: .75rem; cursor: pointer; }
+.measurement-popup__chips button.is-selected { background: var(--mp-brand); color: #fff; }
 .measurement-popup__empty,
 .measurement-popup__loading { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 100px; color: var(--mp-muted); }
 .measurement-popup__message { padding: 9px 12px; border-radius: 7px; font-size: .84rem; }

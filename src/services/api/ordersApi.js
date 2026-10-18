@@ -1,4 +1,4 @@
-import { get, post, put, del } from '../../utils/api';
+import { apiRequest, get, post, put, del } from '../../utils/api';
 
 // Search / list orders
 export const searchOrders = (params) => {
@@ -39,12 +39,16 @@ export const addOrderAdvance = (orderId, advance) => post(`/orders/${orderId}/ad
 export const addOrderPayment = (orderId, payment) => post(`/orders/${orderId}/payment`, payment);
 
 // Measurements (per itemId)
-export const updateItemMeasurement = (itemId, measurement) => {
-  const payload = {
-    measurementsJson: JSON.stringify(measurement || {}),
-    notes: (measurement && (measurement.notes || measurement.note)) || ''
-  };
-  return put(`/orders/items/${itemId}/measurements`, payload);
+export const updateItemMeasurement = (itemId, measurement) => put('/orders/suborder/measurements', [{
+  ...(measurement || {}),
+  orderDetailId: itemId,
+  notes: measurement?.notes || measurement?.note || ''
+}]);
+
+export const uploadSubOrderImage = (itemId, file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return apiRequest(`/orders/suborder/${itemId}/image`, { method: 'POST', body: formData });
 };
 
 export const getCustomerMeasurements = (customerId) => get(`/orders/customers/${customerId}/measurements`);

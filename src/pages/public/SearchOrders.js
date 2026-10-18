@@ -854,7 +854,7 @@ function SearchOrders() {
                 isOpen={isDetailModalOpen && activeModalType !== 'print'}
                 onClose={closeDetailModal}
                 title={modalTitle}
-                size="large"
+                size="xlarge"
                 className="so-modal"
                 loading={detailLoading}
             >
