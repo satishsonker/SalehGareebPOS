@@ -148,7 +148,6 @@ const getWorkTypeStatus = status => {
     if (normalized === "done" || normalized === "completed" || normalized === "finished") return "Done";
     if (normalized === "pending" || normalized === "in-progress" || normalized === "in progress") return "Pending";
     if (normalized === "processing") return "In Progress";
-
     return "Pending";
 };
 

@@ -23,6 +23,8 @@ export const getOrderAlerts = (filters = {}) => {
 
 export const getOrderById = (id) => get(`/orders/${id}`);
 
+export const getMeasurementByOrderId = (orderId) => get(`/orders/suborder/${orderId}`);
+
 export const createOrder = (data) => post('/orders', data);
 
 export const updateOrder = (id, data) => put(`/orders/${id}`, data);
