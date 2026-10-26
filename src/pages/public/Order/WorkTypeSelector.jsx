@@ -128,7 +128,29 @@ export default function WorkTypeSelector({ options }) {
 
     useEffect(() => {
         getWorkTypeDescriptions()
-            .then(res => setWorkDescriptionList(res.data))
+            .then(res => {
+                const descriptions = res.data || [];
+                setWorkDescriptionList(descriptions);
+                const model = options.order;
+                const detailIndex = model?.selectedSubOrderIndex;
+                if (detailIndex === undefined || detailIndex < 0) return;
+                const detail = model.orderDetails?.[detailIndex];
+                if (!detail || detail.workTypes?.some(item => (item.workDescriptions || []).length > 0)) return;
+                const defaults = descriptions.filter(item => item.isDefault);
+                if (!defaults.length) return;
+                const workTypes = toggleWorkTypeDescriptionSelection(
+                    detail.workTypes || [], options.workTypeList || [],
+                    // Apply each default description to its matching work type.
+                    defaults[0]
+                );
+                const completedWorkTypes = defaults.slice(1).reduce(
+                    (current, description) => toggleWorkTypeDescriptionSelection(current, options.workTypeList || [], description),
+                    workTypes
+                );
+                const orderDetails = [...model.orderDetails];
+                orderDetails[detailIndex] = { ...detail, workTypes: completedWorkTypes };
+                options.setOrder({ ...model, orderDetails });
+            })
             .catch(() => console.log("Unable to fetch work type description list from api or cache"));
     }, []);
 
