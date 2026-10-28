@@ -6,7 +6,7 @@ import WorkTypeSelector from './WorkTypeSelector';
 import OrderSummary from './OrderSummary';
 import { getEmirates, getMasterDataByTypes } from '../../../services/api/masterDataApi';
 import { getCustomers } from '../../../services/api/customersApi';
-import { createOrder } from '../../../services/api/ordersApi';
+import { createOrder, suggestDeliveryDate } from '../../../services/api/ordersApi';
 import { multipleGet } from '../../../utils/api';
 import NumericKeypad from '../../../components/NumericKeypad/NumericKeypad';
 import DatePickerModal from '../../../components/DatePicker/DatePickerModal';
@@ -85,6 +85,7 @@ export default function NewOrderPage() {
     order.Ledgers=[];
     createOrder(order)
       .then(response => {
+        const createdOrder = response?.data?.data ?? response?.data;
         var statusData = {
           isOpen: response.success,
           title: response.message,
@@ -99,11 +100,16 @@ export default function NewOrderPage() {
           }]
         };
         if (response.success) {
-          statusData.message = `Order No: ${response.data?.orderNo} created successfully.`;
+          statusData.message = `Order No: ${createdOrder?.orderNo} created successfully.`;
+          const actualDate = typeof createdOrder?.deliveryDate === 'string' ? createdOrder.deliveryDate.slice(0, 10) : '';
+          if (actualDate && actualDate !== order.deliveryDate) {
+            statusData.message += ` Daily capacity was reached, so delivery was moved to ${commonLogic.formatDate(actualDate)}.`;
+            setOrder(previous => ({ ...previous, deliveryDate: actualDate }));
+          }
           //setOrder({ ...EMPTY_CREATE_ORDER() })
         }
         setStatusModelData({ ...statusData });
-        setOrder(pre=>({...pre,["orderId"]:response?.data?.id}))
+        setOrder(pre=>({...pre,["orderId"]:createdOrder?.id}))
       })
       .catch(error => {
         var statusData = { isOpen: true, title: 'Something went wrong', message: 'An error occurred while creating the order.', type: 'error',buttonText:'Ok',showCloseButton:true };
@@ -458,9 +464,19 @@ export default function NewOrderPage() {
         label="Delivery Date"
         disablePastDates={true}
         onChange={setDeliveryDate}
-        onConfirm={(date) => {
-          console.log("Selected Date:", date);
-          setOrder({ ...order, ["deliveryDate"]: date });
+        onConfirm={async (date) => {
+          setIsDatePickerOpen(false);
+          try {
+            const response = await suggestDeliveryDate({ requestedDate: date, subOrderCount: Math.max(order.orderDetails.length, 1) });
+            const suggestion = response?.data?.data ?? response?.data;
+            const suggestedDate = typeof suggestion?.suggestedDate === 'string' ? suggestion.suggestedDate.slice(0, 10) : date;
+            setOrder(previous => ({ ...previous, deliveryDate: suggestedDate }));
+            if (suggestion?.wasAdjusted || suggestedDate !== date) {
+              setStatusModelData({ isOpen: true, title: 'Delivery date adjusted', message: `Daily production capacity is ${suggestion.dailyCapacity} suborders. Delivery date moved to ${commonLogic.formatDate(suggestedDate)}.`, type: 'info', buttonText: 'OK', showCloseButton: true });
+            }
+          } catch (error) {
+            setStatusModelData({ isOpen: true, title: 'Unable to check production capacity', message: error?.message || 'Please try selecting the delivery date again.', type: 'error', buttonText: 'OK', showCloseButton: true });
+          }
         }}
         onClose={() => setIsDatePickerOpen(false)}
       />

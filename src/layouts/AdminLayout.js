@@ -18,6 +18,7 @@ const menuItems = [
   { path: '/admin/order-prices',      icon: FiDollarSign,   label: 'Order Prices' },
   { path: '/admin/tile-access',       icon: FiShield,       label: 'Tile Access' },
   { path: '/admin/tiles',             icon: FiGrid,         label: 'Tiles' },
+  { path: '/admin/work-type-descriptions', icon: FiTag,      label: 'Work Type Descriptions' },
   { path: '/admin/user-shop-access',  icon: FiUsers,        label: 'User Shop Access' },
   { path: '/admin/notifications',     icon: FiBell,         label: 'Notifications' },
   { path: '/admin/cache',             icon: FiServer,       label: 'Cache' },

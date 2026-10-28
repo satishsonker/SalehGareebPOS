@@ -25,6 +25,7 @@ import CustomersMasterData from './pages/admin/masterData/CustomersMasterData';
 import OrderPriceMasterData from './pages/admin/masterData/OrderPriceMasterData';
 import UserTilePermissions from './pages/admin/masterData/UserTilePermissions';
 import TilesMasterData from './pages/admin/masterData/TilesMasterData';
+import WorkTypeDescriptions from './pages/admin/masterData/WorkTypeDescriptions';
 import UserShopAccess from './pages/admin/masterData/UserShopAccess';
 import SystemNotifications from './pages/admin/SystemNotifications';
 import CacheManagement from './pages/admin/CacheManagement';
@@ -120,6 +121,7 @@ function App() {
                       <Route path="order-prices" element={<OrderPriceMasterData />} />
                       <Route path="tile-access" element={<UserTilePermissions />} />
                       <Route path="tiles" element={<TilesMasterData />} />
+                      <Route path="work-type-descriptions" element={<WorkTypeDescriptions />} />
                       <Route path="user-shop-access" element={<UserShopAccess />} />
                       <Route path="notifications" element={<SystemNotifications />} />
                       <Route path="cache" element={<CacheManagement />} />

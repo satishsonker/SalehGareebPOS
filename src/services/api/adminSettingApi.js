@@ -1,4 +1,4 @@
-import { get, put } from '../../utils/api';
+import { get, put, apiRequest } from '../../utils/api';
 
 // Get all settings (returns flat list; each item has displayName, dataType, group, etc.)
 export const getAdminSettings = () => get('/adminsettings?pageNo=1&pageSize=100');
@@ -7,7 +7,7 @@ export const getAdminSettings = () => get('/adminsettings?pageNo=1&pageSize=100'
 export const getAdminSettingGroups = () => get('/adminsettings/groups');
 
 // Update a single setting value by id
-export const updateAdminSetting = (id, data) => put(`/adminsettings/${id}`, data);
+export const updateAdminSetting = (id, data) => apiRequest(`/adminsettings/${id}/value`, { method: 'PATCH', body: JSON.stringify(data) });
 
 // Bulk update multiple settings at once
 export const bulkUpdateAdminSettings = (data) => put('/adminsettings/bulk', data);

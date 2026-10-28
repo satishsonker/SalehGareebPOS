@@ -280,9 +280,9 @@ function ShopsMasterData() {
       case 'delete':
         confirm({
           type: 'danger',
-          title: 'Delete Shop',
-          message: `Are you sure you want to delete shop "${row.name}"? This action cannot be undone.`,
-          confirmText: 'Delete',
+          title: 'Archive Shop',
+          message: `Archive shop "${row.name}"? It will be hidden from active shop lists. Existing orders and user references will be preserved.`,
+          confirmText: 'Archive',
           cancelText: 'Cancel',
         }).then(async (confirmed) => {
           if (confirmed) {
@@ -290,7 +290,7 @@ function ShopsMasterData() {
               setLoading(true);
               const response = await deleteShop(row.id);
               if (response.success) {
-                success('Shop deleted successfully');
+                success('Shop archived successfully');
                 fetchShops();
               } else {
                 showError(response.message || 'Failed to delete shop');

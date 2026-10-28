@@ -28,6 +28,7 @@ export const getOrderById = (id) => get(`/orders/${id}`);
 export const getMeasurementByOrderId = (orderId) => get(`/orders/suborder/${orderId}`);
 
 export const createOrder = (data) => post('/orders', data);
+export const suggestDeliveryDate = (data) => post('/orders/suggest-delivery-date', data);
 
 export const updateOrder = (id, data) => put(`/orders/${id}`, data);
 
