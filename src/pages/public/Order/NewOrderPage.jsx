@@ -106,7 +106,7 @@ export default function NewOrderPage() {
         setOrder(pre=>({...pre,["orderId"]:response?.data?.id}))
       })
       .catch(error => {
-        var statusData = { isOpen: false, title: 'Something went wrong', message: 'An error occurred while creating the order.', type: 'error',buttonText:'Ok',showCloseButton:true };
+        var statusData = { isOpen: true, title: 'Something went wrong', message: 'An error occurred while creating the order.', type: 'error',buttonText:'Ok',showCloseButton:true };
         setStatusModelData({ ...statusData });
       });
   };

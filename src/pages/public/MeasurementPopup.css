@@ -109,6 +109,13 @@
 .measurement-popup__zoom > span { position: absolute; top: 18px; right: 22px; color: #fff; font-size: 1.5rem; }
 .measurement-popup__zoom svg { width: 30px; height: 30px; }
 .measurement-popup__loading .so-button-spinner { animation: measurement-spin 1s linear infinite; }
+.measurement-popup__gallery { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.measurement-popup__gallery button { display: grid; gap: 3px; width: 72px; padding: 4px; border: 1px solid var(--mp-border); border-radius: 6px; background: var(--mp-surface); color: var(--mp-muted); cursor: zoom-in; }
+.measurement-popup__gallery img { width: 62px; height: 48px; object-fit: cover; border-radius: 4px; }
+.measurement-popup__gallery small { overflow: hidden; font-size: .62rem; text-overflow: ellipsis; }
+.measurement-popup__worktype-choices { display: flex; flex-wrap: wrap; gap: 7px; grid-column: 1 / -1; }
+.measurement-popup__worktype-choices button { padding: 6px 9px; border: 1px solid var(--mp-border); border-radius: 18px; background: var(--mp-surface); color: var(--mp-text); font: inherit; font-size: .72rem; cursor: pointer; }
+.measurement-popup__worktype-choices button.is-selected { border-color: var(--mp-brand); background: var(--mp-brand); color: #fff; }
 @keyframes measurement-spin { to { transform: rotate(360deg); } }
 
 .modal-container:has(.measurement-popup) { width: min(96vw, 1450px); max-width: 1450px; }

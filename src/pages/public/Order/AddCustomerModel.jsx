@@ -82,13 +82,18 @@ export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen
                 lastName: customerModel.lastName
             });
             if (response?.success) {
+                const created = response?.data?.data ?? response?.data ?? response;
                 setAddCustomerModalOpen(false);
                 setOrder(prev => ({
                     ...prev,
-                    ["customerId"]: response.id,
-                    firstName: customerModel.firstName,
-                    lastName: customerModel.lastName,
-                    emirateId: customerModel.emirateId
+                    customerId: created?.id ?? 0,
+                    customerName: `${created?.firstName ?? customerModel.firstName} ${created?.lastName ?? customerModel.lastName}`.trim(),
+                    mobile: created?.mobile ?? customerModel.mobile,
+                    isd: created?.isdCode ?? customerModel.isdCode,
+                    firstName: created?.firstName ?? customerModel.firstName,
+                    lastName: created?.lastName ?? customerModel.lastName,
+                    emirateId: created?.emirateId ?? customerModel.emirateId,
+                    customerClass: created?.customerClass ?? 'Regular'
                 }));
             }
 

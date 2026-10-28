@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   FiMenu, FiX, FiGrid, FiDatabase,
   FiSettings, FiLogOut, FiSun, FiMoon,
-  FiUser, FiMail, FiPhone, FiShield,
+  FiUser, FiUsers, FiMail, FiPhone, FiShield,
   FiShoppingBag, FiMapPin, FiTag, FiChevronDown, FiHome, FiDollarSign, FiBell, FiServer
 } from 'react-icons/fi';
 import { useTheme } from '../contexts/ThemeContext';
@@ -16,6 +16,9 @@ const menuItems = [
   { path: '/admin/system-data',       icon: FiDatabase,     label: 'System Data' },
   { path: '/admin/customers',         icon: FiUser,         label: 'Customers' },
   { path: '/admin/order-prices',      icon: FiDollarSign,   label: 'Order Prices' },
+  { path: '/admin/tile-access',       icon: FiShield,       label: 'Tile Access' },
+  { path: '/admin/tiles',             icon: FiGrid,         label: 'Tiles' },
+  { path: '/admin/user-shop-access',  icon: FiUsers,        label: 'User Shop Access' },
   { path: '/admin/notifications',     icon: FiBell,         label: 'Notifications' },
   { path: '/admin/cache',             icon: FiServer,       label: 'Cache' },
   { path: '/admin/settings',          icon: FiSettings,     label: 'Settings' },

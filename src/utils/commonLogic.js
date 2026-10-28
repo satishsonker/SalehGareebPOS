@@ -55,13 +55,13 @@ export const commonLogic = {
   },
   workTypeCodesAbbr: (code) => {
     const workTypeCodes = {
-      "1": "DSN",
-      "2": "CUT",
-      "3": "EMB",
-      "4": "CRY",
-      "5": "HEM",
-      "6": "APL",
-      "7": "STC",
+      "1": "1-DSN",
+      "2": "2-CUT",
+      "3": "3-EMB",
+      "4": "4-CRY",
+      "5": "5-HEM",
+      "6": "6-APL",
+      "7": "7-STC",
       "0": "ALL"
     };
     return workTypeCodes[code] || code;
@@ -79,7 +79,7 @@ export const commonLogic = {
   calculatePercent: (amount, percent) => {
     return (amount / 100) * percent;
   },
-  calculateVAT: (amount, vat=5) => {
+  calculateVAT: (amount, vat = 5) => {
     let vatAmount = (amount / 100) * vat;
     let totalAmount = vatAmount + amount;
     return { vatAmount, amountWithVat: totalAmount }
@@ -102,29 +102,30 @@ export const commonLogic = {
     if (timer)
       return;
   },
-   getHtmlDate: (date, format = "yyyymmdd") => {
-        if (date === undefined)
-            return "";
-        if (typeof date !== "object") {
-            date = new Date(date);
-        }
-        var month = (date.getMonth() + 1).toString().padStart(2, '0');
-        var day = (date.getDate()).toString().padStart(2, '0');
-        var m = (date.getMinutes()).toString().padStart(2, '0');
-        var s = (date.getSeconds()).toString().padStart(2, '0');
-        var hours = date.getHours();
-        var ampm = hours >= 12 ? 'pm' : 'am';
-        hours = hours % 12;
-        hours = hours ? hours : 12; 
-        if (format === "yyyymmdd")
-            return `${date.getFullYear()}-${month}-${day}`;
-        if (format === "ddmmyyyy")
-            return `${day}-${month}-${date.getFullYear()}`;
-        if (format === "ddmmyy")
-            return `${day}-${month}-${date.getFullYear().toString().substr(2,2)}`;
-        if (format === "ddmmyyyyhhmmss")
-            return `${day}-${month}-${date.getFullYear()} ${hours.toString().padStart(2, '0')}:${m}:${s} ${ampm}`;
-        if (format === "ddmmyyyyhhmm")
-            return `${day}-${month}-${date.getFullYear()} ${hours.toString().padStart(2, '0')}:${m} ${ampm}`;
-    },
+  getHtmlDate: (date, format = "yyyymmdd") => {
+    if (date === undefined)
+      return "";
+    if (typeof date !== "object") {
+      date = new Date(date);
+    }
+    var month = (date.getMonth() + 1).toString().padStart(2, '0');
+    var day = (date.getDate()).toString().padStart(2, '0');
+    var m = (date.getMinutes()).toString().padStart(2, '0');
+    var s = (date.getSeconds()).toString().padStart(2, '0');
+    var hours = date.getHours();
+    var ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    if (format === "yyyymmdd")
+      return `${date.getFullYear()}-${month}-${day}`;
+    if (format === "ddmmyyyy")
+      return `${day}-${month}-${date.getFullYear()}`;
+    if (format === "ddmmyy")
+      return `${day}-${month}-${date.getFullYear().toString().substr(2, 2)}`;
+    if (format === "ddmmyyyyhhmmss")
+      return `${day}-${month}-${date.getFullYear()} ${hours.toString().padStart(2, '0')}:${m}:${s} ${ampm}`;
+    if (format === "ddmmyyyyhhmm")
+      return `${day}-${month}-${date.getFullYear()} ${hours.toString().padStart(2, '0')}:${m} ${ampm}`;
+  },
+  maxPageSize: 100
 }

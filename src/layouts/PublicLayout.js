@@ -5,7 +5,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import {
   FiLogOut, FiShoppingBag, FiShield,
   FiUser, FiMail, FiPhone, FiMapPin, FiTag,
-  FiChevronDown, FiHome, FiDollarSign, FiAlertTriangle, FiSlash, FiSun, FiMoon
+  FiChevronDown, FiHome, FiDollarSign, FiAlertTriangle, FiSlash, FiSun, FiMoon, FiClipboard
 } from 'react-icons/fi';
 import config from '../config';
 import './PublicLayout.css';
@@ -127,6 +127,15 @@ function PublicLayout() {
               aria-label="Order alerts"
             >
               <FiAlertTriangle />
+            </button>
+
+            <button
+              className={`ph-icon-btn${location.pathname.startsWith('/orders/worksheet') ? ' ph-icon-btn--active' : ''}`}
+              onClick={() => navigate('/orders/worksheet')}
+              title="Worksheet"
+              aria-label="Worksheet"
+            >
+              <FiClipboard />
             </button>
 
             <button

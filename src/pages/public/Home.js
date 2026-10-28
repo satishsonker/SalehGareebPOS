@@ -2,11 +2,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FiActivity, FiAlertCircle, FiArrowUpRight, FiCalendar,
-  FiChevronRight, FiCreditCard, FiDollarSign, FiPackage,
-  FiPlus, FiRefreshCw, FiSearch, FiShoppingBag, FiTrendingUp, FiUsers,
+  FiChevronRight, FiDollarSign, FiPackage,
+  FiRefreshCw, FiShoppingBag, FiTrendingUp,
 } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
-import { getTiles } from '../../services/api/tileApiService';
+import { getAccessibleTiles } from '../../services/api/tileApiService';
 import { getOrders } from '../../services/api/ordersApi';
 import * as FiIcons from 'react-icons/fi';
 import './Home.css';
@@ -58,7 +58,7 @@ function Home() {
     setError('');
     const [ordersResult, tilesResult] = await Promise.allSettled([
       getOrders(1, ORDER_LIMIT, ''),
-      getTiles(),
+      getAccessibleTiles(),
     ]);
 
     if (ordersResult.status === 'fulfilled') {
@@ -76,6 +76,7 @@ function Home() {
       setTiles(Array.isArray(payload) ? payload : Array.isArray(payload.data) ? payload.data : []);
     } else if (ordersResult.status === 'fulfilled') {
       setTiles([]);
+      setError(tilesResult.reason?.message || 'Could not load your shop tile permissions.');
     }
     setLoading(false);
   }, []);
@@ -133,14 +134,7 @@ function Home() {
     return { sorted, todaysOrders, openOrders, receivables, todayValue, dueSoon, trend, trendMax, pipeline };
   }, [orders, todayKey]);
 
-  const fallbackActions = [
-    { label: 'New order', subtitle: 'Start a sale', icon: FiPlus, path: '/orders/create', tone: 'blue' },
-    { label: 'Search orders', subtitle: 'Find and update orders', icon: FiSearch, path: '/orders/search', tone: 'violet' },
-    { label: 'Customers', subtitle: 'Customer directory', icon: FiUsers, path: '/customers', tone: 'green' },
-    { label: 'Advances', subtitle: 'Record customer payment', icon: FiCreditCard, path: '/orders/advance', tone: 'amber' },
-    { label: 'Order alerts', subtitle: 'Upcoming deliveries', icon: FiAlertCircle, path: '/orders/alerts', tone: 'rose' },
-  ];
-  const actions = tiles.length ? tiles.map((tile, index) => ({ ...tile, Icon: FiIcons[tile.icon] || FiShoppingBag, tone: ['blue', 'violet', 'green', 'amber', 'rose'][index % 5] })) : fallbackActions.map(action => ({ ...action, Icon: action.icon, path: action.path }));
+  const actions = tiles.map((tile, index) => ({ ...tile, Icon: FiIcons[tile.icon] || FiShoppingBag, tone: ['blue', 'violet', 'green', 'amber', 'rose'][index % 5] }));
 
   return <div className="home-root">
     <section className="dash-welcome">
@@ -148,7 +142,7 @@ function Home() {
         <div className="dash-eyebrow"><span className="dash-live-dot" /> POINT OF SALE</div>
         <h1>{greeting}, {firstName}</h1>
         <p>{today.toLocaleDateString('en-AE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} <span>·</span> Your shop at a glance</p>
-      </div>
+        </div>
       <div className="dash-welcome__right">
         <div className="dash-shop"><span>Current shop</span><strong>{selectedShop?.shopName || selectedShop?.name || 'Selected shop'}</strong></div>
         <button type="button" className="dash-refresh" onClick={() => setRefreshKey(key => key + 1)} disabled={loading} aria-label="Refresh dashboard"><FiRefreshCw className={loading ? 'is-spinning' : ''} /></button>
@@ -174,6 +168,7 @@ function Home() {
           </button>;
         })}
       </div>
+      {!loading && actions.length === 0 && <p className="dash-data-note">No tiles are assigned to your account for this shop. Ask an administrator to grant access.</p>}
     </section>
 
     <div className="dash-lower-grid">

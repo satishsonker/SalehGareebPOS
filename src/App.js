@@ -6,6 +6,7 @@ import { ApiLoaderProvider } from './contexts/ApiLoaderContext';
 import { NotificationProvider } from './components/Notification';
 import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute';
+import TileAccessRoute from './components/TileAccessRoute';
 import PublicLayout from './layouts/PublicLayout';
 import GlobalLoader from './components/Loader/GlobalLoader';
 import AdminLayout from './layouts/AdminLayout';
@@ -18,9 +19,13 @@ import SearchOrders from './pages/public/SearchOrders';
 import Customers from './pages/public/Customer/Customers';
 import Advances from './pages/public/Advances/Advances';
 import OrderAlerts from './pages/public/OrderAlerts/OrderAlerts';
+import Worksheet from './pages/public/Worksheet';
 import CancelOrders from './pages/public/CancelOrders/CancelOrders';
 import CustomersMasterData from './pages/admin/masterData/CustomersMasterData';
 import OrderPriceMasterData from './pages/admin/masterData/OrderPriceMasterData';
+import UserTilePermissions from './pages/admin/masterData/UserTilePermissions';
+import TilesMasterData from './pages/admin/masterData/TilesMasterData';
+import UserShopAccess from './pages/admin/masterData/UserShopAccess';
 import SystemNotifications from './pages/admin/SystemNotifications';
 import CacheManagement from './pages/admin/CacheManagement';
 import Dashboard from './pages/admin/Dashboard';
@@ -90,12 +95,13 @@ function App() {
                     >
                       <Route index element={<Home />} />
                       <Route path="about" element={<About />} />
-                      <Route path="orders/create" element={<NewOrderPage />} />
-                      <Route path="orders/search" element={<SearchOrders />} />
-                      <Route path="customers" element={<Customers />} />
-                      <Route path="/orders/advance" element={<Advances />} />
-                      <Route path="orders/alerts" element={<OrderAlerts />} />
-                      <Route path="orders/cancel" element={<CancelOrders />} />
+                      <Route path="orders/create" element={<TileAccessRoute><NewOrderPage /></TileAccessRoute>} />
+                      <Route path="orders/search" element={<TileAccessRoute><SearchOrders /></TileAccessRoute>} />
+                      <Route path="customers" element={<TileAccessRoute><Customers /></TileAccessRoute>} />
+                      <Route path="orders/advance" element={<TileAccessRoute><Advances /></TileAccessRoute>} />
+                      <Route path="orders/alerts" element={<TileAccessRoute><OrderAlerts /></TileAccessRoute>} />
+                      <Route path="orders/worksheet" element={<TileAccessRoute><Worksheet /></TileAccessRoute>} />
+                      <Route path="orders/cancel" element={<TileAccessRoute><CancelOrders /></TileAccessRoute>} />
                     </Route>
 
                     {/* Admin Routes - Protected with Admin Check */}
@@ -112,6 +118,9 @@ function App() {
                       <Route path="settings" element={<AdminSettings />} />
                       <Route path="customers" element={<CustomersMasterData />} />
                       <Route path="order-prices" element={<OrderPriceMasterData />} />
+                      <Route path="tile-access" element={<UserTilePermissions />} />
+                      <Route path="tiles" element={<TilesMasterData />} />
+                      <Route path="user-shop-access" element={<UserShopAccess />} />
                       <Route path="notifications" element={<SystemNotifications />} />
                       <Route path="cache" element={<CacheManagement />} />
                       <Route path="*" element={<Navigate to="/admin" replace />} />

@@ -6,8 +6,10 @@ export const searchOrders = (params) => {
   return get(`/orders/search?${query}`);
 };
 
-export const getOrders = (pageNo = 1, pageSize = 20, searchTerm = "") =>
-  get(`/orders?pageNo=${pageNo}&pageSize=${pageSize}&searchTerm=${searchTerm}`);
+export const getOrders = (pageNo = 1, pageSize = 20, searchTerm = "", searchBy = "all") => {
+  const params = new URLSearchParams({ pageNo: String(pageNo), pageSize: String(pageSize), searchTerm, searchBy });
+  return get(`/orders?${params.toString()}`);
+};
 
 export const getOrderAlerts = (filters = {}) => {
   const params = new URLSearchParams();
@@ -47,13 +49,15 @@ export const updateItemMeasurement = (itemId, measurement) => put('/orders/subor
   notes: measurement?.notes || measurement?.note || ''
 }]);
 
-export const uploadSubOrderImage = (itemId, file) => {
+export const uploadSubOrderImage = (itemId, file, imageType = 'model') => {
   const formData = new FormData();
   formData.append('file', file);
-  return apiRequest(`/orders/suborder/${itemId}/image`, { method: 'POST', body: formData });
+  return apiRequest(`/orders/suborder/${itemId}/image?imageType=${encodeURIComponent(imageType)}`, { method: 'POST', body: formData });
 };
 
 export const getCustomerMeasurements = (customerId) => get(`/orders/customers/${customerId}/measurements`);
 
 // Item status and work type updates (per itemId)
 export const updateItemStatus = (itemId, statusPayload) => put(`/orders/items/${itemId}/status`, statusPayload);
+
+export const updateSubOrderWorkTypes = (itemId, workTypes) => put(`/orders/suborder/${itemId}/work-types`, workTypes);

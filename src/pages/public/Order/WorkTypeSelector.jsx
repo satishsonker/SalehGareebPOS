@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./WorkTypeSelector.css";
 import { FiCheck, FiX } from "react-icons/fi";
 import { getWorkTypeDescriptions } from "../../../services/api/workTypeApi";
@@ -116,6 +116,7 @@ export default function WorkTypeSelector({ options }) {
     const [currentClickedWorkType, setCurrentClickedWorkType] = useState(0);
     const [filteredWorkDescByWorkCode, setFilteredWorkDescByWorkCode] = useState([]);
     const [error, setError] = useState({ message: "" });
+    const initializedDefaultDetails = useRef(new Set());
 
     const selectedSubOrder = options.order?.orderDetails?.[options.order?.selectedSubOrderIndex];
 
@@ -128,31 +129,34 @@ export default function WorkTypeSelector({ options }) {
 
     useEffect(() => {
         getWorkTypeDescriptions()
-            .then(res => {
-                const descriptions = res.data || [];
-                setWorkDescriptionList(descriptions);
-                const model = options.order;
-                const detailIndex = model?.selectedSubOrderIndex;
-                if (detailIndex === undefined || detailIndex < 0) return;
-                const detail = model.orderDetails?.[detailIndex];
-                if (!detail || detail.workTypes?.some(item => (item.workDescriptions || []).length > 0)) return;
-                const defaults = descriptions.filter(item => item.isDefault);
-                if (!defaults.length) return;
-                const workTypes = toggleWorkTypeDescriptionSelection(
-                    detail.workTypes || [], options.workTypeList || [],
-                    // Apply each default description to its matching work type.
-                    defaults[0]
-                );
-                const completedWorkTypes = defaults.slice(1).reduce(
-                    (current, description) => toggleWorkTypeDescriptionSelection(current, options.workTypeList || [], description),
-                    workTypes
-                );
-                const orderDetails = [...model.orderDetails];
-                orderDetails[detailIndex] = { ...detail, workTypes: completedWorkTypes };
-                options.setOrder({ ...model, orderDetails });
-            })
+            .then(res => setWorkDescriptionList(res?.data?.data ?? res?.data ?? []))
             .catch(() => console.log("Unable to fetch work type description list from api or cache"));
     }, []);
+
+    useEffect(() => {
+        if (!options.workTypeSelectorModalOpen || !workDescriptionList.length) return;
+        const model = options.order;
+        const detailIndex = model?.selectedSubOrderIndex;
+        if (detailIndex === undefined || detailIndex < 0) return;
+        const detail = model.orderDetails?.[detailIndex];
+        if (!detail) return;
+
+        const detailKey = String(detail.id ?? detail.orderNo ?? detailIndex);
+        if (initializedDefaultDetails.current.has(detailKey)) return;
+        initializedDefaultDetails.current.add(detailKey);
+        const defaults = workDescriptionList.filter(item => item.isDefault === true);
+        if (!defaults.length) return;
+        const workTypes = defaults.reduce((current, description) => {
+            const selectedWorkType = getMatchingWorkType(current, description);
+            const alreadySelected = selectedWorkType?.workDescriptions?.some(item => String(item.id) === String(description.id));
+            return alreadySelected
+                ? current
+                : toggleWorkTypeDescriptionSelection(current, options.workTypeList || [], description);
+        }, detail.workTypes || []);
+        const orderDetails = [...model.orderDetails];
+        orderDetails[detailIndex] = { ...detail, workTypes };
+        options.setOrder({ ...model, orderDetails });
+    }, [options.workTypeSelectorModalOpen, options.order?.selectedSubOrderIndex, options.order?.orderDetails, options.workTypeList, options.setOrder, workDescriptionList]);
 
     useEffect(() => {
         setFilteredWorkDescByWorkCode(

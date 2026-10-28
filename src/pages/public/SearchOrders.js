@@ -33,7 +33,8 @@ import "./SearchOrders.css";
 const FILTERS = [
     { id: "all", label: "All", icon: FiFilter },
     { id: "orderNo", label: "Order No", icon: FiHash },
-    { id: "phone", label: "Phone", icon: FiPhone }
+    { id: "phone", label: "Phone", icon: FiPhone },
+    { id: "customer", label: "Customer", icon: FiUser }
 ];
 
 const ORDER_STEPS = [
@@ -458,7 +459,7 @@ function SearchOrders() {
         setLoading(true);
         setError("");
 
-        getOrders(page, size, q)
+        getOrders(page, size, q, activeFilter)
             .then(res => {
                 const payload = res?.data ?? {};
                 const orderList = Array.isArray(payload?.data)
@@ -472,7 +473,7 @@ function SearchOrders() {
             })
             .catch(() => setError('Failed to load orders.'))
             .finally(() => setLoading(false));
-    }, [pageSize]);
+    }, [pageSize, activeFilter]);
 
     useEffect(() => {
         clearTimeout(debounceRef.current);
