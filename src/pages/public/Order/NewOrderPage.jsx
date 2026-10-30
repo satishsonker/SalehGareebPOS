@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 import './NewOrderPage.css'
 import OrderPriceSelector from './OrderPriceSelector';
 import { FiSave, FiClock, FiAlertCircle, FiAlertTriangle, FiTruck, FiFeather, FiMinus, FiRefreshCw, FiPrinter, FiShoppingBag, FiUser, FiLayers, FiPlus, FiDollarSign } from 'react-icons/fi';
@@ -18,6 +19,7 @@ import StatusModal from '../../../components/StatusModel/StatusModel';
 import { getWorkTypes } from '../../../services/api/workTypeApi';
 import PrintOrderReceiptPopup from './PrintOrderReceiptPopup';
 export default function NewOrderPage() {
+  const navigate = useNavigate();
   const vat = parseFloat(process.env.REACT_APP_VAT?? '5');
   const EMPTY_CREATE_ORDER = () => ({
     orderId: 0,
@@ -90,14 +92,14 @@ export default function NewOrderPage() {
           isOpen: response.success,
           title: response.message,
           type: response.success ? 'success' : 'warn',
-          buttonText: response.success ? 'Print' : "Ok",
+          buttonText: response.success ? 'OK' : "Ok",
           showCloseButton: response.success,
-          onConfirm: response.success ? handlePrint : undefined,
-          buttons:[{
-            buttonText:'Print',
-            handler: handlePrint,
-            icon:<FiPrinter/>
-          }]
+          onConfirm: response.success ? resetOrder : undefined,
+          buttons: response.success ? [{
+            buttonText: 'Print', handler: handlePrint, icon: <FiPrinter />
+          }, {
+            buttonText: 'Order Search', handler: () => navigate('/orders/search')
+          }] : []
         };
         if (response.success) {
           statusData.message = `Order No: ${createdOrder?.orderNo} created successfully.`;
@@ -106,10 +108,9 @@ export default function NewOrderPage() {
             statusData.message += ` Daily capacity was reached, so delivery was moved to ${commonLogic.formatDate(actualDate)}.`;
             setOrder(previous => ({ ...previous, deliveryDate: actualDate }));
           }
-          //setOrder({ ...EMPTY_CREATE_ORDER() })
         }
         setStatusModelData({ ...statusData });
-        setOrder(pre=>({...pre,["orderId"]:createdOrder?.id}))
+        if (response.success) setOrder(pre=>({...pre,["orderId"]:createdOrder?.id}));
       })
       .catch(error => {
         var statusData = { isOpen: true, title: 'Something went wrong', message: 'An error occurred while creating the order.', type: 'error',buttonText:'Ok',showCloseButton:true };

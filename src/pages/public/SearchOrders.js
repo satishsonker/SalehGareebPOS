@@ -21,8 +21,9 @@ import {
     FiEye,
     FiClipboard,
     FiMapPin,
+    FiTruck,
 } from "react-icons/fi";
-import { getOrders, getOrderById } from "../../services/api/ordersApi";
+import { getOrders, getOrderById, getCustomerOrders, deliverSubOrders } from "../../services/api/ordersApi";
 import Modal from "../../components/Modal/Modal";
 import PaymentPopup from "./PaymentPopup";
 import MeasurementPopup from "./MeasurementPopup";
@@ -206,13 +207,19 @@ function getOrderStatusDate(history, status, orderDate) {
     return "—";
 }
 
-function OrderStatusTimeline({ status, history, orderDate }) {
+function OrderStatusTimeline({ status, history, orderDate, orderDetails = [] }) {
     const cancelled = isCancelled(status);
     const timelineSteps = cancelled
         ? [{ key: "active", label: "Active" }, { key: "cancelled", label: "Cancelled" }]
         : ORDER_STEPS;
     const currentIndex = cancelled ? 1 : getStatusIndex(status);
     const partialDelivered = isPartialDelivered(status);
+    const totalSubOrders = orderDetails.length;
+    const stageCounts = {
+        completed: orderDetails.filter(item => normalizeStatus(item.statusStr || item.status) === 'completed').length,
+        packing: orderDetails.filter(item => normalizeStatus(item.statusStr || item.status) === 'packing').length,
+        delivered: orderDetails.filter(item => normalizeStatus(item.statusStr || item.status) === 'delivered').length,
+    };
 
     return (
         <div className="so-timeline">
@@ -238,7 +245,7 @@ function OrderStatusTimeline({ status, history, orderDate }) {
                                 {isCompleted ? "✓" : index + 1}
                             </div>
 
-                            <span className="so-timeline__label">{step.label}</span>
+                            <span className="so-timeline__label">{step.label}{totalSubOrders && stageCounts[step.key] !== undefined ? ` ${stageCounts[step.key]}/${totalSubOrders}` : ''}</span>
                             <span className="so-timeline__date">
                                 {getOrderStatusDate(history, step.key, orderDate)}
                             </span>
@@ -267,7 +274,7 @@ function OrderStatusTimeline({ status, history, orderDate }) {
     );
 }
 
-function OrderCard({ order, onViewClick, onActionClick }) {
+function OrderCard({ order, onViewClick, onActionClick, onCustomerHistoryClick }) {
     const orderStatus = order?.statusStr || order?.status;
     const status = normalizeStatus(orderStatus);
     const statusLabel = getStatusLabel(orderStatus);
@@ -377,6 +384,7 @@ function OrderCard({ order, onViewClick, onActionClick }) {
                     status={orderStatus}
                     history={order?.orderStatusHistory}
                     orderDate={order?.orderDate}
+                    orderDetails={order?.orderDetails}
                 />
 
                 <div className="so-card__actions">
@@ -390,6 +398,12 @@ function OrderCard({ order, onViewClick, onActionClick }) {
                     >
                         <FiCreditCard size={15} /> Payment
                     </button>
+                    <button type="button" className="so-action-btn so-action-btn--success" onClick={event => { event.stopPropagation(); onCustomerHistoryClick(order); }}>
+                        <FiDollarSign size={15} /> Customer Balance
+                    </button>
+                    {order?.orderDetails?.some(item => normalizeStatus(item.statusStr || item.status) === 'packing') && <button type="button" className="so-action-btn so-action-btn--primary" onClick={event => { event.stopPropagation(); onActionClick(order, 'deliver'); }}>
+                        <FiTruck size={15} /> Deliver
+                    </button>}
                     <button
                         type="button"
                         className="so-action-btn so-action-btn--info"
@@ -453,6 +467,14 @@ function SearchOrders() {
     const [pageNo, setPageNo] = useState(1);
     const [pageSize] = useState(10);
     const [totalRecords, setTotalRecords] = useState(0);
+    const [customerHistoryOpen, setCustomerHistoryOpen] = useState(false);
+    const [customerHistoryLoading, setCustomerHistoryLoading] = useState(false);
+    const [customerHistory, setCustomerHistory] = useState([]);
+    const [customerHistoryError, setCustomerHistoryError] = useState('');
+    const [deliveryIds, setDeliveryIds] = useState([]);
+    const [deliveryPayment, setDeliveryPayment] = useState({ amount: '', mode: 'Cash', reference: '' });
+    const [deliverySaving, setDeliverySaving] = useState(false);
+    const [deliveryError, setDeliveryError] = useState('');
     const debounceRef = useRef(null);
 
     const fetchOrders = useCallback((q = "", page = 1, size = pageSize) => {
@@ -535,6 +557,54 @@ function SearchOrders() {
 
     const handleActionClick = async (order, modalType) => {
         await fetchOrderForModal(order, modalType);
+        if (modalType === 'deliver') {
+            setDeliveryIds((order?.orderDetails || []).filter(item => normalizeStatus(item.statusStr || item.status) === 'packing').map(item => item.id));
+            setDeliveryPayment({ amount: '', mode: 'Cash', reference: '' });
+            setDeliveryError('');
+        }
+    };
+
+    const handleCustomerHistoryClick = async order => {
+        setCustomerHistoryOpen(true);
+        setCustomerHistoryLoading(true);
+        setCustomerHistoryError('');
+        try {
+            const firstResponse = await getCustomerOrders(order.customerId, 1, 100);
+            const firstPayload = firstResponse?.data?.data ?? firstResponse?.data ?? {};
+            const results = Array.isArray(firstPayload?.data) ? [...firstPayload.data] : Array.isArray(firstPayload) ? [...firstPayload] : [];
+            const pages = Math.ceil(Number(firstPayload?.totalRecords || results.length) / 100);
+            for (let page = 2; page <= pages; page++) {
+                const response = await getCustomerOrders(order.customerId, page, 100);
+                const payload = response?.data?.data ?? response?.data ?? {};
+                results.push(...(Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : []));
+            }
+            setCustomerHistory(results);
+        } catch (historyError) {
+            setCustomerHistoryError(historyError.message || 'Could not load customer order history.');
+            setCustomerHistory([]);
+        } finally { setCustomerHistoryLoading(false); }
+    };
+
+    const submitDelivery = async () => {
+        if (!selectedOrder || deliveryIds.length === 0) { setDeliveryError('Select at least one packed suborder.'); return; }
+        const maxBalance = Math.max(0, Number(selectedOrder.balanceAmount ?? selectedOrder.balanceDue ?? 0));
+        const amount = Number(deliveryPayment.amount || 0);
+        if (amount < 0 || amount > maxBalance) { setDeliveryError(`Payment must be between 0 and ${formatAmount(maxBalance)}.`); return; }
+        setDeliverySaving(true);
+        setDeliveryError('');
+        try {
+            await deliverSubOrders(selectedOrder.id, {
+                orderDetailIds: deliveryIds,
+                paymentAmount: amount,
+                paymentMode: deliveryPayment.mode,
+                paymentReference: deliveryPayment.reference,
+                remarks: 'Payment at delivery'
+            });
+            fetchOrders(query, pageNo, pageSize);
+            closeDetailModal();
+        } catch (deliveryFailure) {
+            setDeliveryError(deliveryFailure.message || 'Could not complete delivery.');
+        } finally { setDeliverySaving(false); }
     };
 
     const closeDetailModal = () => {
@@ -602,6 +672,25 @@ function SearchOrders() {
 
         if (activeModalType === "status") {
             return <StatusPopup order={selectedOrder} onClose={closeDetailModal} onSaved={order => setSelectedOrder(order)} />;
+        }
+
+        if (activeModalType === 'deliver') {
+            const packedItems = selectedOrder.orderDetails || [];
+            const maxBalance = Math.max(0, Number(selectedOrder.balanceAmount ?? selectedOrder.balanceDue ?? 0));
+            return <div className="so-modal__content so-delivery-popup">
+                <div className="so-delivery-summary"><div><span>Order</span><strong>{selectedOrder.orderNo}</strong></div><div><span>Remaining balance</span><strong>AED {formatAmount(maxBalance)}</strong></div></div>
+                <h3><FiTruck /> Select packed suborders to deliver</h3>
+                <div className="so-delivery-items">{packedItems.map(item => { const isPacked = normalizeStatus(item.statusStr || item.status) === 'packing'; return <label key={item.id} className={`so-delivery-item ${isPacked ? '' : 'is-unavailable'}`}>
+                    <input type="checkbox" disabled={!isPacked} checked={deliveryIds.includes(item.id)} onChange={event => setDeliveryIds(ids => event.target.checked ? [...ids, item.id] : ids.filter(id => id !== item.id))} />
+                    <span><strong>{item.orderNo}</strong><small>{item.statusStr || item.status} · AED {formatAmount(item.totalAmount)}{isPacked ? ' · Ready to deliver' : ' · Must be packed before delivery'}</small></span>
+                </label>;})}</div>
+                <div className="so-delivery-payment"><label>Payment received (optional)<input type="number" min="0" max={maxBalance} step="0.01" value={deliveryPayment.amount} onChange={event => setDeliveryPayment(value => ({ ...value, amount: event.target.value }))} placeholder={`Max AED ${formatAmount(maxBalance)}`} /></label>
+                    <label>Payment method<select value={deliveryPayment.mode} onChange={event => setDeliveryPayment(value => ({ ...value, mode: event.target.value }))}><option>Cash</option><option>Card</option><option>Bank Transfer</option><option>VISA</option></select></label>
+                    <label>Reference<input value={deliveryPayment.reference} onChange={event => setDeliveryPayment(value => ({ ...value, reference: event.target.value }))} placeholder="Optional receipt/reference" /></label>
+                </div>
+                {deliveryError && <div className="so-delivery-error" role="alert">{deliveryError}</div>}
+                <div className="so-delivery-actions"><button type="button" onClick={closeDetailModal} disabled={deliverySaving}>Cancel</button><button type="button" onClick={submitDelivery} disabled={deliverySaving || !deliveryIds.length}>{deliverySaving ? 'Saving…' : 'Confirm Delivery'}</button></div>
+            </div>;
         }
 
         if (activeModalType === "print") {
@@ -710,6 +799,7 @@ function SearchOrders() {
         payment: selectedOrder ? `Payment - ${selectedOrder.orderNo || selectedOrder.id}` : 'Payment',
         measurement: selectedOrder ? `Measurement - ${selectedOrder.orderNo || selectedOrder.id}` : 'Measurement',
         status: selectedOrder ? `Status - ${selectedOrder.orderNo || selectedOrder.id}` : 'Status',
+        deliver: selectedOrder ? `Deliver - ${selectedOrder.orderNo || selectedOrder.id}` : 'Deliver Order',
         print: selectedOrder ? `Print Invoice - ${selectedOrder.orderNo || selectedOrder.id}` : 'Print Invoice'
     }[activeModalType] || 'Order Details';
 
@@ -844,6 +934,7 @@ function SearchOrders() {
                                 order={order}
                                 onViewClick={handleOrderClick}
                                 onActionClick={handleActionClick}
+                                onCustomerHistoryClick={handleCustomerHistoryClick}
                             />
                         ))}
                 </div>
@@ -868,6 +959,17 @@ function SearchOrders() {
                     onClose={closeDetailModal}
                 />
             )}
+            <Modal isOpen={customerHistoryOpen} onClose={() => setCustomerHistoryOpen(false)} title="Customer Balance & Order History" size="xlarge" className="so-modal">
+                {customerHistoryLoading ? <div className="so-state"><div className="so-spinner" /><span>Loading customer orders…</span></div> : customerHistoryError ? <div className="so-modal__error">{customerHistoryError}</div> : <div className="so-customer-history">
+                    <div className="so-customer-history__total"><span>Total customer balance</span><strong>AED {formatAmount(customerHistory.reduce((sum, item) => sum + Number(item.balanceDue || 0), 0))}</strong></div>
+                    {customerHistory.map(order => <article className="so-customer-history__order" key={order.id}>
+                        <header><strong>#{order.orderNo}</strong><span>{getStatusLabel(order.statusStr || order.status)}</span><b>Balance AED {formatAmount(order.balanceDue)}</b></header>
+                        <small>{formatDate(order.orderDate)} · Total AED {formatAmount(order.totalInvoiced)} · Paid AED {formatAmount(order.totalPaid)}</small>
+                        <div className="so-customer-history__items">{(order.orderDetails || []).map(item => <span key={item.id}>{item.orderNo}: {getStatusLabel(item.statusStr || item.status)} · AED {formatAmount(item.totalAmount)}</span>)}</div>
+                    </article>)}
+                    {!customerHistory.length && <div className="so-modal__empty">No customer orders found.</div>}
+                </div>}
+            </Modal>
         </>
     );
 }

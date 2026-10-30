@@ -13,7 +13,12 @@ export const getTiles = (pageNo=1,pageSize=100) => {
       });
 };
 
-export const getAccessibleTiles = () => get('/tile/accessible');
+export const getAccessibleTiles = (userId = 'current', shopId = 'current', forceRefresh = false) => getCachedApi({
+  key: `accessible-tiles:${userId}:${shopId}`,
+  expiration: 30 * 1000,
+  forceRefresh,
+  fetcher: () => get('/tile/accessible'),
+});
 
 export const getUserShopTilePermissions = (userId, shopId) =>
   get(`/admin/users/${userId}/shops/${shopId}/tile-permissions`);

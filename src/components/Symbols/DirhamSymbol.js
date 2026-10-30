@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 const DirhamSymbol = ({ amount, show = true, size = '9' }) => {
     const isValidAmount = amount !== undefined && amount !== null && amount !== '';
@@ -8,7 +8,7 @@ const DirhamSymbol = ({ amount, show = true, size = '9' }) => {
         <span>
             {shouldShow && (
                 <span style={{ fontSize: `${size}px` }} className="uae-symbol">
-                    د.إ
+                    {'د.إ'}
                 </span>
             )}
             {isValidAmount && <span> {amount}</span>}

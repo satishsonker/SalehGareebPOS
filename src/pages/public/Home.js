@@ -7,11 +7,10 @@ import {
 } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import { getAccessibleTiles } from '../../services/api/tileApiService';
-import { getOrders } from '../../services/api/ordersApi';
+import { getDashboardOrders } from '../../services/api/ordersApi';
 import * as FiIcons from 'react-icons/fi';
 import './Home.css';
 
-const ORDER_LIMIT = 100;
 const money = value => Number(value || 0).toLocaleString('en-AE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const statusOf = order => String(order?.statusStr ?? order?.status ?? 'Active').trim().toLowerCase();
 const orderCode = order => Number(order?.statusCode ?? order?.statusId ?? (typeof order?.status === 'number' ? order.status : NaN));
@@ -57,8 +56,8 @@ function Home() {
     setLoading(true);
     setError('');
     const [ordersResult, tilesResult] = await Promise.allSettled([
-      getOrders(1, ORDER_LIMIT, ''),
-      getAccessibleTiles(),
+      getDashboardOrders(user?.userId ?? user?.id, selectedShop?.id, refreshKey > 0),
+      getAccessibleTiles(user?.userId ?? user?.id, selectedShop?.id, refreshKey > 0),
     ]);
 
     if (ordersResult.status === 'fulfilled') {
@@ -79,7 +78,7 @@ function Home() {
       setError(tilesResult.reason?.message || 'Could not load your shop tile permissions.');
     }
     setLoading(false);
-  }, []);
+  }, [refreshKey, selectedShop?.id, user?.id, user?.userId]);
 
   useEffect(() => {
     const shop = selectedShop || (() => {

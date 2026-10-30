@@ -106,23 +106,29 @@ function UsersMasterData() {
     // Validate required fields
     if (!addFormData.username || addFormData.username.trim() === '') {
       errors.username = 'Username is required';
-    } else if (addFormData.username.length < 3) {
-      errors.username = 'Username must be at least 3 characters long';
+    } else if (addFormData.username.length < 5) {
+      errors.username = 'Username must be at least 5 characters long';
     }
 
-    if (!addFormData.email || addFormData.email.trim() === '') {
-      errors.email = 'Email is required';
-    } else {
+    if (!addFormData.email && addFormData.email.trim().length>0) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(addFormData.email)) {
         errors.email = 'Please enter a valid email address';
       }
-    }
+    } 
 
     if (!addFormData.password || addFormData.password.trim() === '') {
       errors.password = 'Password is required';
     } else if (addFormData.password.length < 6) {
       errors.password = 'Password must be at least 6 characters long';
+    }
+    
+    if (!addFormData.mobile || addFormData.mobile.trim() === '') {
+      errors.mobile = 'Mobile number is required';
+    }
+
+    if (!addFormData.firstName || addFormData.firstName.trim() === '') {
+      errors.firstName = 'First name is required';
     }
 
     if (!addFormData.roleId || addFormData.roleId === 0) {
@@ -825,7 +831,6 @@ function UsersMasterData() {
               type="email"
               name="email"
               label="Email"
-              required={true}
               value={addFormData.email}
               onChange={handleAddUserChange}
               placeholder="Enter email address"
@@ -839,10 +844,9 @@ function UsersMasterData() {
               label="Username"
               name="username"
               required={true}
-              disabled={true}
               value={addFormData.username}
               onChange={handleAddUserChange}
-              placeholder="Enter username (min 3 characters)"
+              placeholder="Enter username (min 5 characters)"
               leftIcon={<FiUser />}
               maxLength={50}
               error={addFormErrors.username}
@@ -853,6 +857,7 @@ function UsersMasterData() {
               id="add-firstName"
               label="First Name"
               name="firstName"
+              required={true}
               value={addFormData.firstName}
               onChange={handleAddUserChange}
               placeholder="Enter first name"

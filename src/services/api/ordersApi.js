@@ -1,4 +1,5 @@
 import { apiRequest, get, post, put, del } from '../../utils/api';
+import { getCachedApi } from '../../cache/apiCache';
 
 // Search / list orders
 export const searchOrders = (params) => {
@@ -10,6 +11,13 @@ export const getOrders = (pageNo = 1, pageSize = 20, searchTerm = "", searchBy =
   const params = new URLSearchParams({ pageNo: String(pageNo), pageSize: String(pageSize), searchTerm, searchBy });
   return get(`/orders?${params.toString()}`);
 };
+
+export const getDashboardOrders = (userId, shopId, forceRefresh = false) => getCachedApi({
+  key: `dashboard-orders:${userId || 'current'}:${shopId || 'current'}:1:100`,
+  expiration: 30 * 1000,
+  forceRefresh,
+  fetcher: () => getOrders(1, 100, ''),
+});
 
 export const getOrderAlerts = (filters = {}) => {
   const params = new URLSearchParams();
@@ -24,6 +32,7 @@ export const getOrderAlerts = (filters = {}) => {
 };
 
 export const getOrderById = (id) => get(`/orders/${id}`);
+export const getCustomerOrders = (customerId, pageNo = 1, pageSize = 100) => get(`/orders/customer/${customerId}?pageNo=${pageNo}&pageSize=${pageSize}`);
 
 export const getMeasurementByOrderId = (orderId) => get(`/orders/suborder/${orderId}`);
 
@@ -60,5 +69,7 @@ export const getCustomerMeasurements = (customerId) => get(`/orders/customers/${
 
 // Item status and work type updates (per itemId)
 export const updateItemStatus = (itemId, statusPayload) => put(`/orders/items/${itemId}/status`, statusPayload);
+export const packSubOrders = data => put('/orders/items/pack', data);
+export const deliverSubOrders = (orderId, data) => post(`/orders/${orderId}/deliver-suborders`, data);
 
 export const updateSubOrderWorkTypes = (itemId, workTypes) => put(`/orders/suborder/${itemId}/work-types`, workTypes);

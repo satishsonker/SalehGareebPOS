@@ -111,6 +111,9 @@ export const toggleWorkTypeDescriptionSelection = (workTypes = [], workTypeList 
     return normalizedWorkTypes;
 };
 
+const getDescriptionWorkTypeCode = (description, workTypeList = []) =>
+    description?.workTypeCode ?? workTypeList.find(type => String(type.id) === String(description?.workTypeId))?.code;
+
 export default function WorkTypeSelector({ options }) {
     const [workDescriptionList, setWorkDescriptionList] = useState([]);
     const [currentClickedWorkType, setCurrentClickedWorkType] = useState(0);
@@ -134,8 +137,12 @@ export default function WorkTypeSelector({ options }) {
     }, []);
 
     useEffect(() => {
-        if (!options.workTypeSelectorModalOpen || !workDescriptionList.length) return;
+        if (!workDescriptionList.length || !options.workTypeList?.length) return;
         const model = options.order;
+        if (!model?.orderDetails?.length) {
+            initializedDefaultDetails.current.clear();
+            return;
+        }
         const detailIndex = model?.selectedSubOrderIndex;
         if (detailIndex === undefined || detailIndex < 0) return;
         const detail = model.orderDetails?.[detailIndex];
@@ -144,8 +151,14 @@ export default function WorkTypeSelector({ options }) {
         const detailKey = String(detail.id ?? detail.orderNo ?? detailIndex);
         if (initializedDefaultDetails.current.has(detailKey)) return;
         initializedDefaultDetails.current.add(detailKey);
-        const defaults = workDescriptionList.filter(item => item.isDefault === true);
+        const defaults = workDescriptionList.filter(item => item.isDefault === true || item.isDefault === 1 || item.isDefault === 'true').map(item => ({
+            ...item,
+            workTypeCode: getDescriptionWorkTypeCode(item, options.workTypeList || [])
+        }));
         if (!defaults.length) return;
+        const firstDefaultCode = getDescriptionWorkTypeCode(defaults[0], options.workTypeList || []);
+        if (firstDefaultCode !== undefined && firstDefaultCode !== null)
+            setCurrentClickedWorkType(String(firstDefaultCode));
         const workTypes = defaults.reduce((current, description) => {
             const selectedWorkType = getMatchingWorkType(current, description);
             const alreadySelected = selectedWorkType?.workDescriptions?.some(item => String(item.id) === String(description.id));
@@ -156,15 +169,15 @@ export default function WorkTypeSelector({ options }) {
         const orderDetails = [...model.orderDetails];
         orderDetails[detailIndex] = { ...detail, workTypes };
         options.setOrder({ ...model, orderDetails });
-    }, [options.workTypeSelectorModalOpen, options.order?.selectedSubOrderIndex, options.order?.orderDetails, options.workTypeList, options.setOrder, workDescriptionList]);
+    }, [options.order?.selectedSubOrderIndex, options.order?.orderDetails, options.workTypeList, options.setOrder, workDescriptionList]);
 
     useEffect(() => {
         setFilteredWorkDescByWorkCode(
             workDescriptionList?.filter(
-                x => x.workTypeCode?.toString() === currentClickedWorkType?.toString()
+                x => String(getDescriptionWorkTypeCode(x, options.workTypeList || []) ?? '').trim().toLowerCase() === String(currentClickedWorkType ?? '').trim().toLowerCase()
             ) || []
         );
-    }, [currentClickedWorkType, workDescriptionList]);
+    }, [currentClickedWorkType, workDescriptionList, options.workTypeList]);
 
     const handleWorkTypeClick = workType => {
         setCurrentClickedWorkType(workType?.code?.toString());

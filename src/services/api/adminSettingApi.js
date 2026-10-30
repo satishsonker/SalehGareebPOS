@@ -11,3 +11,6 @@ export const updateAdminSetting = (id, data) => apiRequest(`/adminsettings/${id}
 
 // Bulk update multiple settings at once
 export const bulkUpdateAdminSettings = (data) => put('/adminsettings/bulk', data);
+
+export const getOrderProcessingSettingsByShop = () => get('/adminsettings/order-processing');
+export const updateOrderProcessingSettingsByShop = (data) => put('/adminsettings/order-processing', data);

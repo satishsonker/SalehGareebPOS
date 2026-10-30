@@ -20,6 +20,7 @@ import Customers from './pages/public/Customer/Customers';
 import Advances from './pages/public/Advances/Advances';
 import OrderAlerts from './pages/public/OrderAlerts/OrderAlerts';
 import Worksheet from './pages/public/Worksheet';
+import OrderPacking from './pages/public/OrderPacking';
 import CancelOrders from './pages/public/CancelOrders/CancelOrders';
 import CustomersMasterData from './pages/admin/masterData/CustomersMasterData';
 import OrderPriceMasterData from './pages/admin/masterData/OrderPriceMasterData';
@@ -102,6 +103,7 @@ function App() {
                       <Route path="orders/advance" element={<TileAccessRoute><Advances /></TileAccessRoute>} />
                       <Route path="orders/alerts" element={<TileAccessRoute><OrderAlerts /></TileAccessRoute>} />
                       <Route path="orders/worksheet" element={<TileAccessRoute><Worksheet /></TileAccessRoute>} />
+                      <Route path="orders/packing" element={<TileAccessRoute><OrderPacking /></TileAccessRoute>} />
                       <Route path="orders/cancel" element={<TileAccessRoute><CancelOrders /></TileAccessRoute>} />
                     </Route>
 
