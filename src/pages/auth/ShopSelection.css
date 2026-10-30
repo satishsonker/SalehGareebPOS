@@ -67,6 +67,8 @@
 .shopselect-continue { min-height: 39px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; padding: 0 13px; border: 0; border-radius: 7px; background: var(--brand-primary); color: var(--btn-primary-text); font: inherit; font-size: .72rem; font-weight: 750; cursor: pointer; }
 .shopselect-continue:hover:not(:disabled) { background: var(--brand-primary-hover); }
 .shopselect-continue:disabled { opacity: .45; cursor: not-allowed; }
+.shopselect-logout { min-height:39px; display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:0 13px; border:1px solid var(--border-color); border-radius:7px; background:var(--surface); color:var(--danger); font:inherit; font-size:.72rem; font-weight:750; cursor:pointer; }
+.shopselect-logout:hover { background:color-mix(in srgb, var(--danger) 7%, var(--surface)); border-color:var(--danger); }
 
 @media (max-width: 760px) {
   .shopselect-page { min-height: 100vh; display: block; padding: 0; }
@@ -93,6 +95,6 @@
   .shopselect-card__choice { min-width: 52px; padding: 5px; }
   .shopselect-footer { align-items: stretch; flex-direction: column-reverse; }
   .shopselect-footer > span { text-align: center; }
-  .shopselect-continue { width: 100%; }
+  .shopselect-continue,.shopselect-logout { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { .shopselect-card, .shopselect-spinner { animation: none; transition: none; } }

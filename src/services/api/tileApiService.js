@@ -17,7 +17,7 @@ export const getAccessibleTiles = (userId = 'current', shopId = 'current', force
   key: `accessible-tiles:${userId}:${shopId}`,
   expiration: 30 * 1000,
   forceRefresh,
-  fetcher: () => get('/tile/accessible'),
+  fetcher: () => get('/tile/accessible', { skipLoader: true }),
 });
 
 export const getUserShopTilePermissions = (userId, shopId) =>

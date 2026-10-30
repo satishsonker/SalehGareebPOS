@@ -7,16 +7,16 @@ export const searchOrders = (params) => {
   return get(`/orders/search?${query}`);
 };
 
-export const getOrders = (pageNo = 1, pageSize = 20, searchTerm = "", searchBy = "all") => {
+export const getOrders = (pageNo = 1, pageSize = 20, searchTerm = "", searchBy = "all", options = {}) => {
   const params = new URLSearchParams({ pageNo: String(pageNo), pageSize: String(pageSize), searchTerm, searchBy });
-  return get(`/orders?${params.toString()}`);
+  return get(`/orders?${params.toString()}`, options);
 };
 
 export const getDashboardOrders = (userId, shopId, forceRefresh = false) => getCachedApi({
   key: `dashboard-orders:${userId || 'current'}:${shopId || 'current'}:1:100`,
   expiration: 30 * 1000,
   forceRefresh,
-  fetcher: () => getOrders(1, 100, ''),
+  fetcher: () => getOrders(1, 100, '', 'all', { skipLoader: true }),
 });
 
 export const getOrderAlerts = (filters = {}) => {

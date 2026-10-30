@@ -289,8 +289,9 @@ function OrderCard({ order, onViewClick, onActionClick, onCustomerHistoryClick }
                 <div className="so-card__order">
                     <span>ORDER NO.</span>
                     <strong>
-                        {order?.orderNo ?? order?.id ?? "-"} - {order?.qty ?? 0} Sub Order(s)
+                        {order?.orderNo ?? order?.id ?? "-"} - {order?.qty ?? 0} Qty
                     </strong>
+                    {order?.orderDetails?.some(item => item.packingType) && <small className="so-packing-types">{['Packet', 'Hanger'].map(type => { const count = order.orderDetails.filter(item => item.packingType === type).length; return count ? <span key={type}>{type} × {count}</span> : null; })}</small>}
                 </div>
 
                 <div
@@ -765,7 +766,7 @@ function SearchOrders() {
                                 <div key={item.id ?? `${selectedOrder.id}-${item.orderNo || Math.random()}`} className="so-modal__item">
                                     <div className="so-modal__item-header">
                                         <strong>{item.orderNo || `Item ${item.id}`}</strong>
-                                        <span>{item.status || "Active"}</span>
+                                        <span>{item.packingType ? `${item.status || "Active"} · ${item.packingType}` : item.status || "Active"}</span>
                                     </div>
                                     <p>{item.description || "No description provided."}</p>
                                     <div className="so-modal__item-grid">
@@ -965,7 +966,7 @@ function SearchOrders() {
                     {customerHistory.map(order => <article className="so-customer-history__order" key={order.id}>
                         <header><strong>#{order.orderNo}</strong><span>{getStatusLabel(order.statusStr || order.status)}</span><b>Balance AED {formatAmount(order.balanceDue)}</b></header>
                         <small>{formatDate(order.orderDate)} · Total AED {formatAmount(order.totalInvoiced)} · Paid AED {formatAmount(order.totalPaid)}</small>
-                        <div className="so-customer-history__items">{(order.orderDetails || []).map(item => <span key={item.id}>{item.orderNo}: {getStatusLabel(item.statusStr || item.status)} · AED {formatAmount(item.totalAmount)}</span>)}</div>
+                        <div className="so-customer-history__items">{(order.orderDetails || []).map(item => <span key={item.id}>{item.orderNo}: {getStatusLabel(item.statusStr || item.status)}{item.packingType ? ` · ${item.packingType}` : ''} · AED {formatAmount(item.totalAmount)}</span>)}</div>
                     </article>)}
                     {!customerHistory.length && <div className="so-modal__empty">No customer orders found.</div>}
                 </div>}

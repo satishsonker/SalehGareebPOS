@@ -1,6 +1,5 @@
-import { getCachedApi } from '../../cache/apiCache';
+import { getCachedApi, removeCache, removeCacheByPrefix } from '../../cache/apiCache';
 import { get, post, del } from '../../utils/api';
-const cacheExpiration = 60 * 60 * 1000; // 1 hour
 /**
  * Access Control API Service
  * Handles user access control, shop access, and menu access management
@@ -12,19 +11,29 @@ export const getUserAccess = (userId) => {
 };
 
 // Grant shop access to a user
-export const grantShopAccess = (data) => {
-  return post(`${API_CONTROLLER}/grant/access/shop`, data);
-};
-
-export const getAllShopAccess = () => {
+export const getAllShopAccess = (forceRefresh = false) => {
    return getCachedApi({
           key: `shop-access-list-user-wise`,  
-          fetcher: () =>get(`${API_CONTROLLER}/shop-access/get/all`)
+          fetcher: () =>get(`${API_CONTROLLER}/shop-access/get/all`),
+          forceRefresh
       });
 };
 
-export const grantBulkShopAccess = (data) => {
-  return post(`${API_CONTROLLER}/grant/access/shop/bulk`, data);
+const invalidateShopAccess = userIds => {
+  removeCacheByPrefix('shop-access-list-user-wise');
+  (userIds || []).forEach(userId => removeCache(`shop-access-by-user-${userId}`));
+};
+
+export const grantShopAccess = async data => {
+  const response = await post(`${API_CONTROLLER}/grant/access/shop`, data);
+  invalidateShopAccess([data?.userId]);
+  return response;
+};
+
+export const grantBulkShopAccess = async (data) => {
+  const response = await post(`${API_CONTROLLER}/grant/access/shop/bulk`, data);
+  invalidateShopAccess(data?.userIds);
+  return response;
 };
 
 // Grant menu access to a role
@@ -33,8 +42,10 @@ export const grantMenuAccess = (data) => {
 };
 
 // Revoke shop access from a user
-export const removeShopAccess = (userId, shopId) => {
-  return del(`${API_CONTROLLER}/revoke/access/shop/${userId}/${shopId}`);
+export const removeShopAccess = async (userId, shopId) => {
+  const response = await del(`${API_CONTROLLER}/revoke/access/shop/${userId}/${shopId}`);
+  invalidateShopAccess([userId]);
+  return response;
 };
 
 // Remove menu access from a role
@@ -42,11 +53,12 @@ export const removeMenuAccess = (roleId, shopId, menuId) => {
   return del(`${API_CONTROLLER}/menu-access/${roleId}/${shopId}/${menuId}`);
 };
 
-export const getShopAccessByUser = (userId) => {
+export const getShopAccessByUser = (userId, forceRefresh = false) => {
   return getCachedApi({
     key: `shop-access-by-user-${userId}`,
     fetcher: () => post(`${API_CONTROLLER}/shop-access/by/user/${userId}`),
-    expiration: cacheExpiration * 8// 8 hour
+    expiration: 60 * 1000,
+    forceRefresh
   });
 }
 

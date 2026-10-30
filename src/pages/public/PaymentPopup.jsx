@@ -26,6 +26,7 @@ const formatMoney = (value) => {
 };
 
 const normalizeCustomerKey = (value) => String(value || '').trim().toLowerCase();
+const isCustomerPayment = entry => ['advance', 'payment'].includes(String(entry?.entryType ?? entry?.type ?? '').trim().toLowerCase());
 const isOrderCancelled = order => {
     const status = String(order?.statusStr ?? order?.status ?? '').trim().toLowerCase();
     return ['cancelled', 'canceled', 'deleted'].includes(status) || [8, 9].includes(Number(order?.status));
@@ -89,7 +90,7 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
 
     const paymentHistory = useMemo(() => {
         if (!currentOrder) return [];
-        if (Array.isArray(currentOrder.ledgers) && currentOrder.ledgers.length > 0) return currentOrder.ledgers;
+        if (Array.isArray(currentOrder.ledgers) && currentOrder.ledgers.length > 0) return currentOrder.ledgers.filter(isCustomerPayment);
         return [];
     }, [currentOrder]);
 
@@ -98,7 +99,7 @@ export default function PaymentPopup({ order, onClose, onSaved }) {
         setCustomerPaymentsLoading(true);
         try {
             const res = await getpaymentByCustomer(currentOrder.customerId);
-            setCustomerPayments(res || []);
+            setCustomerPayments((res || []).filter(isCustomerPayment));
         } catch (err) {
             console.warn('Could not load customer payments', err);
             setCustomerPayments([]);

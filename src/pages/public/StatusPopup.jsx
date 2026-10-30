@@ -35,7 +35,7 @@ function apiStatus(value) {
   return 'Active';
 }
 
-export default function StatusPopup({ order, onClose, onSaved }) {
+export default function StatusPopup({ order, onSaved }) {
   const [currentOrder, setCurrentOrder] = useState(order || null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [note, setNote] = useState('');
@@ -117,17 +117,13 @@ export default function StatusPopup({ order, onClose, onSaved }) {
   const overallStatus = selectedSubOrder?.statusStr || selectedSubOrder?.status || currentOrder.statusStr || currentOrder.status || 'Active';
 
   return (
-    <div className="so-modal__content status-popup">
-      <header className="status-popup__header">
-        <h2>Kandoora Delivery Status: {selectedSubOrder?.orderNo || currentOrder.orderNo || currentOrder.id}</h2>
-        <button type="button" className="status-popup__icon-button" onClick={onClose} aria-label="Close status popup"><FiX /></button>
-      </header>
-
+    <div className="status-popup">
       {loading ? <div className="status-popup__loading"><FiLoader className="so-button-spinner" /> Loading order status…</div> : selectedSubOrder ? <>
         <section className="status-popup__panel">
           <div className="status-popup__summary">
             <strong>Kandoora Number: {selectedSubOrder.orderNo || `Suborder ${selectedIndex + 1}`}</strong>
             <strong>Kandoora Status: {overallStatus}</strong>
+            {selectedSubOrder.packingType && <strong>Packing: {selectedSubOrder.packingType}</strong>}
           </div>
 
           <div className="status-popup__table-wrap">
@@ -171,7 +167,6 @@ export default function StatusPopup({ order, onClose, onSaved }) {
         </section>
       </> : <div className="status-popup__empty">No suborders found.</div>}
 
-      <footer className="status-popup__footer"><button type="button" onClick={onClose} disabled={saving}><FiX /> Cancel</button></footer>
       {zoomOpen && <button className="status-popup__zoom" type="button" onClick={() => setZoomOpen(false)} aria-label="Close image zoom"><img src={imageSrc} alt="Zoomed suborder reference" /><span><FiX /></span></button>}
     </div>
   );

@@ -43,8 +43,12 @@ function Home() {
   const [tiles, setTiles] = useState([]);
   const [orders, setOrders] = useState([]);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [tilesLoading, setTilesLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState('');
+  const [tilesError, setTilesError] = useState('');
+  const loading = ordersLoading || tilesLoading;
+  const error = ordersError || tilesError;
   const [refreshKey, setRefreshKey] = useState(0);
 
   const firstName = user?.firstName || user?.username || 'there';
@@ -53,31 +57,29 @@ function Home() {
   const greeting = today.getHours() < 12 ? 'Good morning' : today.getHours() < 17 ? 'Good afternoon' : 'Good evening';
 
   const loadDashboard = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    const [ordersResult, tilesResult] = await Promise.allSettled([
-      getDashboardOrders(user?.userId ?? user?.id, selectedShop?.id, refreshKey > 0),
-      getAccessibleTiles(user?.userId ?? user?.id, selectedShop?.id, refreshKey > 0),
-    ]);
+    setOrdersLoading(true);
+    setTilesLoading(true);
+    setOrdersError('');
+    setTilesError('');
 
-    if (ordersResult.status === 'fulfilled') {
-      const payload = unwrap(ordersResult.value);
-      setOrders(Array.isArray(payload.data) ? payload.data : []);
-      setTotalRecords(Number(payload.totalRecords || 0));
-    } else {
-      setOrders([]);
-      setTotalRecords(0);
-      setError(ordersResult.reason?.message || 'Could not load order activity.');
-    }
+    const ordersTask = getDashboardOrders(user?.userId ?? user?.id, selectedShop?.id, refreshKey > 0)
+      .then(response => {
+        const payload = unwrap(response);
+        setOrders(Array.isArray(payload.data) ? payload.data : []);
+        setTotalRecords(Number(payload.totalRecords || 0));
+      })
+      .catch(requestError => setOrdersError(requestError?.message || 'Could not load order activity.'))
+      .finally(() => setOrdersLoading(false));
 
-    if (tilesResult.status === 'fulfilled') {
-      const payload = unwrap(tilesResult.value);
-      setTiles(Array.isArray(payload) ? payload : Array.isArray(payload.data) ? payload.data : []);
-    } else if (ordersResult.status === 'fulfilled') {
-      setTiles([]);
-      setError(tilesResult.reason?.message || 'Could not load your shop tile permissions.');
-    }
-    setLoading(false);
+    const tilesTask = getAccessibleTiles(user?.userId ?? user?.id, selectedShop?.id, refreshKey > 0)
+      .then(response => {
+        const payload = unwrap(response);
+        setTiles(Array.isArray(payload) ? payload : Array.isArray(payload.data) ? payload.data : []);
+      })
+      .catch(requestError => setTilesError(requestError?.message || 'Could not load your shop tile permissions.'))
+      .finally(() => setTilesLoading(false));
+
+    await Promise.all([ordersTask, tilesTask]);
   }, [refreshKey, selectedShop?.id, user?.id, user?.userId]);
 
   useEffect(() => {
@@ -151,10 +153,10 @@ function Home() {
     {error && <div className="dash-error"><FiAlertCircle /><span>{error}</span><button type="button" onClick={() => setRefreshKey(key => key + 1)}>Try again</button></div>}
 
     <section className="dash-metrics" aria-label="Shop overview">
-      <MetricCard icon={FiShoppingBag} label="Orders today" value={stats.todaysOrders.length} detail={`AED ${money(stats.todayValue)} order value`} tone="blue" loading={loading} />
-      <MetricCard icon={FiActivity} label="Open orders" value={stats.openOrders.length} detail="Orders still being handled" tone="violet" loading={loading} />
-      <MetricCard icon={FiDollarSign} label="Receivables" value={`AED ${money(stats.receivables)}`} detail="Outstanding balance in recent orders" tone="green" loading={loading} />
-      <MetricCard icon={FiCalendar} label="Due this week" value={stats.dueSoon.length} detail="Orders with delivery dates in 7 days" tone="amber" loading={loading} />
+      <MetricCard icon={FiShoppingBag} label="Orders today" value={stats.todaysOrders.length} detail={`AED ${money(stats.todayValue)} order value`} tone="blue" loading={ordersLoading} />
+      <MetricCard icon={FiActivity} label="Open orders" value={stats.openOrders.length} detail="Orders still being handled" tone="violet" loading={ordersLoading} />
+      <MetricCard icon={FiDollarSign} label="Receivables" value={`AED ${money(stats.receivables)}`} detail="Outstanding balance in recent orders" tone="green" loading={ordersLoading} />
+      <MetricCard icon={FiCalendar} label="Due this week" value={stats.dueSoon.length} detail="Orders with delivery dates in 7 days" tone="amber" loading={ordersLoading} />
     </section>
 
     <section className="dash-actions-section">
@@ -167,22 +169,22 @@ function Home() {
           </button>;
         })}
       </div>
-      {!loading && actions.length === 0 && <p className="dash-data-note">No tiles are assigned to your account for this shop. Ask an administrator to grant access.</p>}
+      {tilesLoading ? <div className="dash-actions dash-actions--loading" aria-label="Loading quick actions"><span className="dash-skeleton" /><span className="dash-skeleton" /><span className="dash-skeleton" /></div> : actions.length === 0 && <p className="dash-data-note">No tiles are assigned to your account for this shop. Ask an administrator to grant access.</p>}
     </section>
 
     <div className="dash-lower-grid">
       <section className="dash-panel dash-trend-panel">
         <div className="dash-section-heading"><div><h2>Order activity</h2><p>Orders created over the last 7 days</p></div><span className="dash-panel__badge"><FiTrendingUp /> 7 days</span></div>
-        {loading ? <div className="dash-chart-loading"><span className="dash-skeleton" /><span className="dash-skeleton" /><span className="dash-skeleton" /></div> : <div className="dash-chart" role="img" aria-label="Order count by day for the last seven days">
+        {ordersLoading ? <div className="dash-chart-loading"><span className="dash-skeleton" /><span className="dash-skeleton" /><span className="dash-skeleton" /></div> : <div className="dash-chart" role="img" aria-label="Order count by day for the last seven days">
           {stats.trend.map(day => <div className="dash-chart__day" key={day.key} title={`${day.count} orders · AED ${money(day.amount)}`}><strong>{day.count}</strong><div className="dash-chart__track"><i style={{ height: `${Math.max(day.count ? 12 : 4, (day.count / stats.trendMax) * 100)}%` }} /></div><span>{day.label}</span></div>)}
         </div>}
-        <div className="dash-pipeline-heading"><strong>Order pipeline</strong><span>{totalRecords.toLocaleString()} total orders</span></div>
-        <div className="dash-pipeline">{stats.pipeline.map(stage => <div className="dash-pipeline__item" key={stage.label}><span><i className={`dash-pipeline__dot dash-pipeline__dot--${stage.tone}`} />{stage.label}</span><strong>{loading ? '—' : stage.count}</strong></div>)}</div>
+        <div className="dash-pipeline-heading"><strong>Order pipeline</strong><span>{ordersLoading ? 'Loading order totals…' : `${totalRecords.toLocaleString()} total orders`}</span></div>
+        <div className="dash-pipeline">{stats.pipeline.map(stage => <div className="dash-pipeline__item" key={stage.label}><span><i className={`dash-pipeline__dot dash-pipeline__dot--${stage.tone}`} />{stage.label}</span><strong>{ordersLoading ? '—' : stage.count}</strong></div>)}</div>
       </section>
 
       <section className="dash-panel dash-recent-panel">
         <div className="dash-section-heading"><div><h2>Recent orders</h2><p>Latest customer activity</p></div><button type="button" className="dash-text-link" onClick={() => navigate('/orders/search')}>View all <FiChevronRight /></button></div>
-        {loading ? <div className="dash-recent-loading"><span className="dash-skeleton" /><span className="dash-skeleton" /><span className="dash-skeleton" /></div> : stats.sorted.length ? <div className="dash-recent-list">
+        {ordersLoading ? <div className="dash-recent-loading"><span className="dash-skeleton" /><span className="dash-skeleton" /><span className="dash-skeleton" /></div> : stats.sorted.length ? <div className="dash-recent-list">
           {stats.sorted.slice(0, 6).map(order => {
             const status = statusOf(order);
             const canceled = ['cancelled', 'canceled'].includes(status) || orderCode(order) === 8;
@@ -197,7 +199,7 @@ function Home() {
       </section>
     </div>
 
-    {!loading && totalRecords > orders.length && <p className="dash-data-note">Dashboard activity summarizes the latest {orders.length.toLocaleString()} orders.</p>}
+    {!ordersLoading && totalRecords > orders.length && <p className="dash-data-note">Dashboard activity summarizes the latest {orders.length.toLocaleString()} orders.</p>}
   </div>;
 }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiRefreshCw, FiDownload, FiFilter, FiPlus, FiMail, FiUser, FiLock, FiUnlock, FiKey, FiPhoneCall, FiShield, FiCamera } from 'react-icons/fi';
+import { FiRefreshCw, FiDownload, FiFilter, FiMail, FiUser, FiLock, FiUnlock, FiKey, FiPhoneCall, FiShield, FiCamera } from 'react-icons/fi';
 import DataGrid from '../../../components/DataGrid';
 import Modal from '../../../components/Modal/Modal';
 import Button from '../../../components/Button/Button';
@@ -391,9 +391,7 @@ function UsersMasterData() {
     const errors = {};
 
     // Validate required fields
-    if (!editFormData.email || editFormData.email.trim() === '') {
-      errors.email = 'Email is required';
-    } else {
+    if (editFormData.email?.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(editFormData.email)) {
         errors.email = 'Please enter a valid email address';
@@ -479,13 +477,6 @@ function UsersMasterData() {
             loading={loading}
             title="Reload users list"
             aria-label="Reload"
-          />
-          <Button
-            variant="ghost"
-            icon={<FiPlus />}
-            onClick={handleAddUser}
-            title="Add new user"
-            aria-label="Add new"
           />
         </div>
 
@@ -772,171 +763,6 @@ function UsersMasterData() {
             </div>
           </div>
         )}
-      </Modal>
-
-      {/* Add User Modal */}
-      <Modal
-        isOpen={addModalOpen}
-        onClose={() => {
-          setAddModalOpen(false);
-          setAddFormData({
-            username: '',
-            email: '',
-            isdCode: '',
-            mobile: '',
-            password: '',
-            roleId: '',
-            firstName: '',
-            lastName: '',
-          });
-        }}
-        title="Add New User"
-        size="medium"
-        type="default"
-        showCloseButton={true}
-        closeOnOverlayClick={!saving}
-        loading={saving}
-        actions={[
-          {
-            label: 'Cancel',
-            onClick: () => {
-              setAddModalOpen(false);
-              setAddFormData({
-                username: '',
-                email: '',
-                password: '',
-                roleId: '',
-                firstName: '',
-                lastName: '',
-                mobile: '',
-                isdCode: '',
-              });
-            },
-            variant: 'secondary',
-            disabled: saving,
-          },
-          {
-            label: 'Create User',
-            onClick: handleSaveAdd,
-            variant: 'primary',
-            disabled: saving,
-          },
-        ]}
-      >
-        <div className="modal-form">
-
-          <div className="form-group">
-            <TextBox
-              id="add-email"
-              type="email"
-              name="email"
-              label="Email"
-              value={addFormData.email}
-              onChange={handleAddUserChange}
-              placeholder="Enter email address"
-              leftIcon={<FiMail />}
-              error={addFormErrors.email}
-            />
-          </div>
-          <div className="form-group">
-            <TextBox
-              id="add-username"
-              label="Username"
-              name="username"
-              required={true}
-              value={addFormData.username}
-              onChange={handleAddUserChange}
-              placeholder="Enter username (min 5 characters)"
-              leftIcon={<FiUser />}
-              maxLength={50}
-              error={addFormErrors.username}
-            />
-          </div>
-          <div className="form-group">
-            <TextBox
-              id="add-firstName"
-              label="First Name"
-              name="firstName"
-              required={true}
-              value={addFormData.firstName}
-              onChange={handleAddUserChange}
-              placeholder="Enter first name"
-              leftIcon={<FiUser />}
-            />
-          </div>
-          <div className="form-group">
-            <TextBox
-              id="add-lastName"
-              label="Last Name"
-              name="lastName"
-              value={addFormData.lastName}
-              onChange={handleAddUserChange}
-              placeholder="Enter last name (optional)"
-              leftIcon={<FiUser />}
-            />
-          </div>
-
-          <div className="form-group">
-            <TextBox
-              id="add-password"
-              type="password"
-              label="Password"
-              name="password"
-              required={true}
-              value={addFormData.password}
-              onChange={handleAddUserChange}
-              placeholder="Enter password (min 6 characters)"
-              leftIcon={<FiKey />}
-              error={addFormErrors.password}
-            />
-          </div>
-           <div className="form-group">
-            <TextBox
-              id="add-mobile"
-              type="tel"
-              label="Mobile Number"
-              name="mobile"
-              required={true}
-              value={addFormData.mobile}
-              onChange={handleAddUserChange}
-              placeholder="Enter mobile number"
-              leftIcon={<FiPhoneCall />}
-              error={addFormErrors.mobile}
-            />
-          </div>
-           <div className="form-group">
-            <CountrySelect
-              label="ISD Code"
-              required={true}
-              showFlag={true}
-              showISD={true}
-              value={addFormData.isdCode}
-              onChange={(e) => {
-                handleAddUserChange({ target: { name: 'isdCode', value: e.isd } });
-                if (addFormErrors.isdCode) {
-                  setAddFormErrors(prev => ({ ...prev, isdCode: '' }));
-                }
-              }}
-              error={addFormErrors.isdCode}
-            />
-          </div>
-          <div className="form-group">
-            <Select
-              label="Role"
-              required={true}
-              options={roles.map((role) => ({
-                value: role.id,
-                label: `${role.name}${role.isAdmin ? ' (Admin)' : ''}`,
-              }))}
-              name="roleId"
-              value={addFormData.roleId || ''}
-              onChange={e=>handleAddUserChange({ target: { name: 'roleId', value: e } })}
-              placeholder="Select a role"
-              error={addFormErrors.roleId}
-            />
-          </div>
-
-        </div>
       </Modal>
 
       {/* Profile Picture Modal */}

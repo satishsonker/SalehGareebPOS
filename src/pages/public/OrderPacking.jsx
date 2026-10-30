@@ -14,6 +14,7 @@ export default function OrderPacking() {
   const [items, setItems] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [packingTypes, setPackingTypes] = useState({});
   const [packedById, setPackedById] = useState('');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -57,7 +58,7 @@ export default function OrderPacking() {
   const confirmPacking = async () => {
     setSaving(true); setError('');
     try {
-      await packSubOrders({ orderDetailIds: selectedIds, packedById: Number(packedById) });
+      await packSubOrders({ items: selectedIds.map(orderDetailId => ({ orderDetailId, packingType: packingTypes[orderDetailId] || 'Packet' })), packedById: Number(packedById) });
       setMessage(`${selectedIds.length} suborder${selectedIds.length === 1 ? '' : 's'} packed successfully.`);
       setSelectedIds([]); setConfirmOpen(false);
       await load();
@@ -70,10 +71,11 @@ export default function OrderPacking() {
     <section className="packing-toolbar"><label className="packing-search"><FiSearch /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search suborder or customer" /></label><button type="button" onClick={selectVisible} disabled={!filteredItems.length}>Select visible</button><label className="packing-employee">Packed by<select value={packedById} onChange={event => setPackedById(event.target.value)}><option value="">Select employee</option>{employees.map(user => <option key={user.id} value={user.id}>{employeeName(user)}</option>)}</select></label><button type="button" className="packing-submit" onClick={() => setConfirmOpen(true)} disabled={!selectedIds.length || !packedById || saving}><FiCheck /> Pack {selectedIds.length ? `(${selectedIds.length})` : 'selected'}</button></section>
     {message && <div className="packing-message" role="status">{message}<button type="button" onClick={() => setMessage('')}><FiX /></button></div>}
     {error && <div className="packing-error" role="alert">{error}</div>}
-    {loading ? <div className="packing-empty">Loading completed suborders…</div> : filteredItems.length ? <div className="packing-list">{filteredItems.map(item => <label className={`packing-row ${selectedIds.includes(item.id) ? 'is-selected' : ''}`} key={item.id}>
+    {loading ? <div className="packing-empty">Loading completed suborders…</div> : filteredItems.length ? <div className="packing-list">{filteredItems.map(item => <div className={`packing-row ${selectedIds.includes(item.id) ? 'is-selected' : ''}`} key={item.id}>
       <input type="checkbox" checked={selectedIds.includes(item.id)} onChange={event => toggle(item.id, event.target.checked)} />
       <span className="packing-row__number">{item.orderNo}</span><span className="packing-row__customer"><strong>{item.customerName || 'Customer'}</strong><small>Order date {date(item.orderDate)} · Delivery {date(item.deliveryDate)}</small></span><span className="packing-row__amount">AED {money(item.totalAmount)}</span><span className="packing-badge">Completed</span>
-    </label>)}</div> : <div className="packing-empty"><FiPackage /><strong>No completed suborders found</strong><span>{search ? 'Try another search.' : 'Suborders appear here once production marks them completed.'}</span></div>}
+      <label className="packing-type">Pack as<select value={packingTypes[item.id] || 'Packet'} onChange={event => setPackingTypes(types => ({ ...types, [item.id]: event.target.value }))}><option value="Packet">Packet</option><option value="Hanger">Hanger</option></select></label>
+    </div>)}</div> : <div className="packing-empty"><FiPackage /><strong>No completed suborders found</strong><span>{search ? 'Try another search.' : 'Suborders appear here once production marks them completed.'}</span></div>}
     {confirmOpen && <div className="packing-confirm-backdrop" role="presentation"><section className="packing-confirm" role="dialog" aria-modal="true" aria-labelledby="packing-confirm-title"><span className="packing-confirm__icon"><FiPackage /></span><h2 id="packing-confirm-title">Confirm packing update</h2><p>Set {selectedIds.length} selected suborder{selectedIds.length === 1 ? '' : 's'} to Packed?</p><strong>Packed by: {employeeName(employees.find(user => String(user.id) === String(packedById)) || { id: packedById })}</strong><footer><button type="button" onClick={() => setConfirmOpen(false)} disabled={saving}>Review</button><button type="button" onClick={confirmPacking} disabled={saving}>{saving ? 'Updating…' : 'Confirm packed'}</button></footer></section></div>}
   </main>;
 }

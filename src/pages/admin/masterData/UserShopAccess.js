@@ -36,7 +36,7 @@ function UserShopAccess() {
       const [shopsRes, usersRes, accessRes] = await Promise.all([
         getShops(1, 100),
         getUsers(1, 100),
-        getAllShopAccess(),
+        getAllShopAccess(true),
       ]);
       if (shopsRes.success && shopsRes.data) setShops(shopsRes.data?.data || []);
       if (usersRes.success && usersRes.data) setAllUsers(usersRes.data?.data || []);
@@ -133,7 +133,7 @@ function UserShopAccess() {
       setSelectedNewUserIds(new Set());
       setAddUserSearch('');
       // Refresh access list
-      const accessRes = await getAllShopAccess();
+      const accessRes = await getAllShopAccess(true);
       if (accessRes.success && accessRes.data) setShopAccessList(accessRes.data?.data || accessRes.data || []);
     } catch (err) {
       showError(err.message || 'Failed to grant access. Please try again.');
@@ -148,7 +148,7 @@ function UserShopAccess() {
     try {
       await removeShopAccess(record.userId, selectedShop.id);
       success(`Access removed for "${record.userFullName || record.username}"`);
-      const accessRes = await getAllShopAccess();
+      const accessRes = await getAllShopAccess(true);
       if (accessRes.success && accessRes.data) setShopAccessList(accessRes.data?.data || accessRes.data || []);
     } catch (err) {
       showError(err.message || 'Failed to remove access. Please try again.');

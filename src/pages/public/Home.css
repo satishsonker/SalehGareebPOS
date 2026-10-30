@@ -50,6 +50,7 @@
 .dash-metric--amber .dash-metric__top i { background: var(--warning-soft); color: var(--warning); }
 .dash-skeleton { display: block; height: 10px; border-radius: 8px; background: linear-gradient(90deg, var(--surface-muted), var(--border-color), var(--surface-muted)); background-size: 200% 100%; animation: dash-shimmer 1.3s linear infinite; }
 .dash-skeleton--metric { width: 56%; height: 27px; margin-top: 15px; }
+.dash-actions--loading .dash-skeleton { min-height: 72px; border-radius: 11px; }
 @keyframes dash-shimmer { to { background-position: -200% 0; } }
 
 .dash-actions-section,

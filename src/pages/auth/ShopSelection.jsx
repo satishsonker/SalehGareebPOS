@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { FiArrowRight, FiCheck, FiMapPin, FiRefreshCw, FiSearch, FiShoppingBag, FiShield } from 'react-icons/fi';
+import { FiArrowRight, FiCheck, FiLogOut, FiMapPin, FiRefreshCw, FiSearch, FiShoppingBag, FiShield } from 'react-icons/fi';
 import { apiBasePath } from '../../services/api/commonApi';
 import { getShopAccessByUser } from '../../services/api/accessControlApi';
 import { jwtDecode } from 'jwt-decode';
@@ -28,7 +28,7 @@ function shopLocation(shop) {
 function ShopSelection() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { selectedShop, setSelectedShop } = useAuth();
+  const { selectedShop, setSelectedShop, logout } = useAuth();
   const [error, setError] = useState('');
   const [shopList, setShopList] = useState([]);
   const [userData, setUserData] = useState({});
@@ -39,7 +39,7 @@ function ShopSelection() {
     setLoading(true);
     setError('');
     try {
-      const response = await getShopAccessByUser(userId);
+      const response = await getShopAccessByUser(userId, true);
       setShopList(unwrapShops(response));
     } catch (requestError) {
       setShopList([]);
@@ -97,6 +97,11 @@ function ShopSelection() {
     window.location.replace(location.state?.from || '/');
   };
 
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login', { replace: true });
+  };
+
   return <main className="shopselect-page">
     <div className="shopselect-shell">
       <aside className="shopselect-side">
@@ -130,7 +135,7 @@ function ShopSelection() {
             </div>
             </> : <div className="shopselect-state shopselect-state--empty"><span className="shopselect-empty-icon"><FiShoppingBag /></span><strong>{query ? 'No shops match your search' : 'No shops assigned yet'}</strong><small>{query ? 'Try another shop name or location.' : 'Contact your administrator to request access to a shop.'}</small>{query && <button type="button" onClick={() => setQuery('')}>Clear search</button>}</div>}
 
-          <footer className="shopselect-footer"><span>Shop access is managed by your administrator.</span><button type="submit" className="shopselect-continue" disabled={!selectedShop || loading}><span>Continue to POS</span><FiArrowRight /></button></footer>
+          <footer className="shopselect-footer"><span>Shop access is managed by your administrator.</span>{!loading && shopList.length === 0 && <button type="button" className="shopselect-logout" onClick={handleLogout}><FiLogOut /> Log out</button>}<button type="submit" className="shopselect-continue" disabled={!selectedShop || loading}><span>Continue to POS</span><FiArrowRight /></button></footer>
         </form>
       </section>
     </div>

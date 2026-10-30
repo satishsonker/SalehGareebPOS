@@ -32,6 +32,7 @@ import SystemNotifications from './pages/admin/SystemNotifications';
 import CacheManagement from './pages/admin/CacheManagement';
 import Dashboard from './pages/admin/Dashboard';
 import SystemData from './pages/admin/SystemData';
+import UserCreationPage from './pages/admin/UserCreationPage';
 import AdminSettings from './pages/admin/AdminSettings';
 import ShopSelection from './pages/auth/ShopSelection';
 import PasswordRecovery from './pages/auth/PasswordRecovery';
@@ -118,6 +119,7 @@ function App() {
                     >
                       <Route index element={<Dashboard />} />
                       <Route path="system-data" element={<SystemData />} />
+                      <Route path="user-creation" element={<UserCreationPage />} />
                       <Route path="settings" element={<AdminSettings />} />
                       <Route path="customers" element={<CustomersMasterData />} />
                       <Route path="order-prices" element={<OrderPriceMasterData />} />

@@ -13,6 +13,7 @@ import './AdminLayout.css';
 
 const menuItems = [
   { path: '/admin',                   icon: FiGrid,         label: 'Dashboard' },
+  { path: '/admin/user-creation',     icon: FiUser,         label: 'Create User' },
   { path: '/admin/system-data',       icon: FiDatabase,     label: 'System Data' },
   { path: '/admin/customers',         icon: FiUser,         label: 'Customers' },
   { path: '/admin/order-prices',      icon: FiDollarSign,   label: 'Order Prices' },
