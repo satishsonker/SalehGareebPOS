@@ -35,6 +35,19 @@ function apiStatus(value) {
   return 'Active';
 }
 
+function formatCompletedDate(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleDateString('en-AE', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function formatCompletedBy(workType) {
+  const employeeId = workType?.completedById ?? workType?.completedBy;
+  if (workType?.completedByName) return employeeId != null ? `${workType.completedByName} (#${employeeId})` : workType.completedByName;
+  return employeeId != null ? `#${employeeId}` : '—';
+}
+
 export default function StatusPopup({ order, onSaved }) {
   const [currentOrder, setCurrentOrder] = useState(order || null);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -133,8 +146,8 @@ export default function StatusPopup({ order, onSaved }) {
                 {workTypes.length ? workTypes.map((workType, index) => (
                   <tr key={workType.id || workType.workTypeId || `${selectedSubOrder.id}-${index}`}>
                     <td>{workType.name || workType.code || `Work Type ${index + 1}`}</td>
-                    <td>{workType.completedOn || '—'}</td>
-                    <td>{workType.completedByName || workType.completedBy || '—'}</td>
+                    <td>{formatCompletedDate(workType.completedAt || workType.completedDate)}</td>
+                    <td>{formatCompletedBy(workType)}</td>
                     {index === 0 && <td className="status-popup__image-cell" rowSpan={workTypes.length}>
                       <button type="button" className={`status-popup__image ${imageSrc ? 'has-image' : ''}`} onClick={() => imageSrc && setZoomOpen(true)} disabled={!imageSrc} aria-label={imageSrc ? 'Zoom suborder image' : 'No suborder image'}>
                         {imageSrc ? <img src={imageSrc} alt="Suborder reference" /> : <FiImage />}
