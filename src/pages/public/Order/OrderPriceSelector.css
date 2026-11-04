@@ -1031,6 +1031,17 @@
     line-height: 1;
 }
 
+.ops-counter-value[type="number"] {
+    min-width: 0;
+    padding: 0 3px;
+    border-top: 0;
+    border-bottom: 0;
+    border-radius: 0;
+    background: transparent;
+    text-align: center;
+    appearance: textfield;
+}
+
 
 /* =========================================================
    QUICK QUANTITY

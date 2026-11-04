@@ -8,12 +8,17 @@ export default function SubOrderDetailList({ order, setOrder, setWorkTypeSelecto
     const [allWorkTypeCodes, setAllWorkTypeCodes] = useState([]);
     const handleDelete = (e, subOrderIndex) => {
         e.stopPropagation();
-        var model = order;
-        model.orderDetails.splice(subOrderIndex, 1);
-        model.orderDetails.map((subOrder, index) => {
-            subOrder.orderNo = `${order?.orderNo}-${index + 1}`;
-        });
-        setOrder({ ...model });
+        const orderDetails = (order.orderDetails || [])
+            .filter((_, index) => index !== subOrderIndex)
+            .map((subOrder, index) => ({ ...subOrder, orderNo: `${order?.orderNo}-${index + 1}` }));
+        setOrder(previous => ({
+            ...previous,
+            orderDetails,
+            selectedSubOrderIndex: Math.min(
+                Math.max(0, (previous.selectedSubOrderIndex || 0) - ((previous.selectedSubOrderIndex || 0) > subOrderIndex ? 1 : 0)),
+                Math.max(0, orderDetails.length - 1)
+            )
+        }));
     };
     const handleconfigButton = (e, subOrderIndex) => {
         var model = order;

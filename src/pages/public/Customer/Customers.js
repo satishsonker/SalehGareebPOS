@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   FiArrowLeft, FiSearch, FiPlus, FiUser, FiPhone, FiMapPin,
   FiChevronLeft, FiChevronRight, FiEdit2, FiTrash2, FiLock, FiUnlock, FiX, FiCheck,
+  FiRefreshCw, FiPhoneCall, FiClipboard,
 } from 'react-icons/fi';
 import Modal from '../../../components/Modal/Modal';
 import TextBox from '../../../components/TextBox/TextBox';
@@ -13,6 +14,7 @@ import {
   getCustomers, searchCustomers, getCustomerById, createCustomer, updateCustomer,
   getCustomerAddresses, addCustomerAddress, updateCustomerAddress, deleteCustomerAddress,
 } from '../../../services/api/customersApi';
+import { getCustomerOrders } from '../../../services/api/ordersApi';
 import { commonLogic } from '../../../utils/commonLogic';
 import { mergeValidationErrorsFromApi } from '../../../utils/apiError';
 import './Customers.css';
@@ -29,6 +31,11 @@ const EMPTY_ADDRESS = {
 
 const ADDRESS_TYPES = ['Home', 'Work', 'Other'];
 
+const getCustomerCity = customer => customer?.city?.trim() ||
+  customer?.customerAddresses?.find(address => address.city?.trim())?.city || '';
+
+const unwrapPayload = response => response?.data?.data ?? response?.data ?? response;
+
 // ── Customer row card ─────────────────────────────────────────────
 function CustomerCard({ customer, onClick }) {
   return (
@@ -43,7 +50,7 @@ function CustomerCard({ customer, onClick }) {
         </div>
         <div className="pub-cust-card__meta">
           <span><FiPhone size={11} /> {customer.fullMobileNumber || `${customer.isdCode}${customer.mobile}`}</span>
-          {customer.city && <span><FiMapPin size={11} /> {customer.city}</span>}
+          {getCustomerCity(customer) && <span><FiMapPin size={11} /> {getCustomerCity(customer)}</span>}
         </div>
       </div>
       <FiChevronRight className="pub-cust-card__arrow" size={16} />
@@ -79,6 +86,11 @@ function Customers() {
   // Selected customer
   const [selected, setSelected] = useState(null);
   const [addresses, setAddresses] = useState([]);
+  const [refreshingCustomer, setRefreshingCustomer] = useState(false);
+  const [customerOrders, setCustomerOrders] = useState([]);
+  const [ordersOpen, setOrdersOpen] = useState(false);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState('');
 
   // Modals
   const [addOpen, setAddOpen] = useState(false);
@@ -142,11 +154,54 @@ function Customers() {
 
   // ── Select customer ───────────────────────────────────────────
   const handleSelect = async (cust) => {
-    const res = await getCustomerById(cust.id).catch(() => null);
-    const full = res?.data || cust;
-    setSelected(full);
-    const addrRes = await getCustomerAddresses(cust.id).catch(() => null);
-    setAddresses(addrRes?.data || []);
+    setSelected(cust);
+    setRefreshingCustomer(true);
+    try {
+      const [res, addrRes] = await Promise.all([
+        getCustomerById(cust.id), getCustomerAddresses(cust.id)
+      ]);
+      setSelected(unwrapPayload(res) || cust);
+      setAddresses(unwrapPayload(addrRes) || []);
+    } catch (requestError) {
+      showError(requestError.message || 'Could not load customer details');
+      setAddresses([]);
+    } finally {
+      setRefreshingCustomer(false);
+    }
+  };
+
+  const refreshSelectedCustomer = async () => {
+    if (!selected?.id) return;
+    setRefreshingCustomer(true);
+    try {
+      const [customerResponse, addressResponse] = await Promise.all([
+        getCustomerById(selected.id), getCustomerAddresses(selected.id)
+      ]);
+      setSelected(unwrapPayload(customerResponse) || selected);
+      setAddresses(unwrapPayload(addressResponse) || []);
+      success('Customer details refreshed');
+    } catch (requestError) {
+      showError(requestError.message || 'Could not refresh customer details');
+    } finally {
+      setRefreshingCustomer(false);
+    }
+  };
+
+  const openCustomerOrders = async () => {
+    if (!selected?.id) return;
+    setOrdersOpen(true);
+    setOrdersLoading(true);
+    setOrdersError('');
+    try {
+      const response = await getCustomerOrders(selected.id, 1, 100);
+      const payload = unwrapPayload(response);
+      setCustomerOrders(Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : []);
+    } catch (requestError) {
+      setCustomerOrders([]);
+      setOrdersError(requestError.message || 'Could not load customer orders');
+    } finally {
+      setOrdersLoading(false);
+    }
   };
 
   const handleBack = () => setSelected(null);
@@ -189,10 +244,11 @@ function Customers() {
   // ── Edit Customer ─────────────────────────────────────────────
   const openEdit = () => {
     setEditForm({
+      id: selected.id,
       isdCode: selected.isdCode || '+966', mobile: selected.mobile || '',
       firstName: selected.firstName || '', lastName: selected.lastName || '',
       phone: selected.phone || '', trn: selected.trn || '',
-      city: selected.city || '', primaryShopId: selected.primaryShopId || selectedShop?.id || 0,
+      city: getCustomerCity(selected) || addresses.find(address => address.city?.trim())?.city || '', primaryShopId: selected.primaryShopId || selectedShop?.id || 0,
     });
     setEditErrors({});
     setEditOpen(true);
@@ -278,6 +334,8 @@ function Customers() {
           <div className="pub-cust-header__icon" style={{ background: '#2563eb' }}><FiUser size={20} /></div>
           <h1 className="pub-cust-header__title">{selected.firstName} {selected.lastName || ''}</h1>
           <div className="pub-cust-header__actions">
+            <button className="pub-cust-action-btn" onClick={refreshSelectedCustomer} title="Refresh customer" disabled={refreshingCustomer}><FiRefreshCw size={16} className={refreshingCustomer ? 'oa-spin' : ''} /></button>
+            <a className="pub-cust-action-btn" href={`tel:${selected.fullMobileNumber || `${selected.isdCode || ''}${selected.mobile || ''}`}`} title="Call customer" aria-label="Call customer"><FiPhoneCall size={16} /></a>
             <button className="pub-cust-action-btn" onClick={openEdit} title="Edit"><FiEdit2 size={16} /></button>
           </div>
         </div>
@@ -285,7 +343,10 @@ function Customers() {
         <div className="pub-cust-detail-body">
           {/* Info card */}
           <div className="pub-cust-section">
-            <h3 className="pub-cust-section__title"><FiUser size={14} /> Customer Info</h3>
+            <div className="pub-cust-section__header">
+              <h3 className="pub-cust-section__title"><FiUser size={14} /> Customer Info</h3>
+              <button className="pub-cust-mini-btn" type="button" onClick={openCustomerOrders}><FiClipboard size={13} /> View orders</button>
+            </div>
             {selected.isBlocked && (
               <div className="pub-cust-blocked-banner">
                 <FiLock size={14} /> This customer is currently blocked
@@ -294,7 +355,7 @@ function Customers() {
             <div className="pub-cust-info-grid">
               <DetailRow label="Mobile" value={selected.fullMobileNumber || `${selected.isdCode}${selected.mobile}`} />
               <DetailRow label="Phone" value={selected.phone} />
-              <DetailRow label="City" value={selected.city} />
+              <DetailRow label="City" value={selected.city || addresses.find(address => address.city?.trim())?.city} />
               <DetailRow label="TRN" value={selected.trn} />
               <DetailRow label="Created" value={commonLogic.formatDate(selected.createdAt)} />
             </div>
@@ -362,6 +423,21 @@ function Customers() {
           ]}>
           <AddressForm form={addrForm} setForm={setAddrForm} errors={addrErrors} setErrors={setAddrErrors} />
         </Modal>
+
+        <Modal isOpen={ordersOpen} onClose={() => setOrdersOpen(false)} title={`Orders for ${selected.firstName} ${selected.lastName || ''}`} size="large"
+          actions={[{ label: 'Close', onClick: () => setOrdersOpen(false), variant: 'secondary' }, { label: 'Refresh', onClick: openCustomerOrders, variant: 'primary', disabled: ordersLoading }]}>
+          {ordersLoading ? <div className="pub-cust-empty">Loading orders…</div> : ordersError ? <div className="pub-cust-empty">{ordersError}</div> : customerOrders.length === 0 ? <div className="pub-cust-empty">No orders found for this customer.</div> : (
+            <div className="pub-cust-order-list">
+              {customerOrders.map((customerOrder, index) => <article className="pub-cust-order-card" key={customerOrder.id || index}>
+                <div><strong>#{customerOrder.orderNo || customerOrder.id}</strong><span>{customerOrder.statusStr || customerOrder.status || '—'}</span></div>
+                <div><span>Order date</span><strong>{commonLogic.formatDate(customerOrder.orderDate)}</strong></div>
+                <div><span>Total</span><strong>AED {Number(customerOrder.totalInvoiced ?? customerOrder.totalAmount ?? 0).toFixed(2)}</strong></div>
+                <div><span>Paid</span><strong>AED {Number(customerOrder.totalPaid ?? customerOrder.advanceAmount ?? 0).toFixed(2)}</strong></div>
+                <div><span>Balance</span><strong>AED {Number(customerOrder.balanceDue ?? customerOrder.balanceAmount ?? 0).toFixed(2)}</strong></div>
+              </article>)}
+            </div>
+          )}
+        </Modal>
       </div>
     );
   }
@@ -374,6 +450,7 @@ function Customers() {
         <button className="pub-cust-back" onClick={() => navigate(-1)}><FiArrowLeft size={18} /></button>
         <div className="pub-cust-header__icon" style={{ background: 'var(--brand-primary-deep)' }}><FiUser size={20} /></div>
         <h1 className="pub-cust-header__title">Customers</h1>
+        <button className="pub-cust-action-btn" type="button" onClick={() => fetchCustomers(query, pageNo)} title="Refresh customers" disabled={loading}><FiRefreshCw size={16} className={loading ? 'oa-spin' : ''} /></button>
         <button className="pub-cust-add-btn" onClick={() => { setAddForm({ ...EMPTY_CUSTOMER }); setAddErrors({}); setAddOpen(true); }}>
           <FiPlus size={16} /> New Customer
         </button>

@@ -44,6 +44,21 @@ function initialMeasurement(item) {
   };
 }
 
+function isInactiveSubOrder(item) {
+  if (!item) return true;
+  const rawStatus = item.statusCode ?? item.statusStr ?? item.status;
+  const status = String(rawStatus ?? '').trim().toLowerCase().replace(/[\s_-]/g, '');
+  return item.isDeleted === true || item.isCancelled === true ||
+    ['cancelled', 'canceled', 'deleted', 'partialcancelled', 'partialcanceled', 'partialdeleted', '8', '9', '10', '11'].includes(status);
+}
+
+function isInactiveOrder(item) {
+  if (!item) return true;
+  const rawStatus = item.statusCode ?? item.statusStr ?? item.status;
+  const status = String(rawStatus ?? '').trim().toLowerCase().replace(/[\s_-]/g, '');
+  return item.isDeleted === true || item.isCancelled === true || ['cancelled', 'canceled', 'deleted', '8', '9'].includes(status);
+}
+
 export default function MeasurementPopup({ order, onClose, onSaved }) {
   const [currentOrder, setCurrentOrder] = useState(order || null);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -123,7 +138,7 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
     return () => { active = false; };
   }, [currentOrder?.customerId]);
 
-  const subOrders = useMemo(() => currentOrder?.orderDetails || [], [currentOrder]);
+  const subOrders = useMemo(() => isInactiveOrder(currentOrder) ? [] : (currentOrder?.orderDetails || []).filter(item => !isInactiveSubOrder(item)), [currentOrder]);
   const savedSizes = useMemo(() => [...new Set(history.map(entry => entry.size).filter(Boolean))], [history]);
   const availableSizes = useMemo(() => [...new Set([
     ...sizes.map(size => size.value || size.displayValue || size.name).filter(Boolean),
@@ -243,7 +258,10 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
   };
 
   const handleSave = async () => {
-    if (!currentOrder || !selectedSubOrder?.id) return;
+    if (!currentOrder || isInactiveOrder(currentOrder) || !selectedSubOrder?.id || isInactiveSubOrder(selectedSubOrder)) {
+      setError('Cancelled or deleted suborders cannot be measured.');
+      return;
+    }
     setSaving(true);
     setError('');
     setNotice('');

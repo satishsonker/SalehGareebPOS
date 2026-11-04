@@ -463,3 +463,10 @@
   .pub-cust-body, .pub-cust-detail-body { padding: 16px; }
   .pub-cust-form-row, .pub-cust-info-grid { grid-template-columns: 1fr; }
 }
+.pub-cust-order-list { display: grid; gap: 9px; max-height: 65vh; overflow: auto; }
+.pub-cust-order-card { display: grid; grid-template-columns: 1.25fr repeat(4, minmax(90px, 1fr)); align-items: center; gap: 10px; padding: 11px 13px; border: 1px solid var(--border-color, #e2e8f0); border-radius: 9px; background: var(--surface, #fff); }
+.pub-cust-order-card > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.pub-cust-order-card > div:first-child { flex-direction: row; align-items: center; justify-content: space-between; gap: 7px; }
+.pub-cust-order-card span { color: var(--text-secondary, #64748b); font-size: .72rem; }
+.pub-cust-order-card strong { color: var(--text-primary, #172033); font-size: .8rem; }
+@media (max-width: 700px) { .pub-cust-order-card { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pub-cust-order-card > div:first-child { grid-column: 1 / -1; } }

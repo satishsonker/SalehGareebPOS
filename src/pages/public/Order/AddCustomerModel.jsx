@@ -16,12 +16,12 @@ export default function AddCustomerModel({ order, setOrder, addCustomerModalOpen
         mobile: order?.mobile,
         emirateId: '',
         lastName: '',
-        isdCode: '+971'
+        isdCode: order?.isd || '+971'
     };
 
     useEffect(() => {
-        setCustomerModel(pre => ({ ...pre, ["mobile"]: order?.mobile }))
-    }, [order?.mobile]);
+        setCustomerModel(pre => ({ ...pre, mobile: order?.mobile, isdCode: order?.isd || '+971' }))
+    }, [order?.mobile, order?.isd]);
 
     const [customerModel, setCustomerModel] = useState(EMPTY_CUSTOMER);
     const [customerError, setCustomerError] = useState({

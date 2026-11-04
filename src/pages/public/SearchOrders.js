@@ -634,6 +634,8 @@ function SearchOrders() {
             ...selectedOrder,
             paymentHistory: [...getOrderPaymentHistory(selectedOrder), newPayment],
             advanceAmount: Number(selectedOrder.advanceAmount || 0) + amount,
+            totalPaid: Number(selectedOrder.totalPaid ?? selectedOrder.advanceAmount ?? 0) + amount,
+            balanceAmount: Math.max(0, Number(selectedOrder.balanceAmount ?? selectedOrder.balanceDue ?? 0) - amount),
             totalInvoiced: Number(selectedOrder.totalInvoiced || selectedOrder.totalAmount || 0)
         };
 
@@ -727,17 +729,22 @@ function SearchOrders() {
                     <div className="so-modal__metric pp-summary-item pp-summary-item--total">
                         <FiDollarSign className="pp-summary-item__icon" />
                         <span>Total Amount</span>
-                        <strong>₹{formatAmount(selectedOrder.totalAmount ?? selectedOrder.totalInvoiced)}</strong>
+                        <strong>AED {formatAmount(selectedOrder.totalAmount ?? selectedOrder.totalInvoiced)}</strong>
                     </div>
                     <div className="so-modal__metric pp-summary-item pp-summary-item--settled">
                         <FiCreditCard className="pp-summary-item__icon" />
                         <span>Advance</span>
-                        <strong>₹{formatAmount(selectedOrder.advanceAmount)}</strong>
+                        <strong>AED {formatAmount(selectedOrder.advanceAmount)}</strong>
+                    </div>
+                    <div className="so-modal__metric pp-summary-item pp-summary-item--settled">
+                        <FiCreditCard className="pp-summary-item__icon" />
+                        <span>Paid</span>
+                        <strong>AED {formatAmount(selectedOrder.totalPaid ?? selectedOrder.advanceAmount)}</strong>
                     </div>
                     <div className="so-modal__metric pp-summary-item pp-summary-item--due">
                         <FiDollarSign className="pp-summary-item__icon" />
                         <span>Balance</span>
-                        <strong>₹{formatAmount(selectedOrder.balanceAmount)}</strong>
+                        <strong>AED {formatAmount(selectedOrder.balanceAmount)}</strong>
                     </div>
                     <div className="so-modal__metric pp-summary-item pp-summary-item--order">
                         <FiClipboard className="pp-summary-item__icon" />

@@ -18,6 +18,7 @@ import { enums } from '../../../utils/enums';
 import StatusModal from '../../../components/StatusModel/StatusModel';
 import { getWorkTypes } from '../../../services/api/workTypeApi';
 import PrintOrderReceiptPopup from './PrintOrderReceiptPopup';
+import CountrySelect from '../../../components/CountrySelect/CountrySelect';
 export default function NewOrderPage() {
   const navigate = useNavigate();
   const vat = parseFloat(process.env.REACT_APP_VAT?? '5');
@@ -58,7 +59,6 @@ export default function NewOrderPage() {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [workTypeSelectorModalOpen, setWorkTypeSelectorModalOpen] = useState(false)
   const [order, setOrder] = useState(EMPTY_CREATE_ORDER());
-  const [isdCountry, setIsdCountry] = useState({ code: '+971', name: 'UAE', short: 'ARE' });
   const [phone, setPhone] = useState('');
   const [addCustomerModalOpen, setAddCustomerModalOpen] = useState(false);
   const [paymentModeList, setPaymentModeList] = useState([])
@@ -71,7 +71,10 @@ export default function NewOrderPage() {
   const [advancePercent, setAdvancePercent] = useState(0);
   const [statusModelData, setStatusModelData] = useState({ isOpen: false, title: '', message: '', type: 'info', onConfirm: null });
   const [showPrintReceiptPopup, setShowPrintReceiptPopup] = useState(false);
-  const openPhoneKeypad = () => setKeypadMode('phone');
+  const openPhoneKeypad = () => {
+    setPhone(order.mobile || '');
+    setKeypadMode('phone');
+  };
    const openCustomeAdvanceAmountKeypad = () => setKeypadMode('advance');
   const closeKeypad = () => setKeypadMode(null);
   const handlePrint = () => {
@@ -237,6 +240,17 @@ export default function NewOrderPage() {
           </div>
           <div className="field-grid">
             <div className="field">
+              <CountrySelect
+                label="Emirate code"
+                value={order?.isd || '+971'}
+                onChange={country => setOrder(previous => ({ ...previous, isd: country?.isd || '+971', customerId: 0, customerName: '' }))}
+                showFlag
+                showISD
+                showSearch
+                size="medium"
+              />
+            </div>
+            <div className="field">
               <label>Phone Number</label>
               <input type="text" onClick={openPhoneKeypad} placeholder="+971 · Enter phone" value={order?.isd + order?.mobile} readOnly aria-label="Customer phone number" />
             </div>
@@ -262,13 +276,13 @@ export default function NewOrderPage() {
               <input type="text" placeholder="Select date" value={order?.deliveryDate ? commonLogic.formatDate(order.deliveryDate) : ''} readOnly
                 onClick={() => setIsDatePickerOpen(true)} />
             </div>
-            <div className="field">
+            {/* <div className="field">
               <label>Price</label>
               <button type="button" className="rate-btn" id="openRateModal" onClick={() => setOpenPriceModel(true)} style={{ width: '100%' }}>
                 <span>{order?.price ? `${order.price} AED · ${order.priceGragde || 'Selected rate'}` : 'Select price'}</span>
                 <span className="arrow">›</span>
               </button>
-            </div>
+            </div> */}
             <div className="field">
               <label>Customer Type</label>
               <div className="customer-type">

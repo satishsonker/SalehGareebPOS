@@ -635,9 +635,18 @@ export default function OrderPriceSelector({
                                         <FiMinus />
                                     </button>
 
-                                    <div className="ops-counter-value">
-                                        {newSubOrderQty}
-                                    </div>
+                                    {selectedPrice.isCustom ? (
+                                        <input
+                                            aria-label="Custom sub order quantity"
+                                            className="ops-counter-value"
+                                            type="number"
+                                            min="1"
+                                            max={maxAvailableQty}
+                                            step="1"
+                                            value={newSubOrderQty}
+                                            onChange={event => setNewSubOrderQty(Math.min(maxAvailableQty, Math.max(1, Number(event.target.value) || 1)))}
+                                        />
+                                    ) : <div className="ops-counter-value">{newSubOrderQty}</div>}
 
                                     <button
                                         type="button"
@@ -698,12 +707,18 @@ export default function OrderPriceSelector({
                                         <FiMinus />
                                     </button>
 
-                                    <div className="ops-counter-value">
-                                        {Number(
-                                            selectedPrice.crystalPackets ||
-                                                0
-                                        ).toFixed(2)}
-                                    </div>
+                                    {selectedPrice.isCustom ? (
+                                        <input
+                                            aria-label="Custom crystal packet quantity"
+                                            className="ops-counter-value"
+                                            type="number"
+                                            min="0.01"
+                                            max={calculatedMaxCrystalPackets}
+                                            step="0.01"
+                                            value={selectedPrice.crystalPackets || ""}
+                                            onChange={event => setSelectedPrice(previous => ({ ...previous, crystalPackets: Math.min(calculatedMaxCrystalPackets, Math.max(0, Number(event.target.value) || 0)) }))}
+                                        />
+                                    ) : <div className="ops-counter-value">{Number(selectedPrice.crystalPackets || 0).toFixed(2)}</div>}
 
                                     <button
                                         type="button"
