@@ -71,6 +71,8 @@
   transition: background 0.15s, color 0.15s;
 }
 .pub-cust-action-btn:hover { background: var(--info-soft); color: var(--brand-primary); border-color: var(--border-soft); }
+.pub-cust-action-btn .oa-spin { animation: pub-cust-refresh-spin .9s linear infinite; }
+@keyframes pub-cust-refresh-spin { to { transform: rotate(360deg); } }
 
 .pub-cust-add-btn {
   display: flex;

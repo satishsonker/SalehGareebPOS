@@ -109,11 +109,13 @@ export default function NewOrderPage() {
           const actualDate = typeof createdOrder?.deliveryDate === 'string' ? createdOrder.deliveryDate.slice(0, 10) : '';
           if (actualDate && actualDate !== order.deliveryDate) {
             statusData.message += ` Daily capacity was reached, so delivery was moved to ${commonLogic.formatDate(actualDate)}.`;
-            setOrder(previous => ({ ...previous, deliveryDate: actualDate }));
           }
+          // Clear the entry form as soon as the successful confirmation is shown.
+          // Keep the created order id briefly so the Print action still targets it.
+          resetOrder();
+          setOrder({ ...EMPTY_CREATE_ORDER(), orderId: createdOrder?.id || 0, orderNo: createdOrder?.orderNo || '' });
         }
         setStatusModelData({ ...statusData });
-        if (response.success) setOrder(pre=>({...pre,["orderId"]:createdOrder?.id}));
       })
       .catch(error => {
         var statusData = { isOpen: true, title: 'Something went wrong', message: 'An error occurred while creating the order.', type: 'error',buttonText:'Ok',showCloseButton:true };
@@ -210,6 +212,11 @@ export default function NewOrderPage() {
     setAdvanceAmount(0);
     setAdvancePercent(0);
     setAddCustomerModalOpen(false);
+    setOpenPriceModel(false);
+    setPaymentModalOpen(false);
+    setWorkTypeSelectorModalOpen(false);
+    setKeypadMode(null);
+    setDeliveryDate('');
   };
   const handleAdvanceChange = (e,percentObj) => {
     var percent=parseFloat(percentObj?.code);

@@ -10,6 +10,7 @@ const unwrap = response => response?.data?.data ?? response?.data ?? response;
 const employeeName = user => [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || `User ${user.id}`;
 const money = value => Number(value || 0).toLocaleString('en-AE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const dateValue = value => value ? String(value).slice(0, 10) : '';
+const isInactiveSubOrder = item => item?.isDeleted || item?.isCancelled || [8, 9, 10, 11].includes(Number(item?.status)) || ['cancelled', 'canceled', 'deleted', 'partialcancelled', 'partialdeleted'].includes(String(item?.statusStr || item?.status || '').replace(/[ _-]/g, '').toLowerCase());
 
 export default function Worksheet() {
   const [orders, setOrders] = useState([]);
@@ -52,13 +53,15 @@ export default function Worksheet() {
     try {
       const detail = unwrap(await getOrderById(orderId));
       setOrder(detail);
-      setSelectedDetailId(String(detail?.orderDetails?.[0]?.id || ''));
+      const firstActiveDetail = (detail?.orderDetails || []).find(item => !isInactiveSubOrder(item));
+      setSelectedDetailId(String(firstActiveDetail?.id || ''));
     } catch (requestError) {
       setError(requestError?.message || 'Unable to load this order.');
     } finally { setLoading(false); }
   };
 
-  const selectedDetail = useMemo(() => order?.orderDetails?.find(item => String(item.id) === String(selectedDetailId)) || null, [order, selectedDetailId]);
+  const activeSubOrders = useMemo(() => (order?.orderDetails || []).filter(item => !isInactiveSubOrder(item)), [order]);
+  const selectedDetail = useMemo(() => activeSubOrders.find(item => String(item.id) === String(selectedDetailId)) || null, [activeSubOrders, selectedDetailId]);
 
   useEffect(() => {
     setWorkTypes((selectedDetail?.workTypes || []).map(item => ({
@@ -77,7 +80,7 @@ export default function Worksheet() {
   const crystalUsed = workTypes.reduce((sum, item) => sum + Number(item.crystalUsedPackets || 0), 0);
 
   const save = async () => {
-    if (!selectedDetail) return;
+    if (!selectedDetail || isInactiveSubOrder(selectedDetail)) return;
     setSaving(true); setError(''); setNotice('');
     try {
       await updateItemMeasurement(selectedDetail.id, { ...(selectedDetail.measurement || {}), modelNo });
@@ -112,7 +115,7 @@ export default function Worksheet() {
         <option value="">Select an order</option>{orders.map(item => <option key={item.id} value={item.id}>{item.orderNo} · {item.customerName}</option>)}
       </select></label>
       <label>Suborder<select value={selectedDetailId} onChange={event => setSelectedDetailId(event.target.value)} disabled={!order}>
-        <option value="">Select a suborder</option>{(order?.orderDetails || []).map(item => <option key={item.id} value={item.id}>{item.orderNo}</option>)}
+        <option value="">Select a suborder</option>{activeSubOrders.map(item => <option key={item.id} value={item.id}>{item.orderNo}</option>)}
       </select></label>
       {selectedDetail && <div className="worksheet-metrics"><span>Subtotal<strong>AED {money(selectedDetail.subtotalAmount)}</strong></span><span>Work charges<strong>AED {money(labourTotal)}</strong></span><span>Estimated margin<strong>AED {money(Number(selectedDetail.subtotalAmount || 0) - labourTotal)}</strong></span></div>}
     </section>
@@ -120,7 +123,7 @@ export default function Worksheet() {
     {error && <div className="worksheet-message worksheet-message--error" role="alert">{error}</div>}
     {notice && <div className="worksheet-message worksheet-message--success" role="status">{notice}</div>}
     {loading && <div className="worksheet-empty"><FiLoader className="worksheet-spin" /> Loading worksheet…</div>}
-    {!loading && !selectedDetail && !error && <div className="worksheet-empty">Select an order and suborder to view its worksheet.</div>}
+    {!loading && !selectedDetail && !error && <div className="worksheet-empty">{order && activeSubOrders.length === 0 ? 'This order has no active suborders for worksheet processing.' : 'Select an order and suborder to view its worksheet.'}</div>}
 
     {!loading && selectedDetail && <>
       <section className="worksheet-card worksheet-order-info">

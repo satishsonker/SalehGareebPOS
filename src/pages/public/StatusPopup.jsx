@@ -48,6 +48,16 @@ function formatCompletedBy(workType) {
   return employeeId != null ? `#${employeeId}` : '—';
 }
 
+function isPacked(item) {
+  const status = String(item?.statusStr || item?.status || '').trim().toLowerCase();
+  return status === 'packing' || Number(item?.status) === 4;
+}
+
+function isCancelled(item) {
+  const status = String(item?.statusStr || item?.status || '').replace(/[ _-]/g, '').toLowerCase();
+  return item?.isCancelled || item?.isDeleted || ['cancelled', 'canceled', 'deleted', 'partialcancelled', 'partialdeleted'].includes(status) || [8, 9, 10, 11].includes(Number(item?.status));
+}
+
 export default function StatusPopup({ order, onSaved }) {
   const [currentOrder, setCurrentOrder] = useState(order || null);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -170,10 +180,10 @@ export default function StatusPopup({ order, onSaved }) {
           {(error || notice) && <div className={`status-popup__message ${error ? 'is-error' : 'is-success'}`} role={error ? 'alert' : 'status'}>{error || notice}</div>}
 
           <div className="status-popup__panel-footer">
-            <button type="button" className="status-popup__pickup" onClick={handlePickupMessage}><FiMessageCircle /> Send Pickup Message</button>
+            {isPacked(selectedSubOrder) && <button type="button" className="status-popup__pickup" onClick={handlePickupMessage}><FiMessageCircle /> Send Pickup Message</button>}
             <nav className="status-popup__pagination" aria-label="Suborder pages">
               <button type="button" onClick={() => setSelectedIndex(index => Math.max(0, index - 1))} disabled={selectedIndex === 0}>Prev</button>
-              {subOrders.map((item, index) => <button type="button" key={item.id || index} className={index === selectedIndex ? 'is-active' : ''} aria-current={index === selectedIndex ? 'page' : undefined} onClick={() => setSelectedIndex(index)}>{index + 1}</button>)}
+              {subOrders.map((item, index) => <button type="button" key={item.id || index} className={[index === selectedIndex ? 'is-active' : '', isCancelled(item) ? 'is-cancelled' : ''].filter(Boolean).join(' ')} aria-current={index === selectedIndex ? 'page' : undefined} onClick={() => setSelectedIndex(index)}>{index + 1}</button>)}
               <button type="button" onClick={() => setSelectedIndex(index => Math.min(subOrders.length - 1, index + 1))} disabled={selectedIndex >= subOrders.length - 1}>Next</button>
             </nav>
           </div>

@@ -249,6 +249,7 @@ function Customers() {
       firstName: selected.firstName || '', lastName: selected.lastName || '',
       phone: selected.phone || '', trn: selected.trn || '',
       city: getCustomerCity(selected) || addresses.find(address => address.city?.trim())?.city || '', primaryShopId: selected.primaryShopId || selectedShop?.id || 0,
+      customerClass: selected.customerClass || 'Regular',
     });
     setEditErrors({});
     setEditOpen(true);
