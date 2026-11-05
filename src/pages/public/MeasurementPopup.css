@@ -60,7 +60,8 @@
 .measurement-popup__image-actions button,
 .measurement-popup__image-actions a,
 .measurement-popup__close,
-.measurement-popup__save {
+.measurement-popup__save,
+.measurement-popup__print {
   min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   padding: 0 12px; border: 1px solid var(--mp-border); border-radius: 7px;
   background: var(--mp-surface); color: var(--mp-text); font: inherit; font-size: .82rem;
@@ -104,6 +105,8 @@
 .measurement-popup__footer { justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--mp-border); }
 .measurement-popup__footer > span { color: var(--mp-muted); font-size: .8rem; }
 .measurement-popup__save { background: var(--mp-brand); border-color: var(--mp-brand); color: #fff; }
+.measurement-popup__print { background: #f2a900; border-color: #e59b00; color: #202938; }
+.measurement-print-sheet { display: none; }
 .measurement-popup__zoom { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; width: 100%; height: 100%; padding: 5vh 5vw; border: 0; background: rgba(0, 0, 0, .82); cursor: zoom-out; }
 .measurement-popup__zoom img { max-width: 90vw; max-height: 90vh; object-fit: contain; }
 .measurement-popup__zoom > span { position: absolute; top: 18px; right: 22px; color: #fff; font-size: 1.5rem; }
@@ -120,6 +123,47 @@
 
 .modal-container:has(.measurement-popup) { width: min(96vw, 1450px); max-width: 1450px; }
 .modal-container:has(.measurement-popup) .modal-content { padding: 16px 20px; }
+
+@media print {
+  @page { size: 4in 6in; margin: 0; }
+  html, body { width: 4in !important; min-width: 4in !important; height: 6in !important; min-height: 6in !important; margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  body * { visibility: hidden !important; }
+  .measurement-print-sheet,
+  .measurement-print-sheet * { visibility: visible !important; }
+  .measurement-print-sheet { display: block !important; position: fixed !important; inset: 0 auto auto 0 !important; width: 4in !important; margin: 0 !important; padding: 0 !important; color: #182638 !important; background: #fff !important; font-family: Arial, Helvetica, sans-serif !important; }
+  .measurement-print-page { position: relative !important; box-sizing: border-box !important; width: 4in !important; height: 6in !important; overflow: hidden !important; break-after: page !important; page-break-after: always !important; }
+  .measurement-print-page:last-child { break-after: auto !important; page-break-after: auto !important; }
+  .measurement-print-slip { position: absolute !important; top: 0 !important; left: 4in !important; transform: rotate(90deg) !important; transform-origin: top left !important; box-sizing: border-box !important; display: flex !important; flex-direction: column !important; width: 6in !important; height: 4in !important; overflow: hidden !important; padding: .12in !important; border: 2px solid #111 !important; border-radius: .25in !important; background: #fff !important; }
+  .measurement-print-slip__header { display: grid !important; grid-template-columns: 1fr auto !important; align-items: center !important; min-height: .38in !important; padding: 0 .12in .04in !important; border-bottom: 2px solid #111 !important; }
+  .measurement-print-slip__header strong { font-size: 15pt !important; }
+  .measurement-print-slip__header b { font-size: 19pt !important; }
+  .measurement-print-slip__meta { display: flex !important; flex-wrap: wrap !important; align-items: center !important; justify-content: space-between !important; gap: .04in .12in !important; min-height: .48in !important; padding: .04in .12in !important; border-bottom: 2px solid #111 !important; font-size: 9pt !important; }
+  .measurement-print-slip__meta span { white-space: nowrap !important; }
+  .measurement-print-slip__meta b { font-size: 10pt !important; }
+  .measurement-print-slip__meta span:last-child b { color: #e33 !important; font-size: 12pt !important; }
+  .measurement-print-slip__body { display: grid !important; grid-template-columns: 2.55in .78in .82in 1fr !important; flex: 1 !important; min-height: 0 !important; gap: .08in !important; padding: .08in .04in .02in !important; }
+  .measurement-print-slip__steps { min-width: 0 !important; overflow: hidden !important; }
+  .measurement-print-slip__column-title { display: grid !important; grid-template-columns: 1.35in 1fr !important; margin-bottom: .06in !important; color: #999 !important; font-size: 8pt !important; }
+  .measurement-print-slip__step { display: grid !important; grid-template-columns: 1.35in 1fr !important; gap: .04in !important; min-height: .25in !important; font-size: 8pt !important; line-height: 1.1 !important; }
+  .measurement-print-slip__step b,
+  .measurement-print-slip__step span { overflow: hidden !important; text-overflow: ellipsis !important; }
+  .measurement-print-slip__diagrams,
+  .measurement-print-slip__measurements { display: flex !important; flex-direction: column !important; align-items: center !important; gap: .025in !important; font-size: 8pt !important; }
+  .measurement-print-slip__diagrams > b,
+  .measurement-print-slip__measurements > b { color: #999 !important; font-size: 8pt !important; }
+  .measurement-print-slip__diagrams svg { overflow: visible !important; flex: 0 0 auto !important; }
+  .measurement-print-slip__neck-svg { width: .74in !important; height: 1.05in !important; }
+  .measurement-print-slip__sleeve-svg { width: .82in !important; height: .5in !important; }
+  .measurement-print-slip__diagrams path { fill: none !important; stroke: #111 !important; stroke-width: 1.5 !important; }
+  .measurement-print-slip__diagrams text { text-anchor: middle !important; font-size: 15px !important; font-weight: bold !important; }
+  .measurement-print-slip__measurements { align-items: flex-start !important; gap: .01in !important; font-size: 9pt !important; }
+  .measurement-print-slip__measurements span { white-space: nowrap !important; }
+  .measurement-print-slip__measurements strong { display: inline-block !important; min-width: .35in !important; font-weight: 400 !important; }
+  .measurement-print-slip__notes { display: flex !important; flex-direction: column !important; gap: .05in !important; overflow: hidden !important; font-size: 8pt !important; }
+  .measurement-print-slip__notes > b { color: #999 !important; font-size: 8pt !important; }
+  .measurement-print-slip__notes > span { overflow-wrap: anywhere !important; }
+  .measurement-print-slip footer { flex: 0 0 .2in !important; padding: .03in .08in 0 !important; color: #999 !important; font-size: 7pt !important; }
+}
 
 @media (max-width: 900px) {
   .measurement-popup__main { grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr); gap: 14px; }

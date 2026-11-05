@@ -72,8 +72,12 @@ const getStatusIndex = status => {
 
 const isCancelled = status => {
     const normalized = normalizeStatus(status);
-    return normalized === "cancel" || normalized === "cancelled";
+    return ["cancel", "cancelled", "canceled", "deleted"].includes(normalized) || [8, 9].includes(Number(status));
 };
+
+const isCancelledSubOrder = item => item?.isCancelled === true || item?.isDeleted === true ||
+    [8, 9, 10, 11].includes(Number(item?.statusCode ?? item?.status)) ||
+    ["cancel", "cancelled", "canceled", "deleted", "partialcancelled", "partial cancelled", "partial-cancelled", "partialdeleted"].includes(normalizeStatus(item?.statusStr || item?.status));
 
 const isPartialCancelled = order => {
     const normalized = normalizeStatus(order?.statusStr || order?.status);
@@ -116,9 +120,12 @@ const formatAmount = amount =>
 
 const getStatusLabel = status => {
     const normalized = normalizeStatus(status);
+    if ([8, 9].includes(Number(status))) return Number(status) === 9 ? "Deleted" : "Cancelled";
+    if ([10, 11].includes(Number(status))) return "Partial Cancelled";
 
     if (isPartialDelivered(normalized)) return "Partial Delivered";
     if (["partialcancelled", "partial cancelled", "partial-cancelled"].includes(normalized)) return "Partial Cancelled";
+    if (normalized === "deleted") return "Deleted";
     if (isCancelled(normalized)) return "Cancelled";
     if (normalized === "active") return "Active";
     if (normalized === "processing") return "Processing";
@@ -130,18 +137,11 @@ const getStatusLabel = status => {
 };
 
 const getOrderPaymentHistory = order => {
-    if (Array.isArray(order?.paymentHistory) && order.paymentHistory.length > 0) return order.paymentHistory;
-    if (Array.isArray(order?.payments) && order.payments.length > 0) return order.payments;
-
-    return [
-        {
-            id: 1,
-            amount: Number(order?.advanceAmount || order?.totalInvoiced || 0),
-            method: order?.paymentMode || "Cash",
-            date: order?.orderDate || new Date().toISOString(),
-            note: "Initial deposit"
-        }
-    ];
+    const entries = [order?.ledgers, order?.paymentHistory, order?.payments].find(value => Array.isArray(value) && value.length) || [];
+    return entries
+        .filter(entry => ["advance", "payment"].includes(String(entry?.entryType || entry?.type || "").trim().toLowerCase()))
+        .slice()
+        .sort((a, b) => new Date(b.transactionDate || b.date || 0) - new Date(a.transactionDate || a.date || 0));
 };
 
 const getWorkTypeStatus = status => {
@@ -199,7 +199,12 @@ function getOrderStatusDate(history, status, orderDate) {
     const normalizedStatus = normalizeStatus(status);
     const statusHistory = Array.isArray(history) ? history : [];
     const match = statusHistory
-        .filter(entry => normalizeStatus(entry?.newStatusStr || entry?.newStatus) === normalizedStatus)
+        .filter(entry => {
+            const changedStatus = normalizeStatus(entry?.newStatusStr || entry?.newStatus);
+            return normalizedStatus === "cancelled"
+                ? ["cancel", "cancelled", "canceled", "deleted", "8", "9", "10", "11"].includes(changedStatus)
+                : changedStatus === normalizedStatus;
+        })
         .sort((a, b) => new Date(a.changedOnUtc) - new Date(b.changedOnUtc))[0];
 
     if (match?.changedOnUtc) return formatDate(match.changedOnUtc);
@@ -460,6 +465,7 @@ function SearchOrders() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [orderDetailsTab, setOrderDetailsTab] = useState("details");
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [detailLoading, setDetailLoading] = useState(false);
     const [detailError, setDetailError] = useState("");
@@ -540,10 +546,12 @@ function SearchOrders() {
             const res = await getOrderById(order.id);
             const detail = res?.data?.data ?? res?.data ?? {};
             setSelectedOrder(detail);
+            setOrderDetailsTab("details");
             setActiveModalType(modalType);
             setIsDetailModalOpen(true);
         } catch {
             setSelectedOrder(order);
+            setOrderDetailsTab("details");
             setActiveModalType(modalType);
             setIsDetailModalOpen(true);
             setDetailError('Failed to load order details.');
@@ -753,6 +761,12 @@ function SearchOrders() {
                     </div>
                 </div>
 
+                <div className="so-order-detail-tabs" role="tablist" aria-label="Order detail sections">
+                    <button type="button" role="tab" aria-selected={orderDetailsTab === "details"} className={orderDetailsTab === "details" ? "is-active" : ""} onClick={() => setOrderDetailsTab("details")}><FiClipboard /> Order Details</button>
+                    <button type="button" role="tab" aria-selected={orderDetailsTab === "payments"} className={orderDetailsTab === "payments" ? "is-active" : ""} onClick={() => setOrderDetailsTab("payments")}><FiCreditCard /> Payment History <span>{getOrderPaymentHistory(selectedOrder).length}</span></button>
+                </div>
+
+                {orderDetailsTab === "details" ? <>
                 <div className="so-modal__section">
                     <h3><FiClipboard /> Order Information</h3>
                     <div className="so-modal__grid">
@@ -770,7 +784,7 @@ function SearchOrders() {
                     {(selectedOrder.orderDetails || []).length > 0 ? (
                         <div className="so-modal__items">
                             {selectedOrder.orderDetails.map((item) => (
-                                <div key={item.id ?? `${selectedOrder.id}-${item.orderNo || Math.random()}`} className="so-modal__item">
+                                <div key={item.id ?? `${selectedOrder.id}-${item.orderNo || Math.random()}`} className={`so-modal__item ${isCancelledSubOrder(item) ? "so-modal__item--cancelled" : ""}`}>
                                     <div className="so-modal__item-header">
                                         <strong>{item.orderNo || `Item ${item.id}`}</strong>
                                         <span>{item.packingType ? `${item.status || "Active"} · ${item.packingType}` : item.status || "Active"}</span>
@@ -791,6 +805,11 @@ function SearchOrders() {
                                             ))}
                                         </div>
                                     )}
+                                    {isCancelledSubOrder(item) && <div className="so-suborder-status-banner"><FiX /> {getStatusLabel(item.statusStr || item.status)}</div>}
+                                    <div className="so-suborder-timeline">
+                                        <strong>Status timeline</strong>
+                                        <OrderStatusTimeline status={item.statusStr || item.status} history={item.orderStatusHistory} orderDate={selectedOrder.orderDate} />
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -798,6 +817,18 @@ function SearchOrders() {
                         <div className="so-modal__empty">No order items available.</div>
                     )}
                 </div>
+                </> : <div className="so-modal__section so-order-payment-history">
+                    <h3><FiCreditCard /> Order Payment History</h3>
+                    {getOrderPaymentHistory(selectedOrder).length ? <div className="so-order-payment-history__list">
+                        {getOrderPaymentHistory(selectedOrder).map((payment, index) => <article className="so-order-payment-history__entry" key={payment.id || `${payment.transactionDate || payment.date}-${index}`}>
+                            <span className="so-order-payment-history__icon"><FiCreditCard /></span>
+                            <div className="so-order-payment-history__main"><strong>{payment.entryType || payment.type || "Payment"}</strong><span>{formatDate(payment.transactionDate || payment.date)}{payment.paymentMode || payment.method ? ` · ${payment.paymentMode || payment.method}` : ""}</span>
+                                {(payment.reference || payment.remarks || payment.note) && <small>{[payment.reference, payment.remarks || payment.note].filter(Boolean).join(" · ")}</small>}
+                            </div>
+                            <strong className="so-order-payment-history__amount">AED {formatAmount(payment.amount)}</strong>
+                        </article>)}
+                    </div> : <div className="so-modal__empty">No payment history is recorded for this order.</div>}
+                </div>}
             </div>
         );
     };

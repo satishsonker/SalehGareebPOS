@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  FiCheck, FiDownload, FiEye, FiImage, FiLoader, FiSave, FiUpload, FiX
+  FiCheck, FiDownload, FiEye, FiImage, FiLoader, FiPrinter, FiSave, FiUpload, FiX
 } from 'react-icons/fi';
 import { getOrderById, getCustomerMeasurements, updateItemMeasurement, uploadSubOrderImage } from '../../services/api/ordersApi';
 import { getMasterDataByType } from '../../services/api/masterDataApi';
 import { getWorkTypeDescriptions, getWorkTypes } from '../../services/api/workTypeApi';
 import { apiRequest } from '../../utils/api';
 import { apiBasePath } from '../../services/api/commonApi';
+import { useAuth } from '../../contexts/AuthContext';
 import './MeasurementPopup.css';
 
 const measurementFields = [
@@ -25,6 +26,18 @@ function unwrapData(response) {
 function imageUrl(path) {
   if (!path) return '';
   return /^https?:\/\//i.test(path) ? path : `${apiBasePath}${path.startsWith('/') ? '' : '/'}${path}`;
+}
+
+function printDate(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString('en-GB');
+}
+
+function printValue(value) {
+  if (value === null || value === undefined || value === '') return '';
+  if (typeof value === 'string' && /^[-–—]+$/.test(value.trim())) return '';
+  return value;
 }
 
 function initialMeasurement(item) {
@@ -60,6 +73,7 @@ function isInactiveOrder(item) {
 }
 
 export default function MeasurementPopup({ order, onClose, onSaved }) {
+  const { selectedShop } = useAuth();
   const [currentOrder, setCurrentOrder] = useState(order || null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [measurement, setMeasurement] = useState(() => initialMeasurement(order?.orderDetails?.[0]));
@@ -145,6 +159,9 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
     ...savedSizes
   ])], [sizes, savedSizes]);
   const selectedSubOrder = subOrders[selectedIndex] || null;
+  const printSubOrders = subOrders.map(item => String(item.id) === String(selectedSubOrder?.id)
+    ? { ...item, measurement: { ...(item.measurement || {}), ...measurement }, workTypes: measurement.workTypes || item.workTypes || [] }
+    : item);
 
   useEffect(() => {
     setMeasurement(initialMeasurement(selectedSubOrder));
@@ -282,6 +299,7 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
 
   if (!currentOrder) return null;
   const imageSrc = imageUrl(measurement.modelImageUrl);
+  const customerName = currentOrder.customerName || [currentOrder.customer?.firstName, currentOrder.customer?.lastName].filter(Boolean).join(' ') || '—';
 
   return (
     <div className="measurement-popup so-modal__content">
@@ -404,7 +422,8 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
       {(error || notice) && <div className={`measurement-popup__message ${error ? 'is-error' : 'is-success'}`} role={error ? 'alert' : 'status'}>{error || notice}</div>}
       <div className="measurement-popup__footer">
         <span>Order #{currentOrder.orderNo || currentOrder.id}</span>
-        <div><button className="measurement-popup__close" type="button" onClick={onClose} disabled={saving}>Close</button>
+        <div><button className="measurement-popup__print" type="button" onClick={() => window.print()} disabled={loading || !printSubOrders.length}><FiPrinter /> Print all slips (6 × 4)</button>
+          <button className="measurement-popup__close" type="button" onClick={onClose} disabled={saving}>Close</button>
           <button className="measurement-popup__save" type="button" onClick={handleSave} disabled={saving || loading || uploading || !selectedSubOrder}>
             {saving ? <FiLoader className="so-button-spinner" /> : <FiSave />} {saving ? 'Saving…' : 'Save Measurement'}
           </button>
@@ -412,6 +431,48 @@ export default function MeasurementPopup({ order, onClose, onSaved }) {
       </div>
 
       {zoomOpen && <button className="measurement-popup__zoom" type="button" onClick={() => setZoomOpen(false)} aria-label="Close image zoom"><span><FiX /></span><img src={zoomSource || imageSrc} alt="Zoomed measurement reference" /></button>}
+
+      <div className="measurement-print-sheet" aria-hidden="true">
+        {printSubOrders.map((item, index) => {
+          const slipMeasurement = item.measurement || {};
+          const workTypes = item.workTypes || [];
+          const details = workTypes.flatMap(workType => (workType.workDescriptions || []).map(description => ({
+            step: workType.name || workType.code || 'Work',
+            description: description.name || description.workTypeDescription?.name || workDescriptionList.find(entry => String(entry.id) === String(description.id))?.name || description.description || ''
+          })));
+          if (!details.length) workTypes.forEach(workType => details.push({ step: workType.name || workType.code || 'Work', description: '—' }));
+          const price = item.totalAmount ?? item.subtotalAmount ?? item.price;
+          const measurements = [
+            ['L', slipMeasurement.length], ['C', slipMeasurement.chest], ['W', slipMeasurement.waist],
+            ['H', slipMeasurement.hip], ['B', slipMeasurement.bottom], ['S', slipMeasurement.sleeve],
+            ['N', slipMeasurement.neck], ['D', slipMeasurement.deep], ['SL', slipMeasurement.sleeveLoose],
+            ['SH', slipMeasurement.shoulder], ['BD', slipMeasurement.backDown]
+          ];
+          const parentOrderNo = String(currentOrder.orderNo || currentOrder.id || '');
+          const rawSubOrderNo = item.orderNo || item.subOrderNo || item.OrderNo || '';
+          const rawSuffix = String(rawSubOrderNo).match(/-(\d+)$/)?.[1] || (/^\d+$/.test(String(rawSubOrderNo)) ? String(rawSubOrderNo) : '');
+          const subOrderNo = `${parentOrderNo}-${rawSuffix || index + 1}`;
+          return <div className="measurement-print-page" key={item.id || index}><article className="measurement-print-slip">
+            <header className="measurement-print-slip__header"><strong>{selectedShop?.shopName || selectedShop?.name || currentOrder.shopName || currentOrder.shop?.shopName || currentOrder.shop?.name || 'Shop'}</strong><b>{subOrderNo}</b></header>
+            <section className="measurement-print-slip__meta">
+              <span>Customer: <b>{customerName}</b></span>
+              <span>D Date: <b>{printDate(item.deliveryDate || currentOrder.deliveryDate)}</b></span>
+              <span>Crystals: <b>{printValue(item.crystalPackets)} pk</b></span>
+              <span>Grade: <b>{printValue(item.grade)}</b></span>
+              <span>Price: <b>{price === undefined ? '—' : Number(price).toLocaleString('en-AE')}</b></span>
+            </section>
+            <section className="measurement-print-slip__body">
+              <div className="measurement-print-slip__steps"><div className="measurement-print-slip__column-title"><b>Step</b><b>Details</b></div>
+                {details.slice(0, 10).map((detail, row) => <div className="measurement-print-slip__step" key={`${detail.step}-${row}`}><b>{row + 1}. {detail.step}</b><span>{detail.description}</span></div>)}
+              </div>
+              <div className="measurement-print-slip__diagrams"><b>Neck</b><svg className="measurement-print-slip__neck-svg" viewBox="0 0 100 110" role="img" aria-label={`Neck shape ${slipMeasurement.shape || ''}`}><path d="M8 12h25c8 18 26 18 34 0h25L51 98z"/><text x="50" y="62">{slipMeasurement.shape || ''}</text></svg><b>Sleeves</b><svg className="measurement-print-slip__sleeve-svg" viewBox="0 0 120 70" role="img" aria-label="Sleeve reference"><path d="M8 16 112 5v58L8 52z"/></svg></div>
+              <div className="measurement-print-slip__measurements"><b>Measurement</b>{measurements.map(([label, value]) => <span key={label}>{label} <strong>{printValue(value)}</strong></span>)}</div>
+              <div className="measurement-print-slip__notes"><b>Notes</b><span>{item.note || slipMeasurement.notes || slipMeasurement.description || '—'}</span></div>
+            </section>
+            <footer>Printed {new Date().toLocaleString('en-GB')} · Saleh Ghareeb Tailoring</footer>
+          </article></div>;
+        })}
+      </div>
     </div>
   );
 }
