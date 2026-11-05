@@ -17,6 +17,7 @@ import About from './pages/public/About';
 import NewOrderPage from './pages/public/Order/NewOrderPage';
 import SearchOrders from './pages/public/SearchOrders';
 import Customers from './pages/public/Customer/Customers';
+import TopCustomerAnalytics from './pages/public/Customer/TopCustomerAnalytics';
 import Advances from './pages/public/Advances/Advances';
 import OrderAlerts from './pages/public/OrderAlerts/OrderAlerts';
 import Worksheet from './pages/public/Worksheet';
@@ -102,6 +103,7 @@ function App() {
                       <Route path="orders/create" element={<TileAccessRoute><NewOrderPage /></TileAccessRoute>} />
                       <Route path="orders/search" element={<TileAccessRoute><SearchOrders /></TileAccessRoute>} />
                       <Route path="customers" element={<TileAccessRoute><Customers /></TileAccessRoute>} />
+                      <Route path="customer/toplist" element={<TileAccessRoute><TopCustomerAnalytics /></TileAccessRoute>} />
                       <Route path="orders/advance" element={<TileAccessRoute><Advances /></TileAccessRoute>} />
                       <Route path="orders/alerts" element={<TileAccessRoute><OrderAlerts /></TileAccessRoute>} />
                       <Route path="orders/worksheet" element={<TileAccessRoute><Worksheet /></TileAccessRoute>} />
