@@ -2037,3 +2037,13 @@
     .new-order-page .pos-checkout-actions { position: sticky; bottom: 0; }
     .new-order-page .pos-checkout > * { flex: 0 0 auto; }
 }
+.customer-policy-overlay { position: fixed; inset: 0; z-index: 12000; display: grid; place-items: center; padding: 18px; background: rgba(15, 23, 42, .62); }
+.customer-policy-dialog { width: min(560px, 100%); max-height: 85vh; overflow: auto; padding: 24px; border-radius: 16px; background: var(--surface, #fff); color: var(--text-primary, #172033); box-shadow: 0 20px 60px rgba(0,0,0,.28); }
+.customer-policy-dialog h2 { margin: 0 0 12px; }
+.customer-policy-dialog.is-blocked { border-top: 5px solid #dc2626; }
+.customer-policy-dialog-block, .customer-policy-dialog-alert { margin: 12px 0; padding: 14px; border-radius: 10px; background: #fef2f2; }
+.customer-policy-dialog-block p, .customer-policy-dialog-alert p { margin: 7px 0; }
+.customer-policy-dialog-block small { display: block; margin-top: 5px; }
+.customer-policy-dialog-alert { background: #fffbeb; border-left: 4px solid #f59e0b; }
+.customer-policy-dialog button { min-height: 42px; padding: 0 20px; border: 0; border-radius: 9px; background: #1d4ed8; color: white; font-weight: 700; cursor: pointer; }
+.customer-policy-dialog.is-blocked button { background: #991b1b; }

@@ -472,3 +472,17 @@
 .pub-cust-order-card span { color: var(--text-secondary, #64748b); font-size: .72rem; }
 .pub-cust-order-card strong { color: var(--text-primary, #172033); font-size: .8rem; }
 @media (max-width: 700px) { .pub-cust-order-card { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pub-cust-order-card > div:first-child { grid-column: 1 / -1; } }
+.customer-policy-panel { display: flex; flex-direction: column; gap: 12px; }
+.customer-policy-form { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--border-color, #e5e7eb); border-radius: 10px; }
+.customer-policy-form textarea { width: 100%; min-height: 72px; padding: 10px; resize: vertical; border: 1px solid var(--border-color, #d1d5db); border-radius: 8px; font: inherit; }
+.customer-policy-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.customer-policy-controls select { min-height: 36px; padding: 4px 9px; border: 1px solid var(--border-color, #d1d5db); border-radius: 8px; }
+.customer-policy-block, .customer-policy-alert, .customer-policy-request { padding: 12px; border-radius: 10px; background: var(--surface-muted, #f8fafc); }
+.customer-policy-block { color: #991b1b; background: #fef2f2; }
+.customer-policy-block b, .customer-policy-form label { display: flex; align-items: center; gap: 6px; }
+.customer-policy-block small, .customer-policy-alert small, .customer-policy-request small { display: block; margin-top: 5px; color: #64748b; }
+.customer-policy-alert { border-left: 3px solid #f59e0b; }
+.customer-policy-alert p, .customer-policy-request p { margin: 5px 0; }
+.customer-policy-request { display: flex; flex-direction: column; gap: 4px; }
+.customer-policy-request span, .customer-policy-history { color: #64748b; font-size: 12px; }
+.customer-policy-history { padding: 4px 0; border-top: 1px solid var(--border-color, #e5e7eb); }

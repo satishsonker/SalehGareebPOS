@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   FiRefreshCw, FiDownload, FiFilter, FiPlus, FiMinus, FiUser, FiLock,
   FiUnlock, FiMapPin, FiPhone, FiClock, FiTrash2,
@@ -34,6 +35,7 @@ const EMPTY_ADDRESS = {
 const ADDRESS_TYPES = ['Home', 'Work', 'Other'];
 
 function CustomersMasterData() {
+  const navigate = useNavigate();
   const { success, error: showError, confirm } = useNotification();
   const { selectedShop, user } = useAuth();
 
@@ -141,6 +143,9 @@ function CustomersMasterData() {
         setBlockError('');
         setBlockType('admin');
         setBlockOpen(true);
+        break;
+      case 'customerPolicies':
+        navigate('/admin/customer-policies');
         break;
       case 'blockSalesman':
         setSelected(row);
@@ -394,11 +399,8 @@ function CustomersMasterData() {
         emptyMessage="No customers found"
         defaultActions={{ view: true, edit: true, delete: true }}
         actionMenuItems={[
-          { id: 'blockAdmin', label: 'Block (Admin)', icon: <FiLock />, action: 'blockAdmin', visible: (r) => !r.isBlocked },
-          { id: 'blockSalesman', label: 'Block (Salesman)', icon: <FiLock />, action: 'blockSalesman', visible: (r) => !r.isBlocked },
-          { id: 'unblock', label: 'Unblock', icon: <FiUnlock />, action: 'unblock', visible: (r) => r.isBlocked },
+          { id: 'customerPolicies', label: 'Block / alert requests', icon: <FiLock />, action: 'customerPolicies', visible: () => true },
           { id: 'addresses', label: 'Addresses', icon: <FiMapPin />, action: 'addresses', visible: () => true },
-          { id: 'blockHistory', label: 'Block History', icon: <FiClock />, action: 'blockHistory', visible: () => true },
         ]}
         toolbar={toolbar}
       />

@@ -34,6 +34,7 @@ import Dashboard from './pages/admin/Dashboard';
 import SystemData from './pages/admin/SystemData';
 import UserCreationPage from './pages/admin/UserCreationPage';
 import AdminSettings from './pages/admin/AdminSettings';
+import CustomerPolicies from './pages/admin/CustomerPolicies';
 import ShopSelection from './pages/auth/ShopSelection';
 import PasswordRecovery from './pages/auth/PasswordRecovery';
 import {
@@ -122,6 +123,7 @@ function App() {
                       <Route path="user-creation" element={<UserCreationPage />} />
                       <Route path="settings" element={<AdminSettings />} />
                       <Route path="customers" element={<CustomersMasterData />} />
+                      <Route path="customer-policies" element={<CustomerPolicies />} />
                       <Route path="order-prices" element={<OrderPriceMasterData />} />
                       <Route path="tile-access" element={<UserTilePermissions />} />
                       <Route path="tiles" element={<TilesMasterData />} />

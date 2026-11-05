@@ -19,6 +19,7 @@ import StatusModal from '../../../components/StatusModel/StatusModel';
 import { getWorkTypes } from '../../../services/api/workTypeApi';
 import PrintOrderReceiptPopup from './PrintOrderReceiptPopup';
 import CountrySelect from '../../../components/CountrySelect/CountrySelect';
+import { getCustomerPolicy } from '../../../services/api/customerPoliciesApi';
 export default function NewOrderPage() {
   const navigate = useNavigate();
   const vat = parseFloat(process.env.REACT_APP_VAT?? '5');
@@ -71,6 +72,10 @@ export default function NewOrderPage() {
   const [advancePercent, setAdvancePercent] = useState(0);
   const [statusModelData, setStatusModelData] = useState({ isOpen: false, title: '', message: '', type: 'info', onConfirm: null });
   const [showPrintReceiptPopup, setShowPrintReceiptPopup] = useState(false);
+  const [customerPolicy, setCustomerPolicy] = useState(null);
+  const [policyDialogOpen, setPolicyDialogOpen] = useState(false);
+  const [policyLoading, setPolicyLoading] = useState(false);
+  const [policyLoadError, setPolicyLoadError] = useState('');
   const openPhoneKeypad = () => {
     setPhone(order.mobile || '');
     setKeypadMode('phone');
@@ -140,6 +145,18 @@ export default function NewOrderPage() {
 
   const ValidateOrder = () => {
     var errorObject = null;
+    if (policyLoading) {
+      setStatusModelData({ isOpen: true, title: 'Checking customer rules', message: 'Please wait while customer block rules are checked.', type: 'info' });
+      return false;
+    }
+    if (policyLoadError) {
+      setPolicyDialogOpen(true);
+      return false;
+    }
+    if (customerPolicy?.isBlocked) {
+      setPolicyDialogOpen(true);
+      return false;
+    }
     if (order.deliveryDate === '') {
       errorObject = { isOpen: true, title: 'Invalid Delivery Date', message: 'Select delivery date', type: 'error' };
     }
@@ -162,6 +179,22 @@ export default function NewOrderPage() {
     }
     return true;
   }
+
+  useEffect(() => {
+    let active = true;
+    if (!order.customerId) { setCustomerPolicy(null); setPolicyLoadError(''); setPolicyDialogOpen(false); return () => { active = false; }; }
+    setPolicyLoading(true); setPolicyLoadError(''); setCustomerPolicy(null);
+    getCustomerPolicy(order.customerId).then(response => {
+      if (!active) return;
+      const policy = response?.data?.data ?? response?.data ?? response;
+      setCustomerPolicy(policy);
+      if (policy?.isBlocked || policy?.alerts?.length) setPolicyDialogOpen(true);
+    }).catch(error => {
+      if (!active) return;
+      setPolicyLoadError(error?.response?.data?.message || error?.response?.data?.title || 'Could not verify customer rules.');
+    }).finally(() => { if (active) setPolicyLoading(false); });
+    return () => { active = false; };
+  }, [order.customerId]);
 
   useEffect(() => {
     multipleGet([getCustomers(1, 100), getEmirates(), getMasterDataByTypes([enums.masterDataCode.paymentMode, enums.masterDataCode.bookingType, enums.masterDataCode.urgency, enums.masterDataCode.length, enums.masterDataCode.neckline, enums.masterDataCode.sleeve, enums.masterDataCode.advancePercentage]), getWorkTypes()])
@@ -217,6 +250,8 @@ export default function NewOrderPage() {
     setWorkTypeSelectorModalOpen(false);
     setKeypadMode(null);
     setDeliveryDate('');
+    setCustomerPolicy(null);
+    setPolicyDialogOpen(false);
   };
   const handleAdvanceChange = (e,percentObj) => {
     var percent=parseFloat(percentObj?.code);
@@ -520,6 +555,16 @@ export default function NewOrderPage() {
           setStatusModelData({ ...statusModelData, isOpen: false });
         }}
       />
+      {policyDialogOpen && (customerPolicy || policyLoadError) && <div className="customer-policy-overlay" role="presentation">
+        <div className={`customer-policy-dialog ${customerPolicy?.isBlocked ? 'is-blocked' : ''}`} role="dialog" aria-modal="true" aria-labelledby="customer-policy-title">
+          <h2 id="customer-policy-title">{customerPolicy?.isBlocked ? 'Order creation blocked' : policyLoadError ? 'Customer rules unavailable' : 'Customer alert'}</h2>
+          {customerPolicy?.isBlocked && <div className="customer-policy-dialog-block"><strong>{customerPolicy.customerName} · {customerPolicy.mobile}</strong><p>{customerPolicy.block?.reason}</p><small>Applies to {customerPolicy.block?.scope}{customerPolicy.block?.shopName ? ` · ${customerPolicy.block.shopName}` : ''}</small><small>Approved by {customerPolicy.block?.approvedBy} · {commonLogic.formatDate(customerPolicy.block?.blockedAt)}</small></div>}
+          {!customerPolicy?.isBlocked && policyLoadError && <p>{policyLoadError} Order save will remain unavailable until the rules can be checked.</p>}
+          {!customerPolicy?.isBlocked && !policyLoadError && <p>Please note the following customer information. You can continue creating the order.</p>}
+          {customerPolicy?.alerts?.map(alert => <div className="customer-policy-dialog-alert" key={alert.id}><b>{alert.scope} alert</b><p>{alert.message}</p></div>)}
+          <button type="button" disabled={policyLoading} onClick={() => setPolicyDialogOpen(false)}>{customerPolicy?.isBlocked ? 'Close' : 'Continue'}</button>
+        </div>
+      </div>}
       <AddCustomerModel emirateList={emirateList} order={order} setOrder={setOrder} addCustomerModalOpen={addCustomerModalOpen} setAddCustomerModalOpen={setAddCustomerModalOpen}></AddCustomerModel>
       <PrintOrderReceiptPopup
         isOpen={showPrintReceiptPopup}

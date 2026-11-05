@@ -17,6 +17,7 @@ import {
 import { getCustomerOrders } from '../../../services/api/ordersApi';
 import { commonLogic } from '../../../utils/commonLogic';
 import { mergeValidationErrorsFromApi } from '../../../utils/apiError';
+import CustomerPolicyPanel from './CustomerPolicyPanel';
 import './Customers.css';
 
 const EMPTY_CUSTOMER = {
@@ -361,6 +362,8 @@ function Customers() {
               <DetailRow label="Created" value={commonLogic.formatDate(selected.createdAt)} />
             </div>
           </div>
+
+          <CustomerPolicyPanel customer={selected} />
 
           {/* Addresses */}
           <div className="pub-cust-section">
