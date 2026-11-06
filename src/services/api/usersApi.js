@@ -22,6 +22,10 @@ export const getUsers = (pageNo,pageSize) => {
   return get(`/Users/get/users?pageNo=${pageNo}&pageSize=${pageSize}`);
 };
 
+// Admin-only employee management directory
+export const getManagedUsers = (pageNo = 1, pageSize = 10) =>
+  get(`/Users/admin/management?pageNo=${pageNo}&pageSize=${pageSize}`);
+
 // Get user by ID
 export const getUserById = (id) => {
   return get(`/Users/${id}`);

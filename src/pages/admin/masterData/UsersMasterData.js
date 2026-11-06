@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { FiRefreshCw, FiDownload, FiFilter, FiMail, FiUser, FiLock, FiUnlock, FiKey, FiPhoneCall, FiShield, FiCamera } from 'react-icons/fi';
 import DataGrid from '../../../components/DataGrid';
 import Modal from '../../../components/Modal/Modal';
@@ -7,7 +8,7 @@ import TextBox from '../../../components/TextBox/TextBox';
 import Select from '../../../components/Select/Select';
 import CountrySelect from '../../../components/CountrySelect/CountrySelect';
 import { useNotification } from '../../../components/Notification';
-import { getUsers, getUserById, updateUser, deleteUser, blockUser, unblockUser, register, uploadProfilePicture, deleteProfilePicture } from '../../../services/api/usersApi';
+import { getManagedUsers, getUserById, updateUser, deleteUser, blockUser, unblockUser, register, uploadProfilePicture, deleteProfilePicture } from '../../../services/api/usersApi';
 import ImageUploadModal from '../../../components/ImageUpload/ImageUploadModal';
 import { getRoles } from '../../../services/api/roleApi';
 import { tableHeaderFormat } from '../../../utils/tableHeaderFormat';
@@ -67,7 +68,7 @@ function UsersMasterData() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await getUsers(pageNo, pageSize);
+      const response = await getManagedUsers(pageNo, pageSize);
       if (response.success && response.data) {
         setUsers(response.data?.data || []);
         setTotalRecords(response.data?.totalRecords ?? 0);
@@ -454,6 +455,7 @@ function UsersMasterData() {
   const customToolbar = (
     <>
       <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto', alignItems: 'center' }}>
+        <Link className="button button-primary" to="/admin/user-creation" style={{ display: 'inline-flex', alignItems: 'center', padding: '8px 12px', borderRadius: 6, textDecoration: 'none' }}>Add Employee</Link>
         <div style={{ display: 'flex', gap: '0.25rem', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '0.25rem', backgroundColor: 'var(--bg-primary)' }}>
           <Button
             variant="ghost"

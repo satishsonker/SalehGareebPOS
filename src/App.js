@@ -36,6 +36,8 @@ import SystemData from './pages/admin/SystemData';
 import UserCreationPage from './pages/admin/UserCreationPage';
 import AdminSettings from './pages/admin/AdminSettings';
 import CustomerPolicies from './pages/admin/CustomerPolicies';
+import EmployeeManagement from './pages/admin/EmployeeManagement';
+import ApplicationActivityLog from './pages/admin/ApplicationActivityLog';
 import ShopSelection from './pages/auth/ShopSelection';
 import PasswordRecovery from './pages/auth/PasswordRecovery';
 import {
@@ -123,6 +125,8 @@ function App() {
                       <Route index element={<Dashboard />} />
                       <Route path="system-data" element={<SystemData />} />
                       <Route path="user-creation" element={<UserCreationPage />} />
+                      <Route path="employees" element={<EmployeeManagement />} />
+                      <Route path="activity-log" element={<ApplicationActivityLog />} />
                       <Route path="settings" element={<AdminSettings />} />
                       <Route path="customers" element={<CustomersMasterData />} />
                       <Route path="customer-policies" element={<CustomerPolicies />} />

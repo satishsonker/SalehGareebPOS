@@ -4,7 +4,7 @@ import {
   FiMenu, FiX, FiGrid, FiDatabase,
   FiSettings, FiLogOut, FiSun, FiMoon,
   FiUser, FiUsers, FiMail, FiPhone, FiShield,
-  FiShoppingBag, FiMapPin, FiTag, FiChevronDown, FiHome, FiDollarSign, FiBell, FiServer, FiAlertTriangle
+  FiShoppingBag, FiMapPin, FiTag, FiChevronDown, FiHome, FiDollarSign, FiBell, FiServer, FiAlertTriangle, FiActivity
 } from 'react-icons/fi';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,6 +13,7 @@ import './AdminLayout.css';
 
 const menuItems = [
   { path: '/admin',                   icon: FiGrid,         label: 'Dashboard' },
+  { path: '/admin/employees',         icon: FiUsers,        label: 'Employee Management' },
   { path: '/admin/user-creation',     icon: FiUser,         label: 'Create User' },
   { path: '/admin/system-data',       icon: FiDatabase,     label: 'System Data' },
   { path: '/admin/customers',         icon: FiUser,         label: 'Customers' },
@@ -23,6 +24,7 @@ const menuItems = [
   { path: '/admin/work-type-descriptions', icon: FiTag,      label: 'Work Type Descriptions' },
   { path: '/admin/user-shop-access',  icon: FiUsers,        label: 'User Shop Access' },
   { path: '/admin/notifications',     icon: FiBell,         label: 'Notifications' },
+  { path: '/admin/activity-log',      icon: FiActivity,     label: 'Activity Log' },
   { path: '/admin/cache',             icon: FiServer,       label: 'Cache' },
   { path: '/admin/settings',          icon: FiSettings,     label: 'Settings' },
 ];
